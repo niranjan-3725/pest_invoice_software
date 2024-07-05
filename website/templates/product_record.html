@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div class="card">
+    <div class="card-header"><strong> {{ product_record.Name }} </strong>
+    </div>
+    <div class="card-body">
+  
+  
+  
+  <p class="card-text">
+  <strong>Description: </strong>{{ product_record.Description }}</p>
+  
+  <p class="card-text">
+  <strong>HSN Code: </strong>{{ product_record.hsn_code }}
+  </p>
+  
+  <p class="card-text">
+  <strong>Category: </strong>{{ product_record.Category }}</p>
+  
+  <p class="card-text">
+  <strong>Manufacturer: </strong>{{ product_record.Manufacturer }}</p>
+  
+  <!-- <p class="card-text">
+  <strong>Packing Size: </strong>{{ product_record.Packaging_Size }}</p>
+  
+  <p class="card-text">
+  <strong>Unit: </strong>{{ product_record.Unit }}</p> -->
+  
+  <!-- <p class="card-text">
+  <strong>Usage Instructions: </strong>{{ product_record.Usage_Instructions }}</p> -->
+  
+  <!-- <p class="card-text">
+  <strong>ID: </strong>{{ product_record.id }}</p> -->
+      
+      
+    </div>
+  </div>
+
+  <br/><br/>
+<a href="{% url 'product_master' %}" class="btn btn-secondary">Back</a>
+
+<a href="{% url 'product_del' product_record.Name %}" class="btn btn-danger">Delete</a>
+
+<a href="{%url 'product_update' product_record.Name %}" class="btn btn-success">Update Record</a>
+  
+  {%endif%}
+
+{% endblock %}

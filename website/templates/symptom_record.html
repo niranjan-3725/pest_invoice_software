@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div class="card">
+    <div class="card-header"><strong> {{ symptom_rec_var.disease_name }} </strong>
+    </div>
+    <div class="card-body">
+  
+  
+  
+  <p class="card-text">
+  <strong>Disease Type: </strong>{{ symptom_rec_var.disease_type }}</p>
+  
+  <p class="card-text">
+  <strong>Low Severity Formula: </strong>{{ symptom_rec_var.low_sev_formula }}
+  </p>
+  
+  <p class="card-text">
+  <strong>Low Severity Quantity/Acre: </strong> {{ symptom_rec_var.low_sev_quant }} / {{symptom_rec_var.low_sev_unit}} </p>
+  
+  <p class="card-text">
+  <strong>Medium Severity Formula: </strong>{{ symptom_rec_var.med_sev_formula }}</p>
+  
+  <p class="card-text">
+  <strong>Mediumn Severity Quantity/Acre: </strong>{{ symptom_rec_var.med_sev_quant }} / {{symptom_rec_var.med_sev_unit}}</p>
+  
+  <p class="card-text">
+  <strong>High Severity Formula: </strong>{{ symptom_rec_var.high_sev_formula }}</p>
+  
+  <p class="card-text">
+  <strong>Mediumn Severity Quantity/Acre: </strong>{{ symptom_rec_var.high_sev_quant }} / {{symptom_rec_var.high_sev_unit}}</p>
+  
+  <!-- <p class="card-text">
+  <strong>ID: </strong>{{ symptom_rec_var.id }}</p> -->
+      
+      
+    </div>
+  </div>
+
+  <br/><br/>
+<a href="{%url 'symptom_page' %}" class="btn btn-secondary">Back</a>
+
+<a href="{% url 'symptom_del' symptom_rec_var.disease_name%}" class="btn btn-danger">Delete</a>
+
+<a href="{% url 'symptom_update' symptom_rec_var.disease_name %}" class="btn btn-success">Update Record</a>
+  
+  {%endif%}
+
+{% endblock %}

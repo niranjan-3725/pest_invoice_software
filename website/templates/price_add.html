@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<h5>Add Price details over here.</h5> 
+<div class="col-md-6 offset-md-3">
+    <br/>
+    <form method="POST" action="{% url 'price_add' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br/>
+        <button type="submit" class="btn btn-success">Add Price</button>
+        <a href="{% url 'price' %}" class="btn btn-secondary">Back</a>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#id_Product').select2({
+                ajax: {
+                    url: "{% url 'price_add' %}",
+                    dataType: 'json',
+                    delay: 250,  // Add a delay to prevent too many requests
+                    data: function (params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {id: item.Name, text: item.Name};
+                            })
+                        };
+                    }
+                },
+                minimumInputLength: 1,
+                width: '350px'  // Adjust width as needed
+            });
+        });
+    </script>
+
+<script>
+    function calculateSellingPrice() {
+        var costPrice = parseFloat(document.getElementById('id_Cost_Price').value) || 0;
+        var cgst = parseFloat(document.getElementById('id_CGST').value) || 0;
+        var sgst = parseFloat(document.getElementById('id_SGST').value) || 0;
+        var profitPercentage = parseFloat(document.getElementById('id_Profit_percentage').value) || 0;
+
+        var cgstAmount = costPrice * (cgst / 100);
+        var sgstAmount = costPrice * (sgst / 100);
+        var basePrice = costPrice + cgstAmount + sgstAmount;
+        var profitAmount = basePrice * (profitPercentage / 100);
+        var sellingPrice = basePrice + profitAmount;
+
+        document.getElementById('id_Selling_Price').value = sellingPrice.toFixed(2);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputs = document.querySelectorAll('#id_Cost_Price, #id_CGST, #id_SGST, #id_Profit_percentage');
+        inputs.forEach(function(input) {
+            input.addEventListener('input', calculateSellingPrice);
+        });
+    });
+// For calculating profit percentage...
+    function calculateProfitPercentage() {
+            var costPrice = parseFloat(document.getElementById('id_Cost_Price').value) || 0;
+            var cgst = parseFloat(document.getElementById('id_CGST').value) || 0;
+            var sgst = parseFloat(document.getElementById('id_SGST').value) || 0;
+            var sellingPrice = parseFloat(document.getElementById('id_Selling_Price').value) || 0;
+
+            var cgstAmount = costPrice * (cgst / 100);
+            var sgstAmount = costPrice * (sgst / 100);
+            var basePrice = costPrice + cgstAmount + sgstAmount;
+            var profitPercentage = ((sellingPrice - basePrice) / basePrice) * 100;
+
+            document.getElementById('id_Profit_percentage').value = profitPercentage.toFixed(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var priceInputs = document.querySelectorAll('#id_Cost_Price, #id_CGST, #id_SGST, #id_Profit_percentage');
+            priceInputs.forEach(function(input) {
+                input.addEventListener('input', calculateSellingPrice);
+            });
+
+            document.getElementById('id_Selling_Price').addEventListener('input', calculateProfitPercentage);
+        });
+</script>
+
+</div>
+{% endblock %}

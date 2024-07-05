@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div class="card">
+    <div class="card-header"><strong> {{ price_rec_var.Product }} </strong>
+    </div>
+    <div class="card-body">
+  
+  <p class="card-text">
+  <strong>Batch code: </strong>{{ price_rec_var.Batch_code }}</p>
+  
+  <p class="card-text">
+  <strong>Packaging size: </strong>{{ price_rec_var.Packaging_Size }} {{ price_rec_var.Unit }}</p>
+  
+  <!-- <p class="card-text">
+  <strong>Unit: </strong>{{ price_rec_var.Unit }}
+  </p> -->
+  
+  <p class="card-text">
+  <strong>MRP: </strong>{{ price_rec_var.MRP }} Rupees</p>
+  
+  <p class="card-text">
+  <strong>Cost Price: </strong>{{ price_rec_var.Cost_Price }} Rupees</p>
+  
+  <p class="card-text">
+  <strong>CGST: </strong>{{ price_rec_var.CGST }} %</p>
+  
+  <p class="card-text">
+  <strong>SGST: </strong>{{ price_rec_var.SGST }} %</p>
+  
+  <p class="card-text">
+  <strong>Selling Price: </strong>{{ price_rec_var.Selling_Price }} Rupees</p>
+  
+  <!-- <p class="card-text">
+  <strong>ID: </strong>{{ price_rec_var.id }}</p> -->
+      
+      
+    </div>
+  </div>
+
+  <br/><br/>
+<a href="{% url 'price' %}" class="btn btn-secondary">Back</a>
+
+<a href="{%url 'price_del' price_rec_var.Product%}" class="btn btn-danger">Delete</a>
+
+<a href="{% url 'price_update' price_rec_var.Product %}" class="btn btn-success">Update Record</a>
+  
+  {%endif%}
+
+{% endblock %}

@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h5>Add Purchase Invoice here.</h5> 
+
+<form id="invoiceForm" method="POST" action="{% url 'purchase_invoice_add' %}">
+    {% csrf_token %}
+    <input type="hidden" name="action_type" id="action_type" value="add_update">
+    <input type="hidden" name="product_id" id="product_id" value="">
+    <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 75px;">
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Invoice_Id.id_for_label}}"><b>{{invoice_form.Invoice_Id.label}}</b></label>
+            {{invoice_form.Invoice_Id}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Invoice_Date.id_for_label}}"><b>{{invoice_form.Invoice_Date.label}}</b></label>
+            {{invoice_form.Invoice_Date}}
+        </div>
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ invoice_form.Company_Name.id_for_label}}"><b>{{invoice_form.Company_Name.label}}</b></label>
+            {{invoice_form.Company_Name}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Address.id_for_label}}"><b>{{invoice_form.Address.label}}</b></label>
+            {{invoice_form.Address}}
+        </div>
+    </div>
+<br>
+<!-- " background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 250px;" -->
+<div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 250px;">
+    {% csrf_token %}
+    <div class = 'row'>
+     <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ product_form.Product_Name.id_for_label}}"><b>{{product_form.Product_Name.label}}</b></label>
+            {{product_form.Product_Name}}
+        </div> 
+
+    <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Batch_No.id_for_label}}"><b>{{product_form.Batch_No.label}}</b></label>
+                {{product_form.Batch_No}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Manufacture_date.id_for_label}}"><b>{{product_form.Manufacture_date.label}}</b></label>
+                {{product_form.Manufacture_date}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Expiry_date.id_for_label}}"><b>{{product_form.Expiry_date.label}}</b></label>
+                {{product_form.Expiry_date}}
+            </div>
+        </div>
+        <br>
+        <div class = "row">
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Size.id_for_label}}"><b>{{product_form.Size.label}}</b></label>
+                {{product_form.Size}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Unit.id_for_label}}"><b>{{product_form.Unit.label}}</b></label>
+                {{product_form.Unit}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Quantity.id_for_label}}"><b>{{product_form.Quantity.label}}</b></label>
+                {{product_form.Quantity}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.BT_Rate.id_for_label}}"><b>{{product_form.BT_Rate.label}}</b></label>
+                {{product_form.BT_Rate}}
+            </div>
+
+        </div>
+        <br>
+        <div class = 'row'>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.BT_Final_Amount.id_for_label}}"><b>{{product_form.BT_Final_Amount.label}}</b></label>
+                {{product_form.BT_Final_Amount}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.CGST.id_for_label}}"><b>{{product_form.CGST.label}}</b></label>
+                {{product_form.CGST}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.SGST.id_for_label}}"><b>{{product_form.SGST.label}}</b></label>
+                {{product_form.SGST}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.PU_Final_Amount.id_for_label}}"><b>{{product_form.PU_Final_Amount.label}}</b></label>
+                {{product_form.PU_Final_Amount}}
+            </div>
+        </div> 
+        <br>
+        <button type="submit" class="btn btn-success">Add +</button>
+</div>
+    </form>
+    <br><br><br>
+<div class = 'table-responsive;'>
+    <table class="table table-hover table-bordered">
+       <thead class = 'table-dark' style="table-layout: auto; width: 100%;">
+           <th id="product_id">Id</th>
+           <th>Product Name</th>
+           <th>Batch No</th>
+           <th>Manufacture Date</th>
+           <th>Expiry Date</th>
+           <th>Size</th>
+           <th>Quantity</th>
+           <th>Before Tax Rate</th>
+           <th>Before Tax Final Amount</th>
+           <th>CGST</th>
+           <th>SGST</th>
+           <th>After Tax Final Amount</th>
+       </thead>
+       {% for data in Product_cache%}
+       <tr>
+        <td>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
+                {{ data.Id }}
+            </button>
+            <!-- Modal Starts -->
+            <div class="modal fade" id="modal{{ data.Id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel"><b>Update or Delete</b></h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {{ data.Product_Name }}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Ends -->
+        </td>
+        <!-- <td>{{ data.Id }}</td> -->
+        <td>{{ data.Product_Name }}</td>
+        <td>{{ data.Batch_No }}</td>
+        <td>{{ data.Manufacture_date }}</td>
+        <td>{{ data.Expiry_date }}</td>
+        <td>{{ data.Size }} {{ data.Unit }}</td>
+        <!-- <td>{{ data.Unit }}</td> -->
+        <td>{{ data.Quantity}}</td>
+        <td>{{ data.BT_Rate }}</td>
+        <td>{{ data.BT_Final_Amount }}</td>
+        <td>{{ data.CGST }}</td>
+        <td>{{ data.SGST }}</td>
+        <td>{{ data.PU_Final_Amount }}</td>
+        <!-- <td><input type="hidden" name="product_id" value="{{ data.Id }}">
+        <input type="hidden" name="delete_product" value="1">
+        <button class="btn btn-outline-danger" type="submit">Delete</button></td> -->
+       </tr>
+       {%endfor%}
+     </table>
+   </div>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<!-- Ensure Select2 is loaded -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<script>
+    function initializeCompanySelect2(selector) {
+        console.log("Initializing Select2 for selector:", selector);
+        $(selector).select2({
+            ajax: {
+                url: "{% url 'ajax_load_companies' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("AJAX request params:", params);
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: item.Company_name, text: item.Company_name };
+                        })
+                    };
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error in AJAX request:", error);
+                }
+            },
+            placeholder: 'Select a manufacturer',
+            minimumInputLength: 1,
+            width: 'resolve'
+        }).on('select2:select', function (e) {
+            var data = e.params.data;
+            fetchCompanyAddress(data.id);
+        });
+    }
+
+    function fetchCompanyAddress(companyName) {
+        console.log("Fetching address for company:", companyName);
+        fetch(`/get_company_address?company_name=${companyName}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Received data:", data);
+                document.getElementById('id_Address').value = data.address;
+            })
+            .catch(error => {
+                console.error("Error fetching address:", error);
+            });
+    }
+
+    $(document).ready(function () {
+        console.log("Document is ready. Initializing Select2.");
+        initializeCompanySelect2('#id_Company_Name');
+    });
+
+    // Product Name Ajax
+
+    function initializeProductSelect2(selector) {
+        console.log("Initializing Select2 for selector:", selector);
+        $(selector).select2({
+            ajax: {
+                url: "{% url 'get_product_name' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("AJAX request params:", params);
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: item.Name, text: item.Name };
+                        })
+                    };
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error in AJAX request:", error);
+                }
+            },
+            placeholder: 'Select a manufacturer',
+            minimumInputLength: 1,
+            width: 'resolve'
+        })
+    }
+
+    $(document).ready(function () {
+        console.log("Document is ready. Initializing Select2.");
+        initializeProductSelect2('#id_Product_Name');
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        function setDeleteActionAndSubmit(productId) {
+            const actionTypeElement = document.getElementById('action_type');
+            const productIdElement = document.getElementById('product_id');
+            const formElement = document.getElementById('invoiceForm');
+            
+            if (actionTypeElement && productIdElement && formElement) {
+                actionTypeElement.value = 'delete';
+                productIdElement.value = productId;
+                formElement.submit();
+            } else {
+                console.error("One or more elements are missing from the DOM.");
+            }
+        }
+
+        // Ensure setDeleteActionAndSubmit is available globally
+        window.setDeleteActionAndSubmit = setDeleteActionAndSubmit;
+    });
+
+// Auto calculated fields..
+function calculateBTFA(){
+    var Quantity = parseInt(document.getElementById('id_Quantity').value) || 0;
+    var BT_Rate = parseFloat(document.getElementById('id_BT_Rate').value) || 0;
+
+    var BT_Final_Amount = Quantity * BT_Rate;
+    document.getElementById('id_BT_Final_Amount').value = BT_Final_Amount.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    var inputs = document.querySelectorAll('#id_Quantity, #id_BT_Rate');
+    inputs.forEach(function(input) {
+        input.addEventListener('input', calculateBTFA);
+    });
+});
+
+function calculateATFA(){
+    var BT_Final_Amount = parseFloat(document.getElementById('id_BT_Final_Amount').value) || 0;
+    var cgst = parseFloat(document.getElementById('id_CGST').value) || 0;
+    var sgst = parseFloat(document.getElementById('id_SGST').value) || 0;
+
+    var cgst_amt = BT_Final_Amount * (cgst / 100);
+    var sgst_amt = BT_Final_Amount * (sgst / 100);
+    var AT_Final_Amount = BT_Final_Amount + cgst_amt + sgst_amt;
+
+    document.getElementById('id_PU_Final_Amount').value = AT_Final_Amount.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    var inputs = document.querySelectorAll('#id_BT_Final_Amount, #id_CGST, #id_SGST');
+    inputs.forEach(function(input) {
+        input.addEventListener('input', calculateATFA);
+    });
+});
+
+
+$(document).ready(function () {
+        console.log("Document is ready. Initializing Select2.");
+        initializeCompanySelect2('#id_Company_Name');
+
+        // Set the initial value for the Company_Name select2 widget
+        var initialCompanyName = '{{ invoice_form.Company_Name.value }}';
+        if (initialCompanyName) {
+            var newOption = new Option(initialCompanyName, initialCompanyName, true, true);
+            $('#id_Company_Name').append(newOption).trigger('change');
+        }
+    });
+</script>
+
+{% endblock %}

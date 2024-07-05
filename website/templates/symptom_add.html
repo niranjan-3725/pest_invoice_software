@@ -1,0 +1,50 @@
+<!-- symptom_add.html -->
+
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<h5>Add Symptom details over here.</h5> 
+<div class="col-md-6 offset-md-3">
+    <br/>
+    <form method="POST" action="{% url 'symptom_add' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br/>
+        <button type="submit" class="btn btn-success">Add Symptom</button>
+        <a href="{% url 'symptom_page' %}" class="btn btn-secondary">Back</a>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        function initializeSelect2(selector) {
+            $(selector).select2({
+                ajax: {
+                    url: "{% url 'symptom_add' %}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return { id: item.Formula, text: item.Formula };
+                            })
+                        };
+                    }
+                },
+                minimumInputLength: 1,
+            });
+        }
+
+        $(document).ready(function () {
+            initializeSelect2('#id_low_sev_formula');
+            initializeSelect2('#id_med_sev_formula');
+            initializeSelect2('#id_high_sev_formula');
+        });
+
+    </script>
+</div>
+{% endblock %}

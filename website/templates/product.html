@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<a href="{% url 'product_add' %}" class="btn btn-success">Add Products</a>
+<br/>
+<br/>
+<form class="d-flex ms-auto" role="search">
+  <input class="form-control me-2" name="product_q" type="search" placeholder="Search Products Name, Company, Formula..." aria-label="Search">
+  <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+<br/>
+<table class="table table-striped table-hover table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Description</th>
+      <th scope="col">HSN Code</th>
+      <th scope="col">Category</th>
+      <th scope="col">Manufacturer</th>
+      <!-- <th scope="col">Packing Size</th>
+      <th scope="col">Unit</th> -->
+      <th scope="col">Formula</th>
+      <!-- <th scope="col">Usage Instructions</th> -->
+      <!-- <th scope="col">ID</th> -->
+    </tr>
+  </thead>
+<tbody>
+  {% if product %}
+    {%for record in product%}
+  <tr>
+      <td><a href="{% url 'product_record' record.Name %}">{{record.Name}}</a></td>
+      <td >{{record.Description}} </td>
+      <td>{{record.hsn_code}}</td>
+      <td>{{record.Category}}</td>
+      <td>{{record.Manufacturer}}</td>
+      <!-- <td>{{record.Packaging_Size}}</td>
+      <td>{{record.Unit}}</td> -->
+      <td>{{record.Formula}}</td>
+      <!-- <td>{{record.Usage_Instructions}}</td> -->
+      <!-- <td> {{record.id}} </a></td> -->
+    {%endfor%}
+  </tr>
+{%endif%}
+</tbody>
+</table>
+
+{%endif%}
+
+{% endblock %}

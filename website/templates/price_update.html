@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<h5>Update Price details over here.</h5> 
+<div class="col-md-6 offset-md-3">
+    <br/>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br/>
+        <button type="submit" class="btn btn-success">Update Price</button>
+        <a href="{% url 'price' %}" class="btn btn-secondary">Back</a>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            $('#id_Product').select2({
+                ajax: {
+                    url: "{% url 'price_add' %}",
+                    dataType: 'json',
+                    delay: 250,
+                    headers: {'X-CSRFToken': csrftoken},
+                    data: function (params) {
+                        return {
+                            term: params.term  // Search term
+                        };
+                    },
+                    processResults: function (data) {
+                        console.log(data);  // Log the data for debugging
+                        return {
+                            results: $.map(data, function (item) {
+                                return { id: item.Name, text: item.Name };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1,
+                width: '100%'
+            });
+
+            // Preselect the current value
+            var current_product = "{{ form.instance.Product.Name }}";
+            if (current_product) {
+                var newOption = new Option(current_product, current_product, true, true);
+                $('#id_Product').append(newOption).trigger('change');
+            }
+        });
+    </script>
+</div>
+{% endblock %}

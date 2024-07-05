@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h5>Add Product details over here.</h5> 
+<div class="col-md-6 offset-md-3">
+    <br/>
+    <form method="POST" action="{% url 'product_add' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br/>
+        <button type="submit" class="btn btn-success">Add Product</button>
+        <a href="{% url 'product_master' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+<!-- Ensure jQuery is loaded -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<!-- Ensure Select2 is loaded -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<script>
+    function initializeSelect2(selector) {
+        console.log("Initializing Select2 for selector:", selector);
+        $(selector).select2({
+            ajax: {
+                url: "{% url 'ajax_load_companies' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("AJAX request params:", params);
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: item.Company_name, text: item.Company_name };
+                        })
+                    };
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error in AJAX request:", error);
+                }
+            },
+            placeholder: 'Select a manufacturer',
+            minimumInputLength: 1,
+            width: 'resolve'
+        })
+    }
+    $(document).ready(function () {
+        console.log("Document is ready. Initializing Select2.");
+        initializeSelect2('#id_Manufacturer');
+    });
+</script>
+
+{% endblock %}
