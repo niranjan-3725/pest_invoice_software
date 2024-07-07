@@ -7,6 +7,7 @@
     {% csrf_token %}
     <input type="hidden" name="action_type" id="action_type" value="add_update">
     <input type="hidden" name="product_id" id="product_id" value="">
+    <input type="hidden" name="update_action" id="update_action" value="">
     <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 75px;">
         <div class = "col-4 col-md-3">
             <label for = "{{ invoice_form.Invoice_Id.id_for_label}}"><b>{{invoice_form.Invoice_Id.label}}</b></label>
@@ -134,7 +135,25 @@
                             {{ data.Product_Name }}
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button>
+                            <!-- <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button> -->
+                            <button type="button" class="btn btn-outline-primary" onclick="populateFormForUpdate
+                            (
+                                JSON.stringify({
+                                    'Id': '{{ data.Id }}',
+                                    'Product_Name': '{{ data.Product_Name|escapejs }}',
+                                    'Batch_No': '{{ data.Batch_No|escapejs }}',
+                                    'Manufacture_date': '{{ data.Manufacture_date|escapejs }}',
+                                    'Expiry_date': '{{ data.Expiry_date|escapejs }}',
+                                    'Size': '{{ data.Size|escapejs }}',
+                                    'Unit': '{{ data.Unit|escapejs }}',
+                                    'Quantity': '{{ data.Quantity|escapejs }}',
+                                    'BT_Rate': '{{ data.BT_Rate|escapejs }}',
+                                    'BT_Final_Amount': '{{ data.BT_Final_Amount|escapejs }}',
+                                    'CGST': '{{ data.CGST|escapejs }}',
+                                    'SGST': '{{ data.SGST|escapejs }}',
+                                    'PU_Final_Amount': '{{ data.PU_Final_Amount|escapejs }}'
+                                })
+                            )" data-bs-dismiss="modal">Update</button>
                             <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
                         </div>
                     </div>
@@ -286,14 +305,10 @@ function calculateBTFA(){
 
     var BT_Final_Amount = Quantity * BT_Rate;
     document.getElementById('id_BT_Final_Amount').value = BT_Final_Amount.toFixed(2);
-}
 
-document.addEventListener('DOMContentLoaded', function(){
-    var inputs = document.querySelectorAll('#id_Quantity, #id_BT_Rate');
-    inputs.forEach(function(input) {
-        input.addEventListener('input', calculateBTFA);
-    });
-});
+    // Call calculateATFA to update the After Tax Final Amount
+    calculateATFA();
+}
 
 function calculateATFA(){
     var BT_Final_Amount = parseFloat(document.getElementById('id_BT_Final_Amount').value) || 0;
@@ -308,13 +323,25 @@ function calculateATFA(){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-    var inputs = document.querySelectorAll('#id_BT_Final_Amount, #id_CGST, #id_SGST');
-    inputs.forEach(function(input) {
+    var inputsBTFA = document.querySelectorAll('#id_Quantity, #id_BT_Rate');
+    inputsBTFA.forEach(function(input) {
+        input.addEventListener('input', calculateBTFA);
+    });
+
+    var inputsATFA = document.querySelectorAll('#id_BT_Final_Amount, #id_CGST, #id_SGST');
+    inputsATFA.forEach(function(input) {
         input.addEventListener('input', calculateATFA);
     });
+
+    // Add event listeners to BT_Final_Amount for both calculations
+    var btFinalAmountInput = document.getElementById('id_BT_Final_Amount');
+    if (btFinalAmountInput) {
+        btFinalAmountInput.addEventListener('input', calculateATFA);
+    }
 });
 
 
+//Manitains Invoice details till the submit button is clicked...
 $(document).ready(function () {
         console.log("Document is ready. Initializing Select2.");
         initializeCompanySelect2('#id_Company_Name');
@@ -326,6 +353,61 @@ $(document).ready(function () {
             $('#id_Company_Name').append(newOption).trigger('change');
         }
     });
+
+//populate purchase_invoice
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function populateFormForUpdate(productData) {
+    const data = JSON.parse(productData);
+    document.getElementById('update_action').value = 'update';
+    document.getElementById('product_id').value = data.Id;
+
+    // Set the value for the Product_Name select2 field
+    var productNameSelect = $('#id_Product_Name');
+    var newOption = new Option(data.Product_Name, data.Product_Name, true, true);
+    productNameSelect.append(newOption).trigger('change');
+
+    // document.getElementById('update_action').value = 'update';
+    // document.getElementById('product_id').value = data.Id;
+    // document.getElementById('id_Product_Name').value = data.Product_Name;
+    document.getElementById('id_Batch_No').value = data.Batch_No;
+    document.getElementById('id_Manufacture_date').value = formatDate(data.Manufacture_date);
+    document.getElementById('id_Expiry_date').value = formatDate(data.Expiry_date);
+    document.getElementById('id_Size').value = data.Size;
+    document.getElementById('id_Unit').value = data.Unit;
+    document.getElementById('id_Quantity').value = data.Quantity;
+    document.getElementById('id_BT_Rate').value = data.BT_Rate;
+    document.getElementById('id_BT_Final_Amount').value = data.BT_Final_Amount;
+    document.getElementById('id_CGST').value = data.CGST;
+    document.getElementById('id_SGST').value = data.SGST;
+    document.getElementById('id_PU_Final_Amount').value = data.PU_Final_Amount;
+}
+
+
+    // function setDeleteActionAndSubmit(productId) {
+    //     const actionTypeElement = document.getElementById('action_type');
+    //     const productIdElement = document.getElementById('product_id');
+    //     const formElement = document.getElementById('invoiceForm');
+
+    //     if (actionTypeElement && productIdElement && formElement) {
+    //         actionTypeElement.value = 'delete';
+    //         productIdElement.value = productId;
+    //         formElement.submit();
+    //     } else {
+    //         console.error("One or more elements are missing from the DOM.");
+    //     }
+    // }
+
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     window.setDeleteActionAndSubmit = setDeleteActionAndSubmit;
+    // });
 </script>
 
 {% endblock %}

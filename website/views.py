@@ -421,6 +421,7 @@ def purchase_invoice_add(request):
 	if request.user.is_authenticated:
 		if request.method == 'POST':
 			action_type = request.POST.get('action_type', 'add_update')
+			update_action = request.POST.get('update_action', '')
 
 			if action_type == 'add_update':
 				invoice_form = InvoiceForm(request.POST)
@@ -437,55 +438,72 @@ def purchase_invoice_add(request):
 
                     # Update or add the product data in the cache
 					cached_product_details = cache.get("product_data", [])
-					updated = False
-					for prod in cached_product_details:
-						if (prod['Product_Name'] == product_form.cleaned_data['Product_Name'] and
-                            prod['Batch_No'] == product_form.cleaned_data['Batch_No'] and
-                            prod['Size'] == product_form.cleaned_data['Size'] and
-                            prod['Unit'] == product_form.cleaned_data['Unit']):
-							prod.update({
+					if update_action == 'update':
+						product_id = int(request.POST.get('product_id'))
+						for prod in cached_product_details:
+							if prod['Id'] == product_id:
+								prod.update({
+                                    'Product_Name': product_form.cleaned_data['Product_Name'],
+                                    'Batch_No': product_form.cleaned_data['Batch_No'],
+                                    'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                    'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                    'Size': product_form.cleaned_data['Size'],
+                                    'Unit': product_form.cleaned_data['Unit'],
+                                    'Quantity': product_form.cleaned_data['Quantity'],
+                                    'BT_Rate': product_form.cleaned_data['BT_Rate'],
+                                    'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
+                                    'CGST': product_form.cleaned_data['CGST'],
+                                    'SGST': product_form.cleaned_data['SGST'],
+                                    'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
+                                })
+								break
+					else:
+						updated = False
+						for prod in cached_product_details:
+							if (prod['Product_Name'] == product_form.cleaned_data['Product_Name'] and
+                                prod['Batch_No'] == product_form.cleaned_data['Batch_No'] and
+                                prod['Size'] == product_form.cleaned_data['Size'] and
+                                prod['Unit'] == product_form.cleaned_data['Unit']):
+								prod.update({
+                                    'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                    'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                    'Quantity': product_form.cleaned_data['Quantity'],
+                                    'BT_Rate': product_form.cleaned_data['BT_Rate'],
+                                    'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
+                                    'CGST': product_form.cleaned_data['CGST'],
+                                    'SGST': product_form.cleaned_data['SGST'],
+                                    'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
+                                })
+								updated = True
+								break
+
+						if not updated:
+							next_id = len(cached_product_details) + 1
+							new_product_record = {
+                                'Invoice_Id': invoice_id,
+                                'Id': next_id,
+                                'Product_Name': product_form.cleaned_data['Product_Name'],
+                                'Batch_No': product_form.cleaned_data['Batch_No'],
                                 'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
                                 'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                'Size': product_form.cleaned_data['Size'],
+                                'Unit': product_form.cleaned_data['Unit'],
                                 'Quantity': product_form.cleaned_data['Quantity'],
                                 'BT_Rate': product_form.cleaned_data['BT_Rate'],
                                 'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
                                 'CGST': product_form.cleaned_data['CGST'],
                                 'SGST': product_form.cleaned_data['SGST'],
                                 'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
-                            })
-							updated = True
-							break
-
-					if not updated:
-						next_id = len(cached_product_details) + 1
-						new_product_record = {
-                            'Invoice_Id': invoice_id,
-                            'Id': next_id,
-                            'Product_Name': product_form.cleaned_data['Product_Name'],
-                            'Batch_No': product_form.cleaned_data['Batch_No'],
-                            'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
-                            'Expiry_date': product_form.cleaned_data['Expiry_date'],
-                            'Size': product_form.cleaned_data['Size'],
-                            'Unit': product_form.cleaned_data['Unit'],
-                            'Quantity': product_form.cleaned_data['Quantity'],
-                            'BT_Rate': product_form.cleaned_data['BT_Rate'],
-                            'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
-                            'CGST': product_form.cleaned_data['CGST'],
-                            'SGST': product_form.cleaned_data['SGST'],
-                            'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
-                        }
-						cached_product_details.append(new_product_record)
+                            }
+							cached_product_details.append(new_product_record)
 
 					cache.set('product_data', cached_product_details)
-					print(cache.get("product_data", []))
-                    # Initialize the forms again only after successful write
 					invoice_form = InvoiceForm(request.POST)
 					product_form = ProductForm()
 				else:
 					print("Form errors:", invoice_form.errors, product_form.errors)
 
 			elif action_type == 'delete':
-				# print(cache.get("product_data",[]))
 				product_id = request.POST.get('product_id')
 				print(product_id)
 				product_id = int(product_id)
@@ -500,22 +518,19 @@ def purchase_invoice_add(request):
 
 					cache.set('product_data', updated_product_details)
 
-		else:
-			invoice_form = InvoiceForm()
-			product_form = ProductForm()
-		
-		# print(f'Post request -->',request.POST)
 		invoice_form = InvoiceForm(request.POST)
-		# print(f'Invoice form -->',invoice_form)
 		product_form = ProductForm()
-		Product_cache = cache.get('product_data', [])
-		Invoice_cache = cache.get('invoice_data', [])
-		return render(request, 'purchase_invoice_add.html', {
+
+		cached_invoice_data = cache.get('invoice_data', [])
+		cached_product_data = cache.get('product_data', [])
+		context = {
             'invoice_form': invoice_form,
             'product_form': product_form,
-            'Product_cache': Product_cache,
-            'invoice_cache': Invoice_cache,
-        })
+            'Product_cache': cached_product_data,
+			'invoice_cache': cached_invoice_data,
+        }
+
+		return render(request, 'purchase_invoice_add.html', context)
 	else:
 		return redirect('home')
 
