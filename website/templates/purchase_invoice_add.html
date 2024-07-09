@@ -101,9 +101,9 @@
 </div>
     </form>
     <br><br><br>
-<div class = 'table-responsive;'>
-    <table class="table table-hover table-bordered">
-       <thead class = 'table-dark' style="table-layout: auto; width: 100%;">
+    <div class = 'table-responsive'style = "overflow:scroll;  height:200px; margin-top:20px; width: 100%; white-space: nowrap;" >
+    <table class="table table-hover table-bordered" >
+       <thead class = 'table-dark' style = "position: sticky; top: 0px;">
            <th id="product_id">Id</th>
            <th>Product Name</th>
            <th>Batch No</th>
@@ -173,7 +173,7 @@
         <td>{{ data.BT_Final_Amount }}</td>
         <td>{{ data.CGST }}</td>
         <td>{{ data.SGST }}</td>
-        <td>{{ data.PU_Final_Amount }}</td>
+        <td><b>{{ data.PU_Final_Amount }}</b></td>
         <!-- <td><input type="hidden" name="product_id" value="{{ data.Id }}">
         <input type="hidden" name="delete_product" value="1">
         <button class="btn btn-outline-danger" type="submit">Delete</button></td> -->
@@ -181,7 +181,36 @@
        {%endfor%}
      </table>
    </div>
+<br>
+<b>Price Summary:</b>
+<br><br>
+<form id="priceForm" method="POST" action="{% url 'purchase_invoice_add' %}">
+    {% csrf_token %}
+   <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Final_Amount.id_for_label}}"><b>{{price_form.Final_Amount.label}}</b></label>
+        {{price_form.Final_Amount}}
+    </div>
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
+        {{price_form.Additions}}
+    </div>
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Deductions.id_for_label}}"><b>{{price_form.Deductions.label}}</b></label>
+        {{price_form.Deductions}}
+    </div>
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Revised_Amount.id_for_label}}"><b>{{price_form.Revised_Amount.label}}</b></label>
+        {{price_form.Revised_Amount}}
+    </div>
 
+    <div class="form-floating">
+        {{price_form.Comments}}
+        <label for="{{ price_form.Revised_Amount.id_for_label}}">{{price_form.Comments.label}}</label>
+      </div>
+   </div>
+</form>
+<br><br>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <!-- Ensure Select2 is loaded -->
@@ -391,23 +420,82 @@ function populateFormForUpdate(productData) {
 }
 
 
-    // function setDeleteActionAndSubmit(productId) {
-    //     const actionTypeElement = document.getElementById('action_type');
-    //     const productIdElement = document.getElementById('product_id');
-    //     const formElement = document.getElementById('invoiceForm');
+document.addEventListener('DOMContentLoaded', function () {
+    function calculateFinalAmount() {
+        let total = 0;
+        const rows = document.querySelectorAll('table.table-hover tbody tr');
+        rows.forEach(row => {
+            const puFinalAmount = parseFloat(row.querySelector('td:nth-child(12)').textContent) || 0;
+            total += puFinalAmount;
+        });
+        document.getElementById('id_Final_Amount').textContent = total.toFixed(2);
+    }
 
-    //     if (actionTypeElement && productIdElement && formElement) {
-    //         actionTypeElement.value = 'delete';
-    //         productIdElement.value = productId;
-    //         formElement.submit();
-    //     } else {
-    //         console.error("One or more elements are missing from the DOM.");
-    //     }
-    // }
+    // Call calculateFinalAmount on page load
 
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     window.setDeleteActionAndSubmit = setDeleteActionAndSubmit;
-    // });
+    function calculateFinalAmount() {
+    let total = 0;
+    const rows = document.querySelectorAll('table.table-hover tbody tr');
+    rows.forEach(row => {
+        const puFinalAmount = parseFloat(row.querySelector('td:nth-child(12)').textContent) || 0;
+        total += puFinalAmount;
+    });
+    document.getElementById('id_Final_Amount').value = total.toFixed(2); // Ensure this element is an input
+    calculateRevisedAmount();
+}
+calculateFinalAmount();
+
+// Recalculate final amount whenever the form is submitted or table data changes
+document.getElementById('invoiceForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the form from submitting immediately
+    calculateFinalAmount();
+    this.submit(); // Continue with form submission
+});
+
+// Ensure to call calculateFinalAmount after adding/deleting a product
+function setDeleteActionAndSubmit(productId) {
+    const actionTypeElement = document.getElementById('action_type');
+    const productIdElement = document.getElementById('product_id');
+    const formElement = document.getElementById('invoiceForm');
+
+    if (actionTypeElement && productIdElement && formElement) {
+        actionTypeElement.value = 'delete';
+        productIdElement.value = productId;
+        formElement.submit();
+    } else {
+        console.error("One or more elements are missing from the DOM.");
+    }
+}
+
+window.setDeleteActionAndSubmit = function (productId) {
+    setDeleteActionAndSubmit(productId);
+    calculateFinalAmount(); // Recalculate after deletion
+};
+});
+
+//Calculate Revised Amount
+function calculateRevisedAmount(){
+    var FinalAmount = parseInt(document.getElementById('id_Final_Amount').value) || 0;
+    var AmountAdd = parseFloat(document.getElementById('id_Additions').value) || 0;
+    var AmountDeducted = parseFloat(document.getElementById('id_Deductions').value) || 0;
+
+    var RevisedAmount = FinalAmount + AmountAdd - AmountDeducted;
+    document.getElementById('id_Revised_Amount').value = RevisedAmount.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    var inputsRevisedAmount = document.querySelectorAll('#id_Additions, #id_Deductions');
+    inputsRevisedAmount.forEach(function(input) {
+        input.addEventListener('input', calculateRevisedAmount);
+    });
+
+    // Add event listeners to BT_Final_Amount for both calculations
+    var FinalAmountInput = document.getElementById('id_Final_Amount');
+    if (FinalAmountInput) {
+        FinalAmountInput.addEventListener('input', calculateRevisedAmount);
+    }
+});
+
 </script>
 
 {% endblock %}

@@ -183,6 +183,7 @@ class PI_Invoice_info(models.Model):
 
 
 class PI_Product_info(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
     Invoice_Id = models.ForeignKey(PI_Invoice_info,on_delete=models.CASCADE,verbose_name='Invoice_id')
     Id = models.IntegerField()
     Product_Name = models.CharField(max_length=255)
@@ -202,5 +203,19 @@ class PI_Product_info(models.Model):
 
     class Meta:
         db_table = 'PI_Product_info'
+    def __str__(self):
+        return str(self.Invoice_Id)
+
+class PI_Purchase_Price(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    Invoice_Id = models.ForeignKey(PI_Invoice_info,on_delete=models.CASCADE,verbose_name='Invoice_id')
+    Final_Amount = models.DecimalField(max_digits=10,decimal_places=3)
+    Additions = models.DecimalField(max_digits=10,decimal_places=3)
+    Deductions = models.DecimalField(max_digits=10,decimal_places=3)
+    Revised_Amount = models.DecimalField(max_digits=10,decimal_places=3)
+    Comments = models.TextField()
+
+    class Meta:
+        db_table = 'PI_Purchase_Price'
     def __str__(self):
         return str(self.Invoice_Id)

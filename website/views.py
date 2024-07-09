@@ -4,7 +4,7 @@ from django.shortcuts import render , redirect,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.http import JsonResponse
-from .forms import SignUpForm, AddRecordForm, AddProductForm,AddPriceForm,AddPriceForm,AddSymptomForm,AddCompanyForm,ProductForm,InvoiceForm
+from .forms import SignUpForm, AddRecordForm, AddProductForm,AddPriceForm,AddPriceForm,AddSymptomForm,AddCompanyForm,PI_ProductForm,PI_InvoiceForm,PI_PriceForm
 # ,AddPruchaseInvoiceForm
 from django.core.cache import cache
 import json
@@ -420,12 +420,14 @@ def get_product_name(request):
 def purchase_invoice_add(request):
 	if request.user.is_authenticated:
 		if request.method == 'POST':
+			ttl = 3600
 			action_type = request.POST.get('action_type', 'add_update')
 			update_action = request.POST.get('update_action', '')
 
 			if action_type == 'add_update':
-				invoice_form = InvoiceForm(request.POST)
-				product_form = ProductForm(request.POST)
+				invoice_form = PI_InvoiceForm(request.POST)
+				product_form = PI_ProductForm(request.POST)
+				price_form = PI_PriceForm(request.POST)
 
 				if invoice_form.is_valid() and product_form.is_valid():
 					invoice_id = invoice_form.cleaned_data['Invoice_Id']
@@ -434,7 +436,7 @@ def purchase_invoice_add(request):
 					cached_invoice_details = cache.get("invoice_data", [])
 					updated_invoice_details = [inv for inv in cached_invoice_details if inv['Invoice_Id'] != invoice_id]
 					updated_invoice_details.append(invoice_form.cleaned_data)
-					cache.set('invoice_data', updated_invoice_details)
+					cache.set('invoice_data', updated_invoice_details,ttl)
 
                     # Update or add the product data in the cache
 					cached_product_details = cache.get("product_data", [])
@@ -497,13 +499,15 @@ def purchase_invoice_add(request):
                             }
 							cached_product_details.append(new_product_record)
 
-					cache.set('product_data', cached_product_details)
-					invoice_form = InvoiceForm(request.POST)
-					product_form = ProductForm()
+					cache.set('product_data', cached_product_details,ttl)
+					invoice_form = PI_InvoiceForm(request.POST)
+					product_form = PI_ProductForm()
+					price_form = PI_PriceForm(request.POST)
 				else:
-					print("Form errors:", invoice_form.errors, product_form.errors)
+					print("Form errors:", invoice_form.errors, product_form.errors,price_form.errors)
 
 			elif action_type == 'delete':
+				print(action_type)
 				product_id = request.POST.get('product_id')
 				print(product_id)
 				product_id = int(product_id)
@@ -516,16 +520,18 @@ def purchase_invoice_add(request):
 						if prod['Id'] > product_id:
 							prod['Id'] -= 1
 
-					cache.set('product_data', updated_product_details)
+					cache.set('product_data', updated_product_details,ttl)
 
-		invoice_form = InvoiceForm(request.POST)
-		product_form = ProductForm()
+		invoice_form = PI_InvoiceForm(request.POST)
+		product_form = PI_ProductForm()
+		price_form = PI_PriceForm()
 
 		cached_invoice_data = cache.get('invoice_data', [])
 		cached_product_data = cache.get('product_data', [])
 		context = {
             'invoice_form': invoice_form,
             'product_form': product_form,
+			'price_form': price_form,
             'Product_cache': cached_product_data,
 			'invoice_cache': cached_invoice_data,
         }

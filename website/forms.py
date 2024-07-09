@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from django_select2.forms import ModelSelect2Widget
 from django import forms
-from .models import Record,Product,Price,symptom,Company,PI_Invoice_info,PI_Product_info
+from .models import Record,Product,Price,symptom,Company,PI_Invoice_info,PI_Product_info,PI_Purchase_Price
 
 class SignUpForm(UserCreationForm):
 	email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
@@ -256,7 +256,7 @@ class AddSymptomForm(forms.ModelForm):
 # 			self.fields['Company_Name'].queryset = Company.objects.all()
 # 			self.fields['Product_Name'].queryset = Product.objects.filter(Name=self.fields['Company_Name']).values()
 
-class InvoiceForm(forms.ModelForm):
+class PI_InvoiceForm(forms.ModelForm):
 	class Meta:
 		model = PI_Invoice_info
 		fields = ['Invoice_Id', 'Invoice_Date', 'Company_Name', 'Address']
@@ -276,7 +276,7 @@ class InvoiceForm(forms.ModelForm):
 			super().__init__(*args,**kwargs)
 			self.fields['Company_Name'].queryset = Company.objects.all()
 
-class ProductForm(forms.ModelForm):
+class PI_ProductForm(forms.ModelForm):
 	class Meta:
 		Unit_choices = [
         ('Kg','Kg'),
@@ -322,3 +322,30 @@ class ProductForm(forms.ModelForm):
 		def __init__(self,*args,**kwargs):
 			super().__init__(*args,**kwargs)
 			self.fields['Product_Name'].queryset = Product.objects.all()
+
+class PI_PriceForm(forms.ModelForm):
+	class Meta:
+		model = PI_Purchase_Price
+		fields = [
+			'Final_Amount',
+			'Additions',
+			'Deductions',
+			'Revised_Amount',
+			'Comments'
+		]
+		widgets = {
+			'Final_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Additions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Deductions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Revised_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Comments': forms.Textarea(attrs={'class':'form-control','placeholder':"Leave a comment here" ,'style':"height: 100px"})
+		}
+		labels = {
+			'Final_Amount': "Final Amount" ,
+			'Additions' : "Additions",
+			'Deductions' :"Deductions",
+			'Revised_Amount': 'Revised Amount',
+			'Comments': " Comments"
+		}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
