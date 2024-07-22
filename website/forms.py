@@ -327,6 +327,7 @@ class PI_PriceForm(forms.ModelForm):
 	class Meta:
 		model = PI_Purchase_Price
 		fields = [
+			'Invoice_Id',
 			'Final_Amount',
 			'Additions',
 			'Deductions',
@@ -334,6 +335,7 @@ class PI_PriceForm(forms.ModelForm):
 			'Comments'
 		]
 		widgets = {
+			'Invoice_Id': forms.TextInput(attrs={'class': 'form-control'}),
 			'Final_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
 			'Additions': forms.NumberInput(attrs={'class': 'form-control'}),
 			'Deductions': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -341,6 +343,7 @@ class PI_PriceForm(forms.ModelForm):
 			'Comments': forms.Textarea(attrs={'class':'form-control','placeholder':"Leave a comment here" ,'style':"height: 100px"})
 		}
 		labels = {
+			'Invoice_Id': 'Invoice Id',
 			'Final_Amount': "Final Amount" ,
 			'Additions' : "Additions",
 			'Deductions' :"Deductions",

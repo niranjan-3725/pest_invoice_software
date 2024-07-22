@@ -3,10 +3,37 @@
 
 {% if user.is_authenticated %}
 
-<!-- <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
-<label><b>Invoice Id: </b> &nbsp;</label><b style = "color:rgb(131, 212, 9); font-size: 25px;">{{invoice_form.Invoice_Id.value}}</b>
-</div> -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 40
+    }
+
+</style>
 <form id="invoiceForm" method="POST" action="{% url 'purchase_invoice_update' invoice_form.Invoice_Id.value %}">
+
+<div class="position-relative">
+    <div class="position-absolute top-0 end-0">
+<a href="{}" class="btn btn-secondary" style = "
+display: flex; 
+justify-content: center;
+align-items: center;
+height: 3vw;
+border-radius: 0.315vw;
+font-weight: bold;
+text-align: center;
+transition: 0.7s ease-in-out transform, 0.7s ease-in-out;
+"><span class="material-symbols-outlined">
+    refresh
+    </span> Refresh</a>
+    </div>
+</div>
+<br><br><br>
+
     {% csrf_token %}
     <input type="hidden" name="action_type" id="action_type" value="add_update">
     <input type="hidden" name="product_id" id="product_id" value="">
@@ -102,7 +129,7 @@
         <br>
         <button type="submit" class="btn btn-success">Add +</button>
 </div>
-</form>
+<!-- </form> -->
 <br><br><br>
 <div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
 <table class="table table-hover table-bordered" >
@@ -189,7 +216,7 @@
 <br>
     <b>Price Summary:</b>
     <br><br>
-    <form id="priceForm" method="POST" action="{}">
+    <!-- <form id="priceForm" method="POST" action="{% url 'purchase_invoice_update' price_form.Invoice_Id.value %}"> -->
         {% csrf_token %}
        <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
         <div class = "col-4 col-md-3">
@@ -216,7 +243,7 @@
        </div>
     
        <br><br>
-       <button type="submit" class="btn btn-success">Update</button>
+       <!-- <button type="submit" class="btn btn-success">Update</button> -->
     </form>
     <br><br>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -498,30 +525,12 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 });
 
-function populateFormForUpdate(productData) {
-    const product = JSON.parse(productData);
-    document.getElementById('id_Product_Name').value = product.Product_Name;
-    document.getElementById('id_Batch_No').value = product.Batch_No;
-    document.getElementById('id_Manufacture_date').value = product.Manufacture_date;
-    document.getElementById('id_Expiry_date').value = product.Expiry_date;
-    document.getElementById('id_Size').value = product.Size;
-    document.getElementById('id_Unit').value = product.Unit;
-    document.getElementById('id_Quantity').value = product.Quantity;
-    document.getElementById('id_BT_Rate').value = product.BT_Rate;
-    document.getElementById('id_BT_Final_Amount').value = product.BT_Final_Amount;
-    document.getElementById('id_CGST').value = product.CGST;
-    document.getElementById('id_SGST').value = product.SGST;
-    document.getElementById('id_PU_Final_Amount').value = product.PU_Final_Amount;
-    document.getElementById('action_type').value = 'add_update';
-    document.getElementById('update_action').value = 'update';
-    document.getElementById('product_id').value = product.Id;
-}
 
-function setDeleteActionAndSubmit(productId) {
-    document.getElementById('action_type').value = 'delete';
-    document.getElementById('product_id').value = productId;
-    document.getElementById('invoiceForm').submit();
-}
+// function setDeleteActionAndSubmit(productId) {
+//     document.getElementById('action_type').value = 'delete';
+//     document.getElementById('product_id').value = productId;
+//     document.getElementById('invoiceForm').submit();
+// }
 </script>
 
 {%endif%}

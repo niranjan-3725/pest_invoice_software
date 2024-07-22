@@ -44,6 +44,7 @@ urlpatterns = [
     path('purchase_invoice_record/<slug:pk>',views.purchase_invoice_record,name = 'purchase_invoice_record'),
     path('purchase_invoice_del/<slug:pk>',views.purchase_invoice_del,name='purchase_invoice_del'),
     path('purchase_invoice_update/<slug:pk>',views.purchase_invoice_update,name= 'purchase_invoice_update'),
+    # path('purchase_invoice_update_refresh/<slug:pk>',views.purchase_invoice_update_refresh,name='purchase_invoice_update_refresh'),
     # path('delete-product/', views.delete_product, name='delete_product'),
     # path('get_cached_products/<str:invoice_id>/', views.get_cached_products, name='get_cached_products'),
     # path('edit_product/<str:invoice_id>/<int:product_index>/', views.edit_product, name='edit_product'),
