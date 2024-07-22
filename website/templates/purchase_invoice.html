@@ -20,15 +20,15 @@
     </tr>
   </thead>
 <tbody>
-  {% if purchase_invoice_record %}
-    {%for record in purchase_invoice_record%}
+  {% if records %}
+    {%for record in records%}
   <tr>
-      <td><a href="{}">{{record.Invoice_Id}}</a></td>
+      <td><a href="{% url 'purchase_invoice_record' record.Invoice_Id %}">{{record.Invoice_Id}}</a></td>
       <td >{{record.Invoice_Date}} </td>
       <td>{{record.Company_Name}}</td>
-    {%endfor%}
+      {%endfor%}
   </tr>
-{%endif%}
+  {%endif%}
 </tbody>
 </table>
 

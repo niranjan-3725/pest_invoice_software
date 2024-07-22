@@ -199,7 +199,6 @@ class PI_Product_info(models.Model):
     SGST = models.DecimalField(max_digits=10,decimal_places=3)
     PU_Final_Amount = models.DecimalField(max_digits=10,decimal_places=3)
     Combo_Pk_Id = models.CharField(max_length=255,primary_key=True) #Invoice_Id_Product_Name_Batch_No_Size+Unit
-    Combo_Id = models.CharField(max_length=255)  #Invoice_Id_Product_Name_Batch_No_Size+Unit
 
     class Meta:
         db_table = 'PI_Product_info'

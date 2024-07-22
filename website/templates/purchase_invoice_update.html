@@ -1,17 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h5>Add Purchase Invoice here.</h5> 
+{% if user.is_authenticated %}
 
-<form id="invoiceForm" method="POST" action="{% url 'purchase_invoice_add' %}">
+<!-- <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
+<label><b>Invoice Id: </b> &nbsp;</label><b style = "color:rgb(131, 212, 9); font-size: 25px;">{{invoice_form.Invoice_Id.value}}</b>
+</div> -->
+<form id="invoiceForm" method="POST" action="{% url 'purchase_invoice_update' invoice_form.Invoice_Id.value %}">
     {% csrf_token %}
     <input type="hidden" name="action_type" id="action_type" value="add_update">
     <input type="hidden" name="product_id" id="product_id" value="">
     <input type="hidden" name="update_action" id="update_action" value="">
     <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 75px;">
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.Invoice_Id.id_for_label}}"><b>{{invoice_form.Invoice_Id.label}}</b></label>
-            {{invoice_form.Invoice_Id}}
+            <label for = "{{ invoice_form.Invoice_Id.id_for_label}}"><b>{{invoice_form.Invoice_Id.label}}:</b></label>
+            <input type="text" name="Invoice_Id" class="form-control" placeholder="Enter Invoice Id" maxlength="255" readonly value="{{ invoice_form.Invoice_Id.value }}" id="id_Invoice_Id">
+            <!-- {{invoice_form.Invoice_Id}} -->
         </div>
         <div class = "col-4 col-md-3">
             <label for = "{{ invoice_form.Invoice_Date.id_for_label}}"><b>{{invoice_form.Invoice_Date.label}}</b></label>
@@ -27,7 +31,6 @@
         </div>
     </div>
 <br>
-<!-- " background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 250px;" -->
 <div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 250px;">
     {% csrf_token %}
     <div class = 'row'>
@@ -99,129 +102,134 @@
         <br>
         <button type="submit" class="btn btn-success">Add +</button>
 </div>
-    </form>
-    <br><br><br>
-    <div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
-    <table class="table table-hover table-bordered" >
-       <thead class = 'table-dark' style = "position: sticky; top: 0px;">
-           <th id="product_id">Id</th>
-           <th>Product Name</th>
-           <th>Batch No</th>
-           <th>Manufacture Date</th>
-           <th>Expiry Date</th>
-           <th>Size</th>
-           <th>Quantity</th>
-           <th>Before Tax Rate</th>
-           <th>Before Tax Final Amount</th>
-           <th>CGST</th>
-           <th>SGST</th>
-           <th>After Tax Final Amount</th>
-       </thead>
-       {% for data in Product_cache%}
-       <tr>
-        <td>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
-                {{ data.Id }}
-            </button>
-            <!-- Modal Starts -->
-            <div class="modal fade" id="modal{{ data.Id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel"><b>Update or Delete</b></h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            {{ data.Product_Name }}
-                        </div>
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button> -->
-                            <button type="button" class="btn btn-outline-primary" onclick="populateFormForUpdate
-                            (
-                                JSON.stringify({
-                                    'Id': '{{ data.Id }}',
-                                    'Product_Name': '{{ data.Product_Name|escapejs }}',
-                                    'Batch_No': '{{ data.Batch_No|escapejs }}',
-                                    'Manufacture_date': '{{ data.Manufacture_date|escapejs }}',
-                                    'Expiry_date': '{{ data.Expiry_date|escapejs }}',
-                                    'Size': '{{ data.Size|escapejs }}',
-                                    'Unit': '{{ data.Unit|escapejs }}',
-                                    'Quantity': '{{ data.Quantity|escapejs }}',
-                                    'BT_Rate': '{{ data.BT_Rate|escapejs }}',
-                                    'BT_Final_Amount': '{{ data.BT_Final_Amount|escapejs }}',
-                                    'CGST': '{{ data.CGST|escapejs }}',
-                                    'SGST': '{{ data.SGST|escapejs }}',
-                                    'PU_Final_Amount': '{{ data.PU_Final_Amount|escapejs }}'
-                                })
-                            )" data-bs-dismiss="modal">Update</button>
-                            <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
-                        </div>
+</form>
+<br><br><br>
+<div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
+<table class="table table-hover table-bordered" >
+   <thead class = 'table-dark' style = "position: sticky; top: 0px;">
+       <th id="product_id">Id</th>
+       <th>Product Name</th>
+       <th>Batch No</th>
+       <th>Manufacture Date</th>
+       <th>Expiry Date</th>
+       <th>Size</th>
+       <th>Quantity</th>
+       <th>Before Tax Rate</th>
+       <th>Before Tax Final Amount</th>
+       <th>CGST</th>
+       <th>SGST</th>
+       <th>After Tax Final Amount</th>
+   </thead>
+   {% for data in product_record%}
+   <tr>
+    <td>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
+            {{ data.Id }}
+        </button>
+        <!-- Modal Starts -->
+        <div class="modal fade" id="modal{{ data.Id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel"><b>Update or Delete</b></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ data.Product_Name }}
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button> -->
+                        <button type="button" class="btn btn-outline-primary" onclick="populateFormForUpdate
+                        (
+                            JSON.stringify({
+                                'Id': '{{ data.Id }}',
+                                'Product_Name': '{{ data.Product_Name|escapejs }}',
+                                'Batch_No': '{{ data.Batch_No|escapejs }}',
+                                'Manufacture_date': '{{ data.Manufacture_date|escapejs }}',
+                                'Expiry_date': '{{ data.Expiry_date|escapejs }}',
+                                'Size': '{{ data.Size|escapejs }}',
+                                'Unit': '{{ data.Unit|escapejs }}',
+                                'Quantity': '{{ data.Quantity|escapejs }}',
+                                'BT_Rate': '{{ data.BT_Rate|escapejs }}',
+                                'BT_Final_Amount': '{{ data.BT_Final_Amount|escapejs }}',
+                                'CGST': '{{ data.CGST|escapejs }}',
+                                'SGST': '{{ data.SGST|escapejs }}',
+                                'PU_Final_Amount': '{{ data.PU_Final_Amount|escapejs }}'
+                            })
+                        )" data-bs-dismiss="modal">Update</button>
+                        <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
                     </div>
                 </div>
             </div>
-            <!-- Modal Ends -->
-        </td>
-        <!-- <td>{{ data.Id }}</td> -->
-        <td>{{ data.Product_Name }}</td>
-        <td>{{ data.Batch_No }}</td>
-        <td>{{ data.Manufacture_date }}</td>
-        <td>{{ data.Expiry_date }}</td>
-        <td>{{ data.Size }} {{ data.Unit }}</td>
-        <!-- <td>{{ data.Unit }}</td> -->
-        <td>{{ data.Quantity}}</td>
-        <td>{{ data.BT_Rate }}</td>
-        <td>{{ data.BT_Final_Amount }}</td>
-        <td>{{ data.CGST }}</td>
-        <td>{{ data.SGST }}</td>
-        <td><b>{{ data.PU_Final_Amount }}</b></td>
-        <!-- <td><input type="hidden" name="product_id" value="{{ data.Id }}">
-        <input type="hidden" name="delete_product" value="1">
-        <button class="btn btn-outline-danger" type="submit">Delete</button></td> -->
-       </tr>
-       {%endfor%}
-     </table>
-   </div>
+        </div>
+        <!-- Modal Ends -->
+    </td>
+    <!-- <td>{{ data.Id }}</td> -->
+    <td>{{ data.Product_Name }}</td>
+    <td>{{ data.Batch_No }}</td>
+    <td>{{ data.Manufacture_date }}</td>
+    <td>{{ data.Expiry_date }}</td>
+    <td>{{ data.Size }} {{ data.Unit }}</td>
+    <!-- <td>{{ data.Unit }}</td> -->
+    <td>{{ data.Quantity}}</td>
+    <td>{{ data.BT_Rate }}</td>
+    <td>{{ data.BT_Final_Amount }}</td>
+    <td>{{ data.CGST }}</td>
+    <td>{{ data.SGST }}</td>
+    <td><b>{{ data.PU_Final_Amount }}</b></td>
+    <!-- <td><input type="hidden" name="product_id" value="{{ data.Id }}">
+    <input type="hidden" name="delete_product" value="1">
+    <button class="btn btn-outline-danger" type="submit">Delete</button></td> -->
+   </tr>
+   {%endfor%}
+ </table>
+</div>
 <br>
-<b>Price Summary:</b>
-<br><br>
-<form id="priceForm" method="POST" action="{% url 'purchase_invoice_on_db' %}">
-    {% csrf_token %}
-   <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Final_Amount.id_for_label}}"><b>{{price_form.Final_Amount.label}}</b></label>
-        {{price_form.Final_Amount}}
-    </div>
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
-        {{price_form.Additions}}
-    </div>
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Deductions.id_for_label}}"><b>{{price_form.Deductions.label}}</b></label>
-        {{price_form.Deductions}}
-    </div>
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Revised_Amount.id_for_label}}"><b>{{price_form.Revised_Amount.label}}</b></label>
-        {{price_form.Revised_Amount}}
-    </div>
 
-    <div class="form-floating">
-        {{price_form.Comments}}
-        <label for="{{ price_form.Revised_Amount.id_for_label}}">{{price_form.Comments.label}}</label>
-      </div>
-   </div>
-
-   <br><br>
-   <button type="submit" class="btn btn-success">Submit</button>
-</form>
-<br><br>
-
+<br>
+    <b>Price Summary:</b>
+    <br><br>
+    <form id="priceForm" method="POST" action="{}">
+        {% csrf_token %}
+       <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Final_Amount.id_for_label}}"><b>{{price_form.Final_Amount.label}}</b></label>
+            {{price_form.Final_Amount}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
+            {{price_form.Additions}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Deductions.id_for_label}}"><b>{{price_form.Deductions.label}}</b></label>
+            {{price_form.Deductions}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Revised_Amount.id_for_label}}"><b>{{price_form.Revised_Amount.label}}</b></label>
+            {{price_form.Revised_Amount}}
+        </div>
+    
+        <div class="form-floating">
+            {{price_form.Comments}}
+            <label for="{{ price_form.Revised_Amount.id_for_label}}">{{price_form.Comments.label}}</label>
+          </div>
+       </div>
+    
+       <br><br>
+       <button type="submit" class="btn btn-success">Update</button>
+    </form>
+    <br><br>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <!-- Ensure Select2 is loaded -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 <script>
-    function initializeCompanySelect2(selector) {
+    //disables invoice id field//
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     document.querySelector('[name="{{ invoice_form.Invoice_Id.name }}"]').disabled = true;
+    // });
+    //***********************//
+    function initializeCompanySelect2(selector,initialValue) {
         console.log("Initializing Select2 for selector:", selector);
         $(selector).select2({
             ajax: {
@@ -253,6 +261,11 @@
             var data = e.params.data;
             fetchCompanyAddress(data.id);
         });
+
+        if (initialValue) {
+            var newOption = new Option(initialValue.text, initialValue.id, true, true);
+            $(selector).append(newOption).trigger('change');
+        }
     }
 
     function fetchCompanyAddress(companyName) {
@@ -267,10 +280,13 @@
                 console.error("Error fetching address:", error);
             });
     }
-
     $(document).ready(function () {
         console.log("Document is ready. Initializing Select2.");
-        initializeCompanySelect2('#id_Company_Name');
+        var initialManufacturer = {
+            id: "{{ company_name }}",
+            text: "{{ company_name }}"
+        };
+        initializeCompanySelect2('#id_Company_Name',initialManufacturer);
     });
 
     // Product Name Ajax
@@ -311,7 +327,18 @@
         initializeProductSelect2('#id_Product_Name');
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
+    // Auto calculated fields..
+function calculateBTFA(){
+    var Quantity = parseInt(document.getElementById('id_Quantity').value) || 0;
+    var BT_Rate = parseFloat(document.getElementById('id_BT_Rate').value) || 0;
+
+    var BT_Final_Amount = Quantity * BT_Rate;
+    document.getElementById('id_BT_Final_Amount').value = BT_Final_Amount.toFixed(2);
+
+    // Call calculateATFA to update the After Tax Final Amount
+    calculateATFA();
+}
+document.addEventListener("DOMContentLoaded", function() {
         function setDeleteActionAndSubmit(productId) {
             const actionTypeElement = document.getElementById('action_type');
             const productIdElement = document.getElementById('product_id');
@@ -329,18 +356,6 @@
         // Ensure setDeleteActionAndSubmit is available globally
         window.setDeleteActionAndSubmit = setDeleteActionAndSubmit;
     });
-
-// Auto calculated fields..
-function calculateBTFA(){
-    var Quantity = parseInt(document.getElementById('id_Quantity').value) || 0;
-    var BT_Rate = parseFloat(document.getElementById('id_BT_Rate').value) || 0;
-
-    var BT_Final_Amount = Quantity * BT_Rate;
-    document.getElementById('id_BT_Final_Amount').value = BT_Final_Amount.toFixed(2);
-
-    // Call calculateATFA to update the After Tax Final Amount
-    calculateATFA();
-}
 
 function calculateATFA(){
     var BT_Final_Amount = parseFloat(document.getElementById('id_BT_Final_Amount').value) || 0;
@@ -372,21 +387,6 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 });
 
-
-//Manitains Invoice details till the submit button is clicked...
-$(document).ready(function () {
-        console.log("Document is ready. Initializing Select2.");
-        initializeCompanySelect2('#id_Company_Name');
-
-        // Set the initial value for the Company_Name select2 widget
-        var initialCompanyName = '{{ invoice_form.Company_Name.value }}';
-        if (initialCompanyName) {
-            var newOption = new Option(initialCompanyName, initialCompanyName, true, true);
-            $('#id_Company_Name').append(newOption).trigger('change');
-        }
-    });
-
-//populate purchase_invoice
 function formatDate(dateStr) {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -421,7 +421,6 @@ function populateFormForUpdate(productData) {
     document.getElementById('id_SGST').value = data.SGST;
     document.getElementById('id_PU_Final_Amount').value = data.PU_Final_Amount;
 }
-
 
 document.addEventListener('DOMContentLoaded', function () {
     function calculateFinalAmount() {
@@ -499,6 +498,32 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 });
 
+function populateFormForUpdate(productData) {
+    const product = JSON.parse(productData);
+    document.getElementById('id_Product_Name').value = product.Product_Name;
+    document.getElementById('id_Batch_No').value = product.Batch_No;
+    document.getElementById('id_Manufacture_date').value = product.Manufacture_date;
+    document.getElementById('id_Expiry_date').value = product.Expiry_date;
+    document.getElementById('id_Size').value = product.Size;
+    document.getElementById('id_Unit').value = product.Unit;
+    document.getElementById('id_Quantity').value = product.Quantity;
+    document.getElementById('id_BT_Rate').value = product.BT_Rate;
+    document.getElementById('id_BT_Final_Amount').value = product.BT_Final_Amount;
+    document.getElementById('id_CGST').value = product.CGST;
+    document.getElementById('id_SGST').value = product.SGST;
+    document.getElementById('id_PU_Final_Amount').value = product.PU_Final_Amount;
+    document.getElementById('action_type').value = 'add_update';
+    document.getElementById('update_action').value = 'update';
+    document.getElementById('product_id').value = product.Id;
+}
+
+function setDeleteActionAndSubmit(productId) {
+    document.getElementById('action_type').value = 'delete';
+    document.getElementById('product_id').value = productId;
+    document.getElementById('invoiceForm').submit();
+}
 </script>
 
-{% endblock %}
+{%endif%}
+
+{%endblock%}

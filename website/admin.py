@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Record,Product,Price,symptom,Company
+from .models import *
+#PI_Invoice_info,PI_Product_info
 
 # Register your models here.
 
@@ -12,3 +13,11 @@ admin.site.register(Price)
 admin.site.register(symptom)
 
 admin.site.register(Company)
+
+admin.site.register(inventory)
+
+admin.site.register(PI_Invoice_info)
+
+admin.site.register(PI_Product_info)
+
+admin.site.register(PI_Purchase_Price)

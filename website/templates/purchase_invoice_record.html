@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+<div class="card">
+    <div class="card-header">
+        <div >
+            <strong>Invoice No:</strong> {{ Invoice_records.Invoice_Id }}
+            <strong style="padding-left: 900px;"> Invoice Date: </strong> {{Invoice_records.Invoice_Date}}
+        </div>
+        <!-- <div ">{{Invoice_records.Invoice_Date}}</div> -->
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+            <strong>Company Name: </strong>{{ Invoice_records.Company_Name }}
+        </p>
+        
+        <p class="card-text">
+            <strong>Address: </strong>{{ Invoice_records.Address }}
+        </p>
+    </div>
+
+</div>
+<br>
+<div class="card">
+    <div class="card-header">
+        <b>Product Details</b>
+    </div>
+<div class="card-body">
+<div class = 'table-responsive'style = "overflow:scroll;  height:250px; margin-top:20px; width: 100%; white-space: nowrap;" >
+    <table class="table table-hover table-bordered" >
+       <thead class = 'table-dark' style = "position: sticky; top: 0px;">
+           <th id="product_id">Id</th>
+           <th>Product Name</th>
+           <th>Batch No</th>
+           <th>Manufacture Date</th>
+           <th>Expiry Date</th>
+           <th>Size</th>
+           <th>Quantity</th>
+           <th>Before Tax Rate</th>
+           <th>Before Tax Final Amount</th>
+           <th>CGST</th>
+           <th>SGST</th>
+           <th>After Tax Final Amount</th>
+       </thead>
+    {%for data in Product_records%}
+       <tr>
+        <td>{{ data.Id }}</td>
+        <td>{{ data.Product_Name }}</td>
+        <td>{{ data.Batch_No }}</td>
+        <td>{{ data.Manufacture_date }}</td>
+        <td>{{ data.Expiry_date }}</td>
+        <td>{{ data.Size }} {{ data.Unit }}</td>
+        <!-- <td>{{ data.Unit }}</td> -->
+        <td>{{ data.Quantity}}</td>
+        <td>{{ data.BT_Rate }} ₹</td>
+        <td>{{ data.BT_Final_Amount }} ₹</td>
+        <td>{{ data.CGST }} ₹</td>
+        <td>{{ data.SGST }} ₹</td>
+        <td><b>{{ data.PU_Final_Amount }} ₹</b></td>
+       </tr>
+       {%endfor%}
+     </table>
+   </div>
+</div>
+</div>
+   <br>
+<div class = 'table-responsive'style = " height:100%; width: 100%; white-space: nowrap;" >
+    <table class="table table-hover table-bordered">
+        <thead class = 'table-dark'>
+            <th>Final Amount</th>
+            <th>Additions</th>
+            <th>Deductions</th>
+            <th>Revised Amount</th>
+        </thead>
+        <tr>
+            <td>{{Price_records.Final_Amount}} ₹</td>
+            <td>{{Price_records.Additions}} ₹</td>
+            <td>{{Price_records.Deductions}} ₹</td>
+            <td>{{Price_records.Revised_Amount}} ₹</td>
+        </tr>
+    </table>
+</div>
+<div class="card">
+    <div class="card-header">
+        Comments
+    </div>
+<div class="card-body">
+        <blockquote class="blockquote mb-0">
+          <p>{{Price_records.Comments}}</p>
+        </blockquote>
+</div>
+    </div>
+<br>
+<a href="{% url 'purchase_invoice' %}" class="btn btn-secondary">Back</a>
+
+<a href="{%url 'purchase_invoice_del' Invoice_records.Invoice_Id %}" class="btn btn-danger">Delete</a>
+
+<a href="{%url 'purchase_invoice_update' Invoice_records.Invoice_Id%}" class="btn btn-success">Update Record</a>
+<br><br>
+{%endif%}
+
+{% endblock %}

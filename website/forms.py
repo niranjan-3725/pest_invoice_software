@@ -349,3 +349,5 @@ class PI_PriceForm(forms.ModelForm):
 		}
 		def __init__(self,*args,**kwargs):
 			super().__init__(*args,**kwargs)
+			self.fields['Additions'].required = False
+			self.fields['Deductions'].required = False
