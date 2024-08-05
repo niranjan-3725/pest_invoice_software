@@ -323,19 +323,68 @@ class PI_ProductForm(forms.ModelForm):
 			super().__init__(*args,**kwargs)
 			self.fields['Product_Name'].queryset = Product.objects.all()
 
+class PI_ProductUpdateForm(forms.ModelForm):
+	class Meta:
+		Unit_choices = [
+        ('Kg','Kg'),
+		('Grms','Grms'),
+		('Lts','Lts'),
+		('Mls','Mls')
+		]
+		model = PI_Product_info
+		fields = [
+            'Product_Name', 'Batch_No', 'Manufacture_date', 'Expiry_date',
+            'Size', 'Unit', 'Quantity', 'BT_Rate', 'BT_Final_Amount',
+            'CGST', 'SGST', 'PU_Final_Amount'
+        ]
+		widgets = {
+			'Product_Name': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Product Name'}),
+			'Batch_No': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Batch No'}),
+			'Manufacture_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
+			'Expiry_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
+			'Size': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Size',}),
+			'Unit': forms.Select(attrs={'class': 'form-control','placeholder': 'Select unit',},choices=Unit_choices),
+			'Quantity': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Enter Quantity',}),
+			'BT_Rate': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Before Tax Rate/Unit',}),
+			'BT_Final_Amount': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Before Tax Final Amount',}),
+			'CGST': forms.TextInput(attrs={'class': 'form-control','placeholder': 'CGST',}),
+			'SGST': forms.TextInput(attrs={'class': 'form-control','placeholder': 'SGST',}),
+			'PU_Final_Amount': forms.TextInput(attrs={'class': 'form-control','placeholder': 'After Tax Final Amount',}),
+        }
+
+		labels = {
+			'Product_Name': 'Product Name',
+			'Batch_No': 'Batch No',
+			'Manufacture_date' : 'Manufacture Date',
+			'Expiry_date': 'Expiry Date',
+			'Size' : 'Size',
+			'Unit' : 'Unit',
+			'Quantity' : 'Quantity',
+			'BT_Rate' : 'Before Tax Rate/Unit',
+			'BT_Final_Amount' : 'Before Tax Final Amount',
+			'CGST' : 'CGST',
+			'SGST' : 'SGST',
+			'PU_Final_Amount': 'After Tax Final Amount'
+		}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Product_Name'].queryset = Product.objects.all()
+			for field in self.fields.values():
+				field.required = False
+				
 class PI_PriceForm(forms.ModelForm):
 	class Meta:
 		model = PI_Purchase_Price
 		fields = [
-			'Invoice_Id',
+			# 'Invoice_Id',
 			'Final_Amount',
 			'Additions',
 			'Deductions',
 			'Revised_Amount',
-			'Comments'
+			'Comments',
 		]
 		widgets = {
-			'Invoice_Id': forms.TextInput(attrs={'class': 'form-control'}),
+			# 'Invoice_Id': forms.TextInput(attrs={'class': 'form-control'}),
 			'Final_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
 			'Additions': forms.NumberInput(attrs={'class': 'form-control'}),
 			'Deductions': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -343,7 +392,7 @@ class PI_PriceForm(forms.ModelForm):
 			'Comments': forms.Textarea(attrs={'class':'form-control','placeholder':"Leave a comment here" ,'style':"height: 100px"})
 		}
 		labels = {
-			'Invoice_Id': 'Invoice Id',
+			# 'Invoice_Id': 'Invoice Id',
 			'Final_Amount': "Final Amount" ,
 			'Additions' : "Additions",
 			'Deductions' :"Deductions",
@@ -354,3 +403,4 @@ class PI_PriceForm(forms.ModelForm):
 			super().__init__(*args,**kwargs)
 			self.fields['Additions'].required = False
 			self.fields['Deductions'].required = False
+			self.fields['Comments'].required = False

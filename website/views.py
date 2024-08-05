@@ -4,7 +4,7 @@ from django.shortcuts import render , redirect,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.http import JsonResponse
-from .forms import SignUpForm, AddRecordForm, AddProductForm,AddPriceForm,AddPriceForm,AddSymptomForm,AddCompanyForm,PI_ProductForm,PI_InvoiceForm,PI_PriceForm
+from .forms import SignUpForm, AddRecordForm, AddProductForm,AddPriceForm,AddPriceForm,AddSymptomForm,AddCompanyForm,PI_ProductForm,PI_InvoiceForm,PI_PriceForm,PI_ProductUpdateForm
 # ,AddPruchaseInvoiceForm
 from django.core.cache import cache
 import json
@@ -549,7 +549,7 @@ def submit_purchase_invoice_cache(request):
 		cached_invoice_data = cache.get('invoice_data', [])
 		cached_product_data = cache.get('product_data', [])
 		price_form = PI_PriceForm(request.POST)
-
+		print(price_form)
 		invoice_id_var = ''
 		for data in cached_invoice_data:
 			PI_Invoice_info.objects.create(
@@ -584,6 +584,7 @@ def submit_purchase_invoice_cache(request):
 			else:
 				messages.success(request, "There's an issue with save statement!")
 		if price_form.is_valid():
+			print('Price form is valid')
 			PI_Purchase_Price.objects.create(
 				Invoice_Id = invoice_object,
 				Final_Amount = price_form.cleaned_data['Final_Amount'],
@@ -592,6 +593,8 @@ def submit_purchase_invoice_cache(request):
 				Revised_Amount = price_form.cleaned_data['Revised_Amount'],
 				Comments = price_form.cleaned_data['Comments']
 			)
+		else:
+			print(f'price form errors :-->', price_form.errors)
         # Clear the cache
 		cache.delete('invoice_data')
 		cache.delete('product_data')
@@ -629,76 +632,44 @@ def purchase_invoice_del(request,pk):
 		messages.success(request, 'You must be logged in!')
 		return redirect('home')
 
-#By Chat-GPT
+def purchase_invoice_update_refresh(request, pk):
+	cache_list = ['invoice_update', 'product_update', 'price_update']
+	for i in cache_list:
+		cache.delete(i)
+	return redirect('purchase_invoice_update', pk=pk)
 
 def purchase_invoice_update(request, pk):
-	if request.user.is_authenticated:
-		ttl = 3600
-        # Fetch current invoice, product, and price details
-		print('This Step has run--> 1')
-		current_invoice_record = cache.get('invoice_update', PI_Invoice_info.objects.filter(Invoice_Id=pk).values()[0])
-		current_product_records = list(cache.get('product_update', PI_Product_info.objects.filter(Invoice_Id=pk).values()))
-		current_price_record = cache.get('price_update', PI_Purchase_Price.objects.filter(Invoice_Id=pk).values()[0])
-		
+    if request.user.is_authenticated:
+        ttl = 3600
+        current_invoice_record = cache.get('invoice_update', PI_Invoice_info.objects.filter(Invoice_Id=pk).values()[0])
+        current_product_records = list(cache.get('product_update', PI_Product_info.objects.filter(Invoice_Id=pk).values()))
+        current_price_record = cache.get('price_update', PI_Purchase_Price.objects.filter(Invoice_Id=pk).values()[0])
 
-        # Initialize forms
-		PI_Invoice_form = PI_InvoiceForm(request.POST or None, instance =PI_Invoice_info.objects.get(Invoice_Id=pk))
-		PI_product_form = PI_ProductForm(request.POST or None)
-		PI_price_form = PI_PriceForm(request.POST or None, instance=PI_Purchase_Price.objects.get(Invoice_Id=pk))
+        PI_Invoice_form = PI_InvoiceForm(request.POST or None, instance=PI_Invoice_info.objects.get(Invoice_Id=pk))
+        PI_product_form = PI_ProductUpdateForm(request.POST or None)
+        PI_price_form = PI_PriceForm(request.POST or None, instance=PI_Purchase_Price.objects.get(Invoice_Id=pk))
 
-		#Set cache's:
-		cache.set('invoice_update',current_invoice_record)
-		cache.set('product_update',current_product_records)
-		cache.set('price_update',current_price_record)
+        cache.set('invoice_update', current_invoice_record)
+        cache.set('product_update', current_product_records)
+        cache.set('price_update', current_price_record)
 
-		# if request.method == 'POST':
-		# 	print('Post request has been activated')
-		# 	PI_Invoice_form = PI_InvoiceForm(request.POST, instance=PI_Invoice_info.objects.get(Invoice_Id=pk))
-		# 	PI_product_form = PI_ProductForm()
-		# 	PI_price_form = PI_PriceForm(request.POST, instance=PI_Purchase_Price.objects.get(Invoice_Id=pk))
-		# else:
-		# 	print('Get request has been activated')
-		# 	PI_Invoice_form = PI_InvoiceForm(instance=PI_Invoice_info.objects.get(Invoice_Id=pk))
-		# 	PI_product_form = PI_ProductForm()
-		# 	PI_price_form = PI_PriceForm(instance=PI_Purchase_Price.objects.get(Invoice_Id=pk))
+        company_name = PI_Invoice_form.initial['Company_Name']
 
-		company_name = PI_Invoice_form.initial['Company_Name']
-
-		if request.method == 'POST':
-			action_type = request.POST.get('action_type', 'add_update')
-			if action_type == 'add_update':
-				if PI_Invoice_form.is_valid():
-                    # Update the invoice details in the cache
-					print('Invoice Form is valid')
-					cache.set('invoice_update', PI_Invoice_form.cleaned_data, ttl)
-				else:
-					print(f'Invoice form errors:', PI_Invoice_form.errors)
-				if PI_product_form.is_valid():
-					print('True the product form is valid')
-					new_product_data = PI_product_form.cleaned_data
-					cached_product_records = cache.get('product_update',[])
-					product_id = request.POST.get('product_id', None)
-					# update_action = request.POST.get('update_action', 'add')
-					print(f'cached_product_records---> ',cached_product_records)
-					print(f'new_product_data --->',new_product_data)
-
-					# if update_action == 'update':
-					# 	print('Yes its an update statement -->')
-                        # # Update existing product
-						# for prod in current_product_records:
-						# 	if prod['Id'] == int(product_id):
-						# 		prod.update(new_product_data)
-						# 		break
-					# else:
-                        # Add new product or update if it matches existing records
-					updated = False
-					for prod in cached_product_records:
-						if (prod['Product_Name'] == new_product_data['Product_Name'] and
+        if request.method == 'POST':
+            action_type = request.POST.get('action_type', 'add_update')
+            if action_type == 'add_update':
+                if PI_Invoice_form.is_valid():
+                    cache.set('invoice_update', PI_Invoice_form.cleaned_data, ttl)
+                if PI_product_form.is_valid():
+                    new_product_data = PI_product_form.cleaned_data
+                    cached_product_records = cache.get('product_update', [])
+                    updated = False
+                    for prod in cached_product_records:
+                        if (prod['Product_Name'] == new_product_data['Product_Name'] and
                             prod['Batch_No'] == new_product_data['Batch_No'] and
                             prod['Size'] == new_product_data['Size'] and
                             prod['Unit'] == new_product_data['Unit']):
-							print('true --> Same product')
-							prod.update({
+                            prod.update({
                                 'Manufacture_date': PI_product_form.cleaned_data['Manufacture_date'],
                                 'Expiry_date': PI_product_form.cleaned_data['Expiry_date'],
                                 'Quantity': PI_product_form.cleaned_data['Quantity'],
@@ -708,16 +679,15 @@ def purchase_invoice_update(request, pk):
                                 'SGST': PI_product_form.cleaned_data['SGST'],
                                 'PU_Final_Amount': PI_product_form.cleaned_data['PU_Final_Amount']
                             })
-							updated = True
-							break
-					if not updated:
-							print('Its a New product')
-							next_id = len(cached_product_records) + 1
-							new_product_record = {
+                            updated = True
+                            break
+                    if not updated:
+                        next_id = len(cached_product_records) + 1
+                        new_product_record = {
                             'Invoice_Id': pk,
                             'Id': next_id,
                             'Product_Name': PI_product_form.cleaned_data['Product_Name'],
-                            'Batch_No': PI_product_form.cleaned_data['Batch_No'],
+                            'Batch_No': PI_product_form.cleaned_data['Batch_No'].upper(),
                             'Manufacture_date': PI_product_form.cleaned_data['Manufacture_date'],
                             'Expiry_date': PI_product_form.cleaned_data['Expiry_date'],
                             'Size': PI_product_form.cleaned_data['Size'],
@@ -728,48 +698,92 @@ def purchase_invoice_update(request, pk):
                             'CGST': PI_product_form.cleaned_data['CGST'],
                             'SGST': PI_product_form.cleaned_data['SGST'],
                             'PU_Final_Amount': PI_product_form.cleaned_data['PU_Final_Amount']
-                       	 	}
-							cached_product_records.append(new_product_record)
-					cache.set('product_update', cached_product_records, ttl)
-					PI_product_form = PI_ProductForm()
-					PI_Invoice_form = PI_InvoiceForm(request.POST or None)
-					PI_price_form = PI_PriceForm(request.POST or None)
-				else:
-					print(f'Product form errors:', PI_InvoiceForm.errors)
+                        }
+                        cached_product_records.append(new_product_record)
+                    cache.set('product_update', cached_product_records, ttl)
+                    current_product_records = cache.get('product_update')
+                    PI_product_form = PI_ProductUpdateForm()
+                    PI_Invoice_form = PI_InvoiceForm(request.POST or None)
+                    PI_price_form = PI_PriceForm(request.POST or None)
+                if PI_price_form.is_valid():
+                    cache.set('price_update', PI_price_form.cleaned_data, ttl)
 
-				if PI_price_form.is_valid():
-                    # Update the price details in the cache
-					cache.set('price_update', PI_price_form.cleaned_data, ttl)
-				else:
-					print(f'form errors',PI_product_form.errors,PI_Invoice_form.errors,PI_price_form.errors)
-			elif action_type == 'delete':
-				product_id = int(request.POST.get('product_id'))
-				if product_id:
-                    # Delete the product and adjust the IDs
-					updated_product_records = [prod for prod in current_product_records if prod['Id'] != product_id]
-                    
-                    # Adjust the IDs of remaining products
-					for prod in updated_product_records:
-						if prod['Id'] > product_id:
-							prod['Id'] -= 1
-                    
-					cache.set('product_update', updated_product_records, ttl)
+            elif action_type == 'delete':
+                product_id = int(request.POST.get('product_id'))
+                if product_id:
+                    updated_product_records = [prod for prod in current_product_records if prod['Id'] != product_id]
+                    for prod in updated_product_records:
+                        if prod['Id'] > product_id:
+                            prod['Id'] -= 1
+                    cache.set('product_update', updated_product_records, ttl)
 
-		context = {
+            elif action_type == 'update_db':
+                print('Update statement activated')
+                cached_invoice = cache.get('invoice_update')
+                cached_price = cache.get('price_update')
+                cached_product = cache.get('product_update')
+                print('cached_invoice:', cached_invoice)
+                print('cached_price:', cached_price)
+                print('cached_product:', cached_product)
+                if cached_invoice:
+                    PI_Invoice_Del = PI_Invoice_info.objects.get(Invoice_Id=pk)
+                    PI_Invoice_Del.delete()
+                    PI_Invoice_form = PI_InvoiceForm(request.POST or None) 
+                    cache.set('invoice_update', PI_Invoice_form.cleaned_data if PI_Invoice_form.is_valid() else None, ttl)
+                    cached_invoice = cache.get('invoice_update')
+                    PI_Invoice_info.objects.create(
+                        Invoice_Id=cached_invoice['Invoice_Id'],
+                        Invoice_Date=cached_invoice['Invoice_Date'],
+                        Company_Name=cached_invoice['Company_Name'],
+                        Address=cached_invoice['Address']
+                    )
+                    invoice_object = PI_Invoice_info.objects.get(Invoice_Id=cached_invoice['Invoice_Id'])
+                    if cached_product:
+                        for data in cached_product:
+                            PI_Product_info.objects.create(
+                                Invoice_Id=invoice_object,
+                                Id=data['Id'],
+                                Product_Name=data['Product_Name'],
+                                Batch_No=data['Batch_No'].upper(),
+                                Manufacture_date=data['Manufacture_date'],
+                                Expiry_date=data['Expiry_date'],
+                                Size=data['Size'],
+                                Unit=data['Unit'],
+                                Quantity=data['Quantity'],
+                                BT_Rate=data['BT_Rate'],
+                                BT_Final_Amount=data['BT_Final_Amount'],
+                                CGST=data['CGST'],
+                                SGST=data['SGST'],
+                                PU_Final_Amount=data['PU_Final_Amount'],
+                                Combo_Pk_Id=str(invoice_object) + '_' + str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' + str(data['Size']) + '_' + str(data['Unit'])
+                            )
+                    if cached_price:
+                        PI_price_form = PI_PriceForm(request.POST, None)
+                        cache.set('price_update', PI_price_form.cleaned_data if PI_price_form.is_valid() else None, ttl)
+                        cached_price = cache.get('price_update')
+                        PI_Purchase_Price.objects.create(
+                            Invoice_Id=invoice_object,
+                            Final_Amount=cached_price['Final_Amount'],
+                            Additions=cached_price['Additions'],
+                            Deductions=cached_price['Deductions'],
+                            Revised_Amount=cached_price['Revised_Amount'],
+                            Comments=cached_price['Comments']
+                        )
+                    cache.delete('invoice_update')
+                    cache.delete('product_update')
+                    cache.delete('price_update')
+                return redirect('purchase_invoice')
+
+        context = {
             'invoice_form': PI_Invoice_form,
             'product_form': PI_product_form,
             'price_form': PI_price_form,
             'product_record': current_product_records,
             'invoice_record': current_invoice_record,
-			'company_name':company_name,
+            'company_name': company_name,
         }
-		return render(request, 'purchase_invoice_update.html', context)
-	else:
-		messages.success(request, 'You must be logged in!')
-		return redirect('home')
-	
-def purchase_invoice_update_refresh():
-	cache_list = ['invoice_update','product_update','price_update']
-	for i in cache_list:
-		cache.delete(i)
-	return redirect('purchase_invoice_update')
+        return render(request, 'purchase_invoice_update.html', context)
+    else:
+        messages.success(request, 'You must be logged in!')
+        return redirect('home')
+

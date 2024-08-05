@@ -16,22 +16,23 @@
 </style>
 <form id="invoiceForm" method="POST" action="{% url 'purchase_invoice_update' invoice_form.Invoice_Id.value %}">
 
-<div class="position-relative">
-    <div class="position-absolute top-0 end-0">
-<a href="{}" class="btn btn-secondary" style = "
-display: flex; 
-justify-content: center;
-align-items: center;
-height: 3vw;
-border-radius: 0.315vw;
-font-weight: bold;
-text-align: center;
-transition: 0.7s ease-in-out transform, 0.7s ease-in-out;
-"><span class="material-symbols-outlined">
-    refresh
-    </span> Refresh</a>
+    <div class="position-relative">
+        <div class="position-absolute top-0 end-0">
+            <button type="button" class="btn btn-secondary" onclick="refreshPage('{{ invoice_form.Invoice_Id.value }}')" style="
+                display: flex; 
+                justify-content: center;
+                align-items: center;
+                height: 3vw;
+                border-radius: 0.315vw;
+                font-weight: bold;
+                text-align: center;
+                transition: 0.7s ease-in-out transform, 0.7s ease-in-out;">
+                <span class="material-symbols-outlined">
+                    refresh
+                </span> Refresh
+            </button>
+        </div>
     </div>
-</div>
 <br><br><br>
 
     {% csrf_token %}
@@ -127,9 +128,8 @@ transition: 0.7s ease-in-out transform, 0.7s ease-in-out;
             </div>
         </div> 
         <br>
-        <button type="submit" class="btn btn-success">Add +</button>
-</div>
-<!-- </form> -->
+        <button type="submit" class="btn btn-success" onclick="document.getElementById('action_type').value='add_update'">Add +</button>
+    </div>
 <br><br><br>
 <div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
 <table class="table table-hover table-bordered" >
@@ -216,7 +216,6 @@ transition: 0.7s ease-in-out transform, 0.7s ease-in-out;
 <br>
     <b>Price Summary:</b>
     <br><br>
-    <!-- <form id="priceForm" method="POST" action="{% url 'purchase_invoice_update' price_form.Invoice_Id.value %}"> -->
         {% csrf_token %}
        <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
         <div class = "col-4 col-md-3">
@@ -243,9 +242,10 @@ transition: 0.7s ease-in-out transform, 0.7s ease-in-out;
        </div>
     
        <br><br>
-       <!-- <button type="submit" class="btn btn-success">Update</button> -->
+       <button type="submit" class="btn btn-success" id="updateButton">Update</button>
     </form>
-    <br><br>
+    <br>
+    <br>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <!-- Ensure Select2 is loaded -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -525,12 +525,49 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 });
 
+//---This where you need to change--
+$(document).ready(function() {
+    // Detect changes in invoice values
+    $('.invoice-input').on('change', function() {
+        var invoiceData = {
+            invoiceId: $('#invoiceId').val(),
+            fieldName: $(this).attr('name'),
+            newValue: $(this).val()
+        };
 
-// function setDeleteActionAndSubmit(productId) {
-//     document.getElementById('action_type').value = 'delete';
-//     document.getElementById('product_id').value = productId;
-//     document.getElementById('invoiceForm').submit();
-// }
+        // Send AJAX request to the server
+        $.ajax({
+            url: '/update-invoice',
+            type: 'POST',
+            data: JSON.stringify(invoiceData),
+            contentType: 'application/json',
+            success: function(response) {
+                console.log('Invoice updated and cache re-created:', response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating invoice:', error);
+            }
+        });
+    });
+});
+
+
+//
+
+
+function refreshPage(invoiceId) {
+        const refreshUrl = `/purchase_invoice_update_refresh/${invoiceId}`;
+        window.location.href = refreshUrl;
+    }
+function submitDataOnDb(invoiceId) {
+        const submitDatahUrl = `/purchase_invoice_update_on_db/${invoiceId}`;
+        window.location.href = submitDatahUrl;
+    }
+
+//
+document.getElementById('updateButton').addEventListener('click', function(event) {
+    document.getElementById('action_type').value = 'update_db';
+});
 </script>
 
 {%endif%}
