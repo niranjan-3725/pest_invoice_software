@@ -20,17 +20,68 @@
                 Master
               </button>
               <ul class="dropdown-menu">
+                
                 <li><a class="dropdown-item" href="{% url 'home' %}"><b>Customer</b></a></li>
                 <li><a class="dropdown-item" href="{%url 'company'%}"><b>Company</b></a></li>
                 <li><a class="dropdown-item" href="{%url 'product_master' %}"><b>Product</b></a></li>
                 <li><a class="dropdown-item" href="{% url 'price' %}"><b>Price</b></a></li>
                 <li><a class="dropdown-item" href="{% url 'symptom_page'%}"><b>Symptom</b></a></li>
               </ul>
-              <ul>
-                <li class="nav-item">
-                  <a class="nav-link ms-auto" href="{% url 'purchase_invoice' %}">Invoice</a>
-                  </li>
-              </ul>
+              <!-- Modal Starts -->
+               <!-- Button trigger modal -->
+<ul>
+<a type="button" class="nav-link ms-auto" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+  Invoice
+</a>
+
+<!-- Modal -->
+<style>
+  .material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+  }
+  </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Invoice Options 
+          <span class="material-symbols-outlined">inventory</span>
+        </h1>
+      </div>
+    <div class="position-relative">
+      <div class="modal-body">
+        <a class="btn btn-success" style="width: 180px;" href="{% url 'purchase_invoice' %}">Purchase Invoice</a>
+      </div>
+      <div class="modal-body">
+        <a class="btn btn-success" style="width: 180px;" href="{% url 'return_invoice' %}">Return Invoice</a>
+      </div>
+      <div class = "modal-body position-absolute top-50 start-50 translate-middle">
+        <a class="btn btn-success " style="width: 180px;" href="{}">Inventory</a>
+      </div>
+      
+      <div class = "modal-body position-absolute top-0 end-0">
+        <a class="btn btn-success" style="width: 180px;" href="{}">Sale Invoice</a>
+      </div>
+
+      <div class = "modal-body position-absolute bottom-0 end-0">
+       <a class="btn btn-success" style="width: 180px;" href="{}">Sale Return Invoice</a>
+      </div>
+    </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+    </div>
+  </div>
+</div>
+</ul>
+               <!-- Modal Ends -->
+             
               <ul>
               <li class="nav-item">
                 <a class="nav-link ms-auto" href="{%url 'logout'%}">Logout</a>

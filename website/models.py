@@ -168,6 +168,10 @@ class inventory(models.Model):
     Manufacture_date = models.DateField()
     Expiry_date = models.DateField()
     Combo_Id = models.CharField(max_length=255,primary_key=True) #Product_Name_Batch_No_Size+Unit
+    class Meta:
+        db_table = 'Inventory'
+    def __str__(self):
+        return str(self.Combo_Id)
 
 
 class PI_Invoice_info(models.Model):
@@ -199,6 +203,7 @@ class PI_Product_info(models.Model):
     SGST = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
     PU_Final_Amount = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
     Combo_Pk_Id = models.CharField(max_length=255,primary_key=True) #Invoice_Id_Product_Name_Batch_No_Size+Unit
+    Combo_Id = models.CharField(max_length=255) #Product_Name_Batch_No_Size+Unit
 
     class Meta:
         db_table = 'PI_Product_info'
@@ -218,3 +223,54 @@ class PI_Purchase_Price(models.Model):
         db_table = 'PI_Purchase_Price'
     def __str__(self):
         return str(self.Invoice_Id)
+
+class RI_Invoice_Info(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    Return_Id = models.IntegerField(primary_key=True)
+    Return_Date = models.DateField(blank=False,null=False)
+    To_Company_Name = models.CharField(max_length=255)
+    To_Address = models.TextField()
+    From_Company_Name = models.CharField(max_length=255)
+    From_Address = models.TextField()
+    class Meta:
+        db_table = 'RI_Invoice_Info'
+    def __str__(self):
+        return str(self.Return_Id)
+    
+class RI_Product_Info(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    Return_Id = models.ForeignKey(RI_Invoice_Info,on_delete=models.CASCADE,verbose_name='Return_Id')
+    Id = models.IntegerField()
+    Product_Name = models.CharField(max_length=255,blank=True, null=True)
+    Batch_No = models.CharField(max_length=50,blank=True, null=True)
+    Manufacture_date = models.DateField(blank=True, null=True)
+    Expiry_date = models.DateField(blank=True, null=True)
+    Size = models.IntegerField(blank=True, null=True)
+    Unit = models.CharField(max_length=25,blank=True, null=True)
+    Quantity = models.IntegerField(blank=True, null=True)
+    BT_Rate = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    BT_Final_Amount = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    CGST = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    SGST = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    PU_Final_Amount = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Combo_Pk_Id = models.CharField(max_length=255,primary_key=True) #Invoice_Id_Product_Name_Batch_No_Size+Unit
+    Combo_Id = models.CharField(max_length=255) #Product_Name_Batch_No_Size+Unit
+    class Meta:
+        db_table = 'RI_Product_info'
+    def __str__(self):
+        return str(self.Return_Id)
+
+
+
+class RI_Price_Info(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    Return_Id = models.ForeignKey(RI_Invoice_Info,on_delete=models.CASCADE,verbose_name='Return_Id')
+    Final_Amount = models.DecimalField(max_digits=10,decimal_places=3)
+    Additions = models.DecimalField(max_digits=10,decimal_places=3)
+    Deductions = models.DecimalField(max_digits=10,decimal_places=3)
+    Revised_Amount = models.DecimalField(max_digits=10,decimal_places=3)
+    Comments = models.TextField()
+    class Meta:
+        db_table = 'RI_Price_Info'
+    def __str__(self):
+        return str(self.Return_Id)

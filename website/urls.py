@@ -35,7 +35,7 @@ urlpatterns = [
     path('symptom_record/<str:pk>', views.symptom_record,name='symptom_record'),
     path('symptom_del/<str:pk>', views.symptom_del,name='symptom_del'),
     path('symptom_update/<str:pk>', views.symptom_update,name='symptom_update'),
-    #Invoice URLS
+    #Purchase Invoice URLS
     path('purchase_invoice/',views.purchase_invoice_home,name = 'purchase_invoice'),
     path('purchase_invoice_add/', views.purchase_invoice_add, name='purchase_invoice_add'),
     path('get_company_address/', views.get_company_address, name='get_company_address'),
@@ -45,8 +45,7 @@ urlpatterns = [
     path('purchase_invoice_del/<slug:pk>',views.purchase_invoice_del,name='purchase_invoice_del'),
     path('purchase_invoice_update/<slug:pk>',views.purchase_invoice_update,name= 'purchase_invoice_update'),
     path('purchase_invoice_update_refresh/<slug:pk>', views.purchase_invoice_update_refresh, name='purchase_invoice_update_refresh'),
-    # path('purchase_invoice_update_on_db/<slug:pk>',views.purchase_invoice_update_on_db,name = 'purchase_invoice_update_on_db'),
-    # path('delete-product/', views.delete_product, name='delete_product'),
-    # path('get_cached_products/<str:invoice_id>/', views.get_cached_products, name='get_cached_products'),
-    # path('edit_product/<str:invoice_id>/<int:product_index>/', views.edit_product, name='edit_product'),
+
+    #Return Invoice Urls
+    path('return_invoice/',views.return_invoice_home,name = 'return_invoice'),
 ]

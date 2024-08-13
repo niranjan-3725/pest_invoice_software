@@ -17,7 +17,9 @@ admin.site.register(Company)
 admin.site.register(inventory)
 
 admin.site.register(PI_Invoice_info)
-
 admin.site.register(PI_Product_info)
-
 admin.site.register(PI_Purchase_Price)
+
+admin.site.register(RI_Invoice_Info)
+admin.site.register(RI_Product_Info)
+admin.site.register(RI_Price_Info)
