@@ -3,7 +3,7 @@
 
 {% if user.is_authenticated %}
 
-<a href="{}" class="btn btn-success">Add Return Invoice</a>
+<a href="{% url 'return_invoice_add' %}" class="btn btn-success">Add Return Invoice</a>
 <br/>
 <br/>
 <form class="d-flex ms-auto" role="search">

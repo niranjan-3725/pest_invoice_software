@@ -2,15 +2,14 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.shortcuts import render , redirect,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
+from django.db.models import Q,Sum,F
 from django.http import JsonResponse
 import datetime
-from .forms import SignUpForm, AddRecordForm, AddProductForm,AddPriceForm,AddPriceForm,AddSymptomForm,AddCompanyForm,PI_ProductForm,PI_InvoiceForm,PI_PriceForm,PI_ProductUpdateForm
+from .forms import *
 # ,AddPruchaseInvoiceForm
 from django.core.cache import cache
 import json
 from .models import *
-from django.db.models import F
 # Create your views here.
 
 def home(request):
@@ -348,15 +347,29 @@ def Inventory(request):
 			q =request.GET['inventory_q']
 			records = inventory.objects.filter(Product_Name__icontains = q)
 		else:
-			records = inventory.objects.all()
+			records = inventory.objects.values('Product_Name','Size','Unit').annotate(Quantity=Sum('Quantity')).order_by('Product_Name','-Quantity')
+			# inventory.objects.all().order_by('-Quantity')
 			print(records)
 		return render(request, 'inventory.html', {'records':records})
 	else:
 		messages.success(request, "You must be logged in..to view that page.")
 		return redirect('home')
 
-#inventory Addition logic
+def Inventory_detail(request,product,Size,Unit):
+	if request.user.is_authenticated:
+		records = inventory.objects.filter(Product_Name=product,Size=Size,Unit=Unit)
+		return render(request, 'inventory_detail.html', {
+			'records':records,
+			'Product':product,
+			'Size':Size,
+			'Unit':Unit
+			}
+			)
+	else:
+		messages.success(request, "You must be logged in..to view that page.")
+		return redirect('home')
 
+#inventory Addition or Updation logic
 def Add_Or_Update_to_inventory(product_lst,var,old_dict,Inv_Id):
 	existing_combo_ids = inventory.objects.filter(Combo_Id__in=product_lst).values_list('Combo_Id', flat=True)
 	old = [item for item in product_lst if item in existing_combo_ids]
@@ -416,7 +429,11 @@ def Add_Or_Update_to_inventory(product_lst,var,old_dict,Inv_Id):
 				Expiry_date = data['Expiry_date'],
 				Combo_Id = data['Combo_Id']
 			)
-
+	if var == 'DEL':
+		for data in old_dict:
+			inventory.objects.filter(Combo_Id = data['Combo_Id']).update(
+				Quantity = F('Quantity') - data['Quantity'],
+			)
 		
 	
 #Purchase Invoice
@@ -665,10 +682,18 @@ def purchase_invoice_del(request,pk):
 	if request.user.is_authenticated:
 		PI_Invoice_Del = PI_Invoice_info.objects.get(Invoice_Id = pk)
 		PI_Product_Del = PI_Product_info.objects.get(Invoice_Id = pk)
+		# products_lst = PI_Product_info.objects.filter(Invoice_Id = pk).values_list('Combo_Id')
+		old_quant = PI_Product_info.objects.filter(Invoice_Id = pk).values_list('Combo_Id','Quantity')
+		old_dict = [dict(zip(('Combo_Id','Quantity'),item)) for item in old_quant]
 		PI_Purchase_Del = PI_Purchase_Price.objects.get(Invoice_Id = pk)
 		PI_Invoice_Del.delete()
 		PI_Product_Del.delete()
 		PI_Purchase_Del.delete()
+		Add_Or_Update_to_inventory(
+			product_lst= [],
+			var='DEL',
+			old_dict=old_dict,
+			Inv_Id=pk)
 		messages.success(request, f"{PI_Invoice_Del.Invoice_Id}'s {' Record has been deleted!'} ")
 		return redirect('purchase_invoice')
 	else:
@@ -801,7 +826,7 @@ def purchase_invoice_update(request, pk):
 								Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' + str(data['Size']) + '_' + str(data['Unit'])
                             )
 							products_lst.append(str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']))
-					new_quant = PI_Product_info.objects.filter(Invoice_Id = pk).values_list('Combo_Id','Quantity')
+					# new_quant = PI_Product_info.objects.filter(Invoice_Id = pk).values_list('Combo_Id','Quantity')
 					if cached_price:
 						PI_price_form = PI_PriceForm(request.POST, None)
 						cache.set('price_update', PI_price_form.cleaned_data if PI_price_form.is_valid() else None, ttl)
@@ -864,4 +889,125 @@ def return_invoice_home(request):
 		return render(request, 'return_invoice.html', {'records':records})
 	else:
 		messages.success(request, "You must be logged in..to view that page.")
+		return redirect('home')
+
+def return_invoice_add(request):
+	if request.user.is_authenticated:
+		if request.method == 'POST':
+			ttl = 3600
+			action_type = request.POST.get('action_type', 'add_update')
+			update_action = request.POST.get('update_action', '')
+
+			if action_type == 'add_update':
+				invoice_form = RI_InvoiceForm(request.POST)
+				product_form = RI_ProductForm(request.POST)
+				price_form = RI_PriceForm(request.POST)
+
+				if invoice_form.is_valid() and product_form.is_valid():
+					return_id = invoice_form.cleaned_data['Return_Id']
+
+                    # Update or add the invoice data in the cache
+					cached_invoice_details = cache.get("RI_invoice_data", [])
+					updated_invoice_details = [inv for inv in cached_invoice_details if inv['Return_Id'] != return_id]
+					updated_invoice_details.append(invoice_form.cleaned_data)
+					cache.delete('RI_invoice_data')
+					cache.set('RI_invoice_data', updated_invoice_details,ttl)
+
+                    # Update or add the product data in the cache
+					cached_product_details = cache.get("RI_product_data", [])
+					if update_action == 'update':
+						product_id = int(request.POST.get('product_id'))
+						for prod in cached_product_details:
+							if prod['Id'] == product_id:
+								prod.update({
+                                    'Product_Name': product_form.cleaned_data['Product_Name'],
+                                    'Batch_No': product_form.cleaned_data['Batch_No'],
+                                    'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                    'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                    'Size': product_form.cleaned_data['Size'],
+                                    'Unit': product_form.cleaned_data['Unit'],
+                                    'Quantity': product_form.cleaned_data['Quantity'],
+                                    'BT_Rate': product_form.cleaned_data['BT_Rate'],
+                                    'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
+                                    'CGST': product_form.cleaned_data['CGST'],
+                                    'SGST': product_form.cleaned_data['SGST'],
+                                    'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
+                                })
+								break
+					else:
+						updated = False
+						for prod in cached_product_details:
+							if (prod['Product_Name'] == product_form.cleaned_data['Product_Name'] and
+                                prod['Batch_No'] == product_form.cleaned_data['Batch_No'] and
+                                prod['Size'] == product_form.cleaned_data['Size'] and
+                                prod['Unit'] == product_form.cleaned_data['Unit']):
+								prod.update({
+                                    'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                    'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                    'Quantity': product_form.cleaned_data['Quantity'],
+                                    'BT_Rate': product_form.cleaned_data['BT_Rate'],
+                                    'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
+                                    'CGST': product_form.cleaned_data['CGST'],
+                                    'SGST': product_form.cleaned_data['SGST'],
+                                    'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
+                                })
+								updated = True
+								break
+
+						if not updated:
+							next_id = len(cached_product_details) + 1
+							new_product_record = {
+                                'Return_Id': return_id,
+                                'Id': next_id,
+                                'Product_Name': product_form.cleaned_data['Product_Name'],
+                                'Batch_No': product_form.cleaned_data['Batch_No'],
+                                'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                'Size': product_form.cleaned_data['Size'],
+                                'Unit': product_form.cleaned_data['Unit'],
+                                'Quantity': product_form.cleaned_data['Quantity'],
+                                'BT_Rate': product_form.cleaned_data['BT_Rate'],
+                                'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
+                                'CGST': product_form.cleaned_data['CGST'],
+                                'SGST': product_form.cleaned_data['SGST'],
+                                'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
+                            }
+							cached_product_details.append(new_product_record)
+					cache.set('RI_product_data', cached_product_details,ttl)
+					invoice_form = RI_InvoiceForm(request.POST)
+					product_form = RI_ProductForm()
+					price_form = RI_PriceForm(request.POST)
+				else:
+					print("Form errors:", invoice_form.errors, product_form.errors,price_form.errors)
+
+			elif action_type == 'delete':
+				product_id = request.POST.get('product_id')
+				print(product_id)
+				product_id = int(product_id)
+				if product_id:
+					cached_product_details = cache.get("RI_product_data", [])
+					updated_product_details = [prod for prod in cached_product_details if prod['Id'] != product_id]
+
+                    # Adjust the IDs of remaining products
+					for prod in updated_product_details:
+						if prod['Id'] > product_id:
+							prod['Id'] -= 1
+
+					cache.set('RI_product_data', updated_product_details,ttl)
+
+		invoice_form = RI_InvoiceForm(request.POST)
+		product_form = RI_ProductForm()
+		price_form = RI_PriceForm()
+
+		cached_invoice_data = cache.get('RI_invoice_data', [])
+		cached_product_data = cache.get('RI_product_data', [])
+		context = {
+            'invoice_form': invoice_form,
+            'product_form': product_form,
+			'price_form': price_form,
+            'Product_cache': cached_product_data,
+			'invoice_cache': cached_invoice_data,
+        }
+		return render(request, 'return_invoice_add.html', context)
+	else:
 		return redirect('home')

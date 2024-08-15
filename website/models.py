@@ -1,6 +1,7 @@
 from django.db import models
 import re
 from datetime import date
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 class Record(models.Model):

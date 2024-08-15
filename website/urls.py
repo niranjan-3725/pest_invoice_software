@@ -35,6 +35,10 @@ urlpatterns = [
     path('symptom_record/<str:pk>', views.symptom_record,name='symptom_record'),
     path('symptom_del/<str:pk>', views.symptom_del,name='symptom_del'),
     path('symptom_update/<str:pk>', views.symptom_update,name='symptom_update'),
+
+    #Inventory URLS
+    path('inventory/',views.Inventory,name= 'inventory'),
+    path('inventory_detail/<slug:product>/<int:Size>/<slug:Unit>',views.Inventory_detail,name= 'inventory_detail'),
     #Purchase Invoice URLS
     path('purchase_invoice/',views.purchase_invoice_home,name = 'purchase_invoice'),
     path('purchase_invoice_add/', views.purchase_invoice_add, name='purchase_invoice_add'),
@@ -48,4 +52,5 @@ urlpatterns = [
 
     #Return Invoice Urls
     path('return_invoice/',views.return_invoice_home,name = 'return_invoice'),
+    path('return_invoice_add/',views.return_invoice_add,name = 'return_invoice_add'),
 ]

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<h3>Detail Inventory</h3>
+<br>
+<div class="card">
+    <div class="card-header"><strong> {{ Product }} - {{ Size}} {{ Unit}}</strong>
+    </div>
+
+<div class="card-body">
+<div class = 'table-responsive'style = "overflow:scroll;  height:250px; margin-top:20px; width: 100%; white-space: nowrap;" >
+ <table class="table table-hover table-bordered" >
+            <thead class = 'table-dark' style = "position: sticky; top: 0px;">
+                <th>Batch No</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Manufacture date</th>
+                <th>Expiry Date</th>
+            </thead>
+        {% for data in records%}
+        <tr>
+            <td>{{data.Batch_No}}</td>
+            <td>{{data.Size}} {{data.Unit}} </td>
+            <td>{{data.Quantity}}</td>
+            <td>{{data.Manufacture_date}}</td>
+            <td>{{data.Expiry_date}}</td>
+        </tr>
+        {% endfor %}
+ </table>     
+    </div>
+  </div>
+
+</div>
+
+<br>
+<a href="{% url 'inventory' %}" class="btn btn-secondary">Back</a>
+  {%endif%}
+
+{% endblock %}

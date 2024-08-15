@@ -499,6 +499,19 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+    // Set default values for Additions and Deductions
+    document.getElementById('id_Additions').value = '0';
+    document.getElementById('id_Deductions').value = '0';
+
+    // Set default value for Comments
+    document.getElementById('id_Comments').value = 'NA';
+    
+    // You can also trigger the revised amount calculation if needed
+    // calculateRevisedAmount();
+});
+
+
 </script>
 
 {% endblock %}

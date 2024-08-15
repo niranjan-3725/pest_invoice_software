@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from django_select2.forms import ModelSelect2Widget
 from django import forms
-from .models import Record,Product,Price,symptom,Company,PI_Invoice_info,PI_Product_info,PI_Purchase_Price
+from .models import *
 
 class SignUpForm(UserCreationForm):
 	email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
@@ -201,61 +201,6 @@ class AddSymptomForm(forms.ModelForm):
 			self.fields['med_sev_formula'].initial = self.instance.med_sev_formula
 			self.fields['high_sev_formula'].initial = self.instance.high_sev_formula
 
-# class AddPruchaseInvoiceForm(forms.ModelForm):
-# 	class Meta:
-# 		Unit_choices = [
-#         ('Kg','Kg'),
-# 		('Grms','Grms'),
-# 		('Lts','Lts'),
-# 		('Mls','Mls')
-# 		]
-# 		model = purchase_invoice
-# 		fields = ['Invoice_Id','Invoice_Date','Company_Name','Address','Product_Name','Batch_No','Manufacture_date','Expiry_date'
-# 			,'Size','Unit','Quantity','BT_Rate','BT_Final_Amount','CGST','SGST','PU_Final_Amount'
-# 			]
-# 		widgets = {
-# 			'Invoice_Id':forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Invoice Id',}),
-# 			'Invoice_Date':forms.DateInput(attrs={'class':"form-control",'type':'date'}),
-# 			'Company_Name': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Company Name'}),
-# 			'Address': forms.TextInput(attrs={'class': 'form-control'}),
-# 			'Product_Name': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Product Name'}),
-# 			'Batch_No': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Batch No'}),
-# 			'Manufacture_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
-# 			'Expiry_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
-# 			'Size': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Enter Size',}),
-# 			'Unit': forms.Select(attrs={'class': 'form-control','placeholder': 'Select unit',},choices=Unit_choices),
-# 			'Quantity': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Enter Quantity',}),
-# 			'BT_Rate': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Before Tax Rate/Unit',}),
-# 			'BT_Final_Amount': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Before Tax Final Amount',}),
-# 			'CGST': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'CGST',}),
-# 			'SGST': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'SGST',}),
-# 			'PU_Final_Amount': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'After Tax Final Amount',})
-# 		}
-
-# 		labels ={
-# 			'Invoice_Id': 'Invoice Id',
-# 			'Invoice_Date' : 'Invoice Date',
-# 			'Company_Name': 'Company Name',
-# 			'Address': 'Address',
-# 			'Product_Name': 'Product Name',
-# 			'Batch_No': 'Batch No',
-# 			'Manufacture_date' : 'Manufacture Date',
-# 			'Expiry_date': 'Expiry Date',
-# 			'Size' : 'Size',
-# 			'Unit' : 'Unit',
-# 			'Quantity' : 'Quantity',
-# 			'BT_Rate' : 'Before Tax Rate/Unit',
-# 			'BT_Final_Amount' : 'Before Tax Final Amount',
-# 			'CGST' : 'CGST',
-# 			'SGST' : 'SGST',
-# 			'PU_Final_Amount': 'After Tax Final Amount'
-# 		}
-
-# 		def __init__(self,*args,**kwargs):
-# 			super().__init__(*args,**kwargs)
-# 			self.fields['Company_Name'].queryset = Company.objects.all()
-# 			self.fields['Product_Name'].queryset = Product.objects.filter(Name=self.fields['Company_Name']).values()
-
 class PI_InvoiceForm(forms.ModelForm):
 	class Meta:
 		model = PI_Invoice_info
@@ -375,6 +320,111 @@ class PI_ProductUpdateForm(forms.ModelForm):
 class PI_PriceForm(forms.ModelForm):
 	class Meta:
 		model = PI_Purchase_Price
+		fields = [
+			# 'Invoice_Id',
+			'Final_Amount',
+			'Additions',
+			'Deductions',
+			'Revised_Amount',
+			'Comments',
+		]
+		widgets = {
+			# 'Invoice_Id': forms.TextInput(attrs={'class': 'form-control'}),
+			'Final_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Additions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Deductions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Revised_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Comments': forms.Textarea(attrs={'class':'form-control','placeholder':"Leave a comment here" ,'style':"height: 100px"})
+		}
+		labels = {
+			# 'Invoice_Id': 'Invoice Id',
+			'Final_Amount': "Final Amount" ,
+			'Additions' : "Additions",
+			'Deductions' :"Deductions",
+			'Revised_Amount': 'Revised Amount',
+			'Comments': " Comments"
+		}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Additions'].required = False
+			self.fields['Deductions'].required = False
+			self.fields['Comments'].required = False
+
+
+
+class RI_InvoiceForm(forms.ModelForm):
+	class Meta:
+		model = RI_Invoice_Info
+		fields = ['Return_Id', 'Return_Date', 'To_Company_Name', 'To_Address','From_Company_Name','From_Address']
+		widgets = {
+			'Return_Id':forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Invoice Id',}),
+			'Return_Date':forms.DateInput(attrs={'class':"form-control",'type':'date'}),
+			'To_Company_Name': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Company Name'}),
+			'To_Address': forms.TextInput(attrs={'class': 'form-control'}),
+			'From_Company_Name': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Your Company Name'}),
+			'From_Address': forms.TextInput(attrs={'class': 'form-control'}),
+		}
+
+		labels ={
+			'Return_Id': 'Return Id',
+			'Return_Date' : 'Return Date',
+			'To_Company_Name': 'Company Name',
+			'To_Address': 'Company Address',
+			'From_Company_Name': 'Business Name',
+			'From_Address': 'Business Address'}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['To_Company_Name'].queryset = Company.objects.all()
+class RI_ProductForm(forms.ModelForm):
+	class Meta:
+		Unit_choices = [
+        ('Kg','Kg'),
+		('Grms','Grms'),
+		('Lts','Lts'),
+		('Mls','Mls')
+		]
+		model = RI_Product_Info
+		fields = [
+            'Product_Name', 'Batch_No', 'Manufacture_date', 'Expiry_date',
+            'Size', 'Unit', 'Quantity', 'BT_Rate', 'BT_Final_Amount',
+            'CGST', 'SGST', 'PU_Final_Amount'
+        ]
+		widgets = {
+			'Product_Name': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Product Name'}),
+			'Batch_No': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Batch No'}),
+			'Manufacture_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
+			'Expiry_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
+			'Size': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Size',}),
+			'Unit': forms.Select(attrs={'class': 'form-control','placeholder': 'Select unit',},choices=Unit_choices),
+			'Quantity': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Enter Quantity',}),
+			'BT_Rate': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Before Tax Rate/Unit',}),
+			'BT_Final_Amount': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Before Tax Final Amount',}),
+			'CGST': forms.TextInput(attrs={'class': 'form-control','placeholder': 'CGST',}),
+			'SGST': forms.TextInput(attrs={'class': 'form-control','placeholder': 'SGST',}),
+			'PU_Final_Amount': forms.TextInput(attrs={'class': 'form-control','placeholder': 'After Tax Final Amount',}),
+        }
+
+		labels = {
+			'Product_Name': 'Product Name',
+			'Batch_No': 'Batch No',
+			'Manufacture_date' : 'Manufacture Date',
+			'Expiry_date': 'Expiry Date',
+			'Size' : 'Size',
+			'Unit' : 'Unit',
+			'Quantity' : 'Quantity',
+			'BT_Rate' : 'Before Tax Rate/Unit',
+			'BT_Final_Amount' : 'Before Tax Final Amount',
+			'CGST' : 'CGST',
+			'SGST' : 'SGST',
+			'PU_Final_Amount': 'After Tax Final Amount'
+		}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Product_Name'].queryset = Product.objects.all()
+
+class RI_PriceForm(forms.ModelForm):
+	class Meta:
+		model = RI_Price_Info
 		fields = [
 			# 'Invoice_Id',
 			'Final_Amount',
