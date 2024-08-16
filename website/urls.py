@@ -21,7 +21,7 @@ urlpatterns = [
     path('product_master/', views.product_master,name='product_master'),
     path('product_record/<slug:pk>', views.product_record,name='product_record'),
     path('product_del/<slug:pk>', views.product_del,name='product_del'),
-    path('product_update/<str:pk>', views.product_update,name='product_update'),
+    path('product_update/<slug:pk>', views.product_update,name='product_update'),
     path('product_add/', views.product_add,name='product_add'),
     # Price URLS
     path('price/', views.price,name='price'),

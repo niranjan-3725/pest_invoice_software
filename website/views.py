@@ -31,7 +31,8 @@ def home(request):
 		if user is not None:
 			login(request, user)
 			messages.success(request, "You Have Been Logged In!")
-			return redirect('home')
+			context = {'username': request.user.username.replace('_',' ')}  
+			return redirect('home',context)
 		else:
 			messages.success(request, "There Was An Error Logging In, Please Try Again...")
 			return redirect('home')
@@ -147,7 +148,7 @@ def product_master(request):
 			product = Product.objects.filter(Name__icontains = product_q)
 		else:
 			product = Product.objects.all()
-			print(product)
+			print(f'Products--->',product)
 		return render(request, 'product.html', {'product':product})
 	else:
 		messages.success(request, "You must be logged in..to view that page.")
@@ -156,6 +157,7 @@ def product_master(request):
 def product_record(request,pk):
 	if request.user.is_authenticated:
 		product_record = Product.objects.get(Name=pk)
+		print(product_record)
 		return render(request, 'product_record.html', {'product_record':product_record})
 	else:
 		messages.success(request, "You must be logged in..to view that page.")
@@ -179,7 +181,9 @@ def product_add(request):
 				add_record = form.save()
 				messages.success(request, f"{add_record.Name}'s {' Record has been Added!'} ")
 				return redirect('product_master')
-		return render(request, 'product_add.html', {'form':form})
+			else:
+				print(form.errors)
+		return render(request, 'product_add.html',{'form':form})
 	else:
 		messages.success(request, 'You must be logged in!')
 		return redirect('home')

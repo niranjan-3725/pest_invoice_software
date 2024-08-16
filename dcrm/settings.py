@@ -15,6 +15,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'website.CustomUser'
+
 
 # Application definition
 
@@ -81,7 +83,7 @@ CACHES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Niranjan',
+        'NAME': 'AGRIBILL',
         'USER':'root',
         'PASSWORD': 'Password1234',
         'HOST':'localhost',

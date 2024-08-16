@@ -11,6 +11,6 @@ cursorObject = dataBase.cursor()
 
 #Create dataBase
 
-cursorObject.execute("CREATE DATABASE NIRANJAN")
+cursorObject.execute("CREATE DATABASE AGRIBILL")
 
 print('All Done!')

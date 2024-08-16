@@ -2,7 +2,13 @@ from django.db import models
 import re
 from datetime import date
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
+
+class CustomUser(AbstractUser):
+    address = models.CharField(max_length=255, blank=True, null=True)
+    Phone_number = models.CharField(max_length=15, blank=True, null=True)  
+    
 
 class Record(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
