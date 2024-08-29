@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h5>Add Return Invoice here.</h5>
+<h5>Return Invoice</h5>
 
 <form id="invoiceForm" method="POST" action="{% url 'return_invoice_add' %}">
     {% csrf_token %}
@@ -34,45 +34,123 @@
             <label for = "{{ invoice_form.From_Address.id_for_label}}"><b>{{invoice_form.From_Address.label}}</b></label>
         </div>
     </div>
+    <br>
+    <div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 300px;">
+        {% csrf_token %}
+        <div class = 'row'>
+            <div class = "col-4 col-md-3 align-self">
+                <label for = "{{ product_form.Product_Name.id_for_label}}"><b>{{product_form.Product_Name.label}}</b></label>
+                {{product_form.Product_Name}}
+            </div> 
+    
+        <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Batch_No.id_for_label}}"><b>{{product_form.Batch_No.label}}</b></label>
+                    {{product_form.Batch_No}}
+                </div>
+    
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Manufacture_date.id_for_label}}"><b>{{product_form.Manufacture_date.label}}</b></label>
+                    {{product_form.Manufacture_date}}
+                </div>
+    
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Expiry_date.id_for_label}}"><b>{{product_form.Expiry_date.label}}</b></label>
+                    {{product_form.Expiry_date}}
+                </div>
+            </div>
+            <br>
+            <div class = "row">
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Size.id_for_label}}"><b>{{product_form.Size.label}}</b></label>
+                    {{product_form.Size}}
+                </div>
+    
+                <!-- <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Unit.id_for_label}}"><b>{{product_form.Unit.label}}</b></label>
+                    {{product_form.Unit}}
+                </div> -->
+    
+                <div class = "col-4 col-md-3">
+                    <label for="{{ product_form.Quantity.id_for_label }}"><b>{{ product_form.Quantity.label }}</b></label>
+                        {{ product_form.Quantity }}
+                    <small id="quantity-error" class="text-danger"></small>  <!-- Error message container -->
+                </div>
+    
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.BT_Rate.id_for_label}}"><b>{{product_form.BT_Rate.label}}</b></label>
+                    {{product_form.BT_Rate}}
+                </div>
+
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.BT_Final_Amount.id_for_label}}"><b>{{product_form.BT_Final_Amount.label}}</b></label>
+                    {{product_form.BT_Final_Amount}}
+                </div>
+            </div>
+            <br>
+            <div class = 'row'>
+    
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.CGST.id_for_label}}"><b>{{product_form.CGST.label}}</b></label>
+                    {{product_form.CGST}}
+                </div>
+    
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.SGST.id_for_label}}"><b>{{product_form.SGST.label}}</b></label>
+                    {{product_form.SGST}}
+                </div>
+    
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.PU_Final_Amount.id_for_label}}"><b>{{product_form.PU_Final_Amount.label}}</b></label>
+                    {{product_form.PU_Final_Amount}}
+                </div>
+            </div> 
+            <br><br><br><br>
+            <button type="submit" class="btn btn-success">Add +</button>
+        </div>
+    </div>
 </form>
+<br><br><br><br>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <!-- Ensure Select2 is loaded -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script>
     function initializeCompanySelect2(selector) {
-        console.log("Initializing Select2 for selector:", selector);
-        $(selector).select2({
-            ajax: {
-                url: "{% url 'ajax_load_companies' %}",
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    console.log("AJAX request params:", params);
-                    return {
-                        term: params.term
-                    };
-                },
-                processResults: function (data) {
-                    console.log("Received data:", data);
-                    return {
-                        results: $.map(data, function (item) {
-                            return { id: item.Company_name, text: item.Company_name };
-                        })
-                    };
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error in AJAX request:", error);
-                }
+    console.log("Initializing Select2 for selector:", selector);
+    $(selector).select2({
+        ajax: {
+            url: "{% url 'return_invoice_add' %}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                console.log("AJAX request params:", params);
+                return {
+                    term: params.term,
+                    request_type: 'company'  // Specify the request type
+                };
             },
-            placeholder: 'Select a manufacturer',
-            minimumInputLength: 1,
-            width: 'resolve'
-        }).on('select2:select', function (e) {
-            var data = e.params.data;
-            fetchCompanyAddress(data.id);
-        });
-    }
+            processResults: function (data) {
+                console.log("Received data:", data);
+                return {
+                    results: $.map(data, function (item) {
+                        return { id: item.Company_name, text: item.Company_name };
+                    })
+                };
+            },
+            error: function(xhr, status, error) {
+                console.error("Error in AJAX request:", error);
+            }
+        },
+        placeholder: 'Select a manufacturer',
+        minimumInputLength: 1,
+        width: 'resolve'
+    }).on('select2:select', function (e) {
+        var data = e.params.data;
+        selectedCompanyName = data.id;  // Store the selected company name
+        fetchCompanyAddress(data.id);
+        initializeProductSelect2('#id_Product_Name'); // Reinitialize Product Select2 with the selected company
+    });
+}
 
     function fetchCompanyAddress(companyName) {
         console.log("Fetching address for company:", companyName);
@@ -87,10 +165,191 @@
             });
     }
 
-    $(document).ready(function () {
+$(document).ready(function () {
         console.log("Document is ready. Initializing Select2.");
         initializeCompanySelect2('#id_To_Company_Name');
+});
+
+// Product Name Ajax
+
+function initializeProductSelect2(selector) {
+    console.log("Initializing Select2 for selector:", selector);
+    $(selector).select2({
+        ajax: {
+            url: "{% url 'return_invoice_add' %}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                console.log("AJAX request params:", params);
+                return {
+                    term: params.term,
+                    request_type: 'product',  // Specify the request type
+                    company_name: selectedCompanyName  // Pass the selected company name
+                };
+            },
+            processResults: function (data) {
+                console.log("Received data:", data);
+                return {
+                    results: $.map(data, function (item) {
+                        return { id: item.Name, text: item.Name };
+                    })
+                };
+            },
+            error: function(xhr, status, error) {
+                console.error("Error in AJAX request:", error);
+            }
+        },
+        placeholder: 'Select a product',
+        minimumInputLength: 1,
+        width: 'resolve'
+    }).on('select2:select', function (e) {
+        var data = e.params.data;  // Correctly access the selected data
+        selectedProductName = data.id;  // Store the selected product name
+        initializeBatchNoSelect2('#id_Batch_No');  // Reinitialize Batch No. Select2 with the selected product
     });
+}
+
+$(document).ready(function () {
+        console.log("Document is ready. Initializing Select2.");
+        initializeProductSelect2('#id_Product_Name');
+});
+
+
+
+function initializeBatchNoSelect2(selector) {
+    console.log("Initializing Select2 for selector:", selector);
+    $(selector).select2({
+        ajax: {
+            url: "{% url 'return_invoice_add' %}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                console.log("AJAX request params:", params);
+                return {
+                    term: params.term,
+                    request_type: 'batch_no',  // Specify the request type
+                    company_name: selectedCompanyName,  // Pass the selected company name
+                    product_name: selectedProductName  // Pass the selected product name
+                };
+            },
+            processResults: function (data) {
+                console.log("Received data:", data);
+                return {
+                    results: $.map(data, function (item) {
+                        return { id: item.Batch_No, text: item.Batch_No };
+                    })
+                };
+            },
+            error: function(xhr, status, error) {
+                console.error("Error in AJAX request:", error);
+            }
+        },
+        placeholder: 'Select a batch number',
+        minimumInputLength: 1,
+        width: 'resolve'
+    }).on('select2:select', function (e) {
+        var data = e.params.data;  // Correctly access the selected data
+        selectedBatchNo = data.id;  // Store the selected batch number
+        
+        // Fetch and set manufacture and expiry dates
+        fetchBatchDetails(selectedBatchNo);
+    });
+}
+
+function fetchBatchDetails(batchNo) {
+    console.log("Fetching batch details for:", batchNo);
+    fetch(`/return_invoice_add/?batch_no=${batchNo}&request_type=batch_details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error("Error fetching batch details:", data.error);
+            } else {
+                console.log("Received batch details:", data);
+                document.getElementById('id_Manufacture_date').value = data.Manufacture_date;
+                document.getElementById('id_Expiry_date').value = data.Expiry_date;
+
+                // Populate the Size dropdown
+                const sizeSelect = document.getElementById('id_Size');
+                sizeSelect.innerHTML = ''; // Clear existing options
+                data.sizes.forEach(size => {
+                    const option = document.createElement('option');
+                    option.value = size;
+                    option.text = size;
+                    sizeSelect.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error in fetchBatchDetails:", error);
+        });
+}
+
+$(document).ready(function () {
+    console.log("Document is ready. Initializing Select2.");
+
+    // Initialize company and product select2 fields
+    initializeCompanySelect2('#id_To_Company_Name');
+    initializeProductSelect2('#id_Product_Name');
+    
+    // Ensure Batch_No field is initialized after product selection
+    $('#id_Product_Name').on('select2:select', function (e) {
+        initializeBatchNoSelect2('#id_Batch_No');
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+        function setDeleteActionAndSubmit(productId) {
+            const actionTypeElement = document.getElementById('action_type');
+            const productIdElement = document.getElementById('product_id');
+            const formElement = document.getElementById('invoiceForm');
+            
+            if (actionTypeElement && productIdElement && formElement) {
+                actionTypeElement.value = 'delete';
+                productIdElement.value = productId;
+                formElement.submit();
+            } else {
+                console.error("One or more elements are missing from the DOM.");
+            }
+        }
+
+        // Ensure setDeleteActionAndSubmit is available globally
+        window.setDeleteActionAndSubmit = setDeleteActionAndSubmit;
+});
+
+
+
+$(document).ready(function () {
+    // Listen for changes in the quantity field
+    $('#id_Quantity').on('input', function () {
+        var productName = $('#id_Product_Name').val();
+        var batchNo = $('#id_Batch_No').val();
+        var size = $('#id_Size').val();
+        var enteredQuantity = $(this).val();
+
+        if (productName && batchNo && size && enteredQuantity) {
+            $.ajax({
+                url: "{% url 'check_quantity' %}",  // Ensure this URL matches your Django view
+                data: {
+                    'product_name': productName,
+                    'batch_no': batchNo,
+                    'size': size,
+                    'quantity': enteredQuantity
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.valid) {
+                        $('#quantity-error').text('');  // Clear error message if quantity is valid
+                    } else {
+                        var errorMessage = 'Entered quantity exceeds available quantity (' + data.available_quantity + ').';
+                        $('#quantity-error').text(errorMessage);  // Display error message
+                    }
+                }
+            });
+        }
+    });
+});
+
 
 </script>
 {% endblock %}

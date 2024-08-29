@@ -16,31 +16,33 @@
   <thead class="table-dark">
     <tr>
       <th scope="col">Product</th>
-      <th scope="col">Batch code</th>
+      <!-- <th scope="col">Batch code</th> -->
       <th scope="col">Packaging Size</th>
-      <th scope="col">Unit</th>
-      <th scope="col">MRP</th>
-      <th scope="col">Cost Price</th>
-      <th scope="col">CGST</th>  
-      <th scope="col">SGST</th>
-      <th scope="col">Profit Percentage</th>
-      <th scope="col">Selling Price</th>
+      <!-- <th scope="col">Unit</th> -->
+      <!-- <th scope="col">MRP</th> -->
+      <!-- <th scope="col">Before Tax Price</th> -->
+      <!-- <th scope="col">Cost Price</th> -->
+      <!-- <th scope="col">CGST</th>  
+      <th scope="col">SGST</th> -->
+      <!-- <th scope="col">Profit Percentage</th> -->
+      <!-- <th scope="col">Selling Price</th> -->
     </tr>
   </thead>
 <tbody>
   {% if price %}
     {%for record in price%}
   <tr>
-      <td><a href="{%url 'price_record' record.Product%}">{{record.Product}}</a></td>
-      <td >{{record.Batch_code}} </td>
-      <td >{{record.Packaging_Size}} </td>
-      <td>{{record.Unit}}</td>
-      <td>{{record.MRP}} ₹</td>
-      <td>{{record.Cost_Price}} ₹</td>
-      <td>{{record.CGST}} %</td>
-      <td>{{record.SGST}} %</td>
-      <td>{{record.Profit_percentage}} %</td>
-      <td>{{record.Selling_Price}} ₹</td>
+      <td><a href="{%url 'price_record' record.Product record.Size record.Unit%}">{{record.Product}}</a></td>
+      <!-- <td >{{record.Batch_No}} </td> -->
+      <td >{{record.Size}}-{{record.Unit}} </td>
+      <!-- <td>{{record.Unit}}</td> -->
+      <!-- <td>{{record.MRP}} ₹</td>
+      <td>{{record.Befor_Tax_price}} ₹</td>
+      <td>{{record.Cost_Price}} ₹</td> -->
+      <!-- <td>{{record.CGST}} %</td>
+      <td>{{record.SGST}} %</td> -->
+      <!-- <td>{{record.Profit_percentage}} %</td>
+      <td>{{record.Selling_Price}} ₹</td> -->
     {%endfor%}
   </tr>
 {%endif%}

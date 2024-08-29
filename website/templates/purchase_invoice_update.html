@@ -14,11 +14,11 @@
     }
 
 </style>
-<form id="invoiceForm" method="POST" action="{% url 'purchase_invoice_update' invoice_form.Invoice_Id.value %}">
+<form id="invoiceForm" method="POST" action="{% url 'purchase_invoice_update' PI_invoice_form.Invoice_Id.value %}">
 
     <div class="position-relative">
         <div class="position-absolute top-0 end-0">
-            <button type="button" class="btn btn-secondary" onclick="refreshPage('{{ invoice_form.Invoice_Id.value }}')" style="
+            <button type="button" class="btn btn-secondary" onclick="refreshPage('{{ PI_invoice_form.Invoice_Id.value }}')" style="
                 display: flex; 
                 justify-content: center;
                 align-items: center;
@@ -41,93 +41,115 @@
     <input type="hidden" name="update_action" id="update_action" value="">
     <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 75px;">
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.Invoice_Id.id_for_label}}"><b>{{invoice_form.Invoice_Id.label}}:</b></label>
-            <input type="text" name="Invoice_Id" class="form-control" placeholder="Enter Invoice Id" maxlength="255" readonly value="{{ invoice_form.Invoice_Id.value }}" id="id_Invoice_Id">
+            <label for = "{{ PI_invoice_form.Invoice_Id.id_for_label}}"><b>{{PI_invoice_form.Invoice_Id.label}}:</b></label>
+            <input type="text" name="Invoice_Id" class="form-control" placeholder="Enter Invoice Id" maxlength="255" readonly value="{{ PI_invoice_form.Invoice_Id.value }}" id="id_Invoice_Id">
             <!-- {{invoice_form.Invoice_Id}} -->
         </div>
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.Invoice_Date.id_for_label}}"><b>{{invoice_form.Invoice_Date.label}}</b></label>
-            {{invoice_form.Invoice_Date}}
+            <label for = "{{ PI_invoice_form.Invoice_Date.id_for_label}}"><b>{{PI_invoice_form.Invoice_Date.label}}</b></label>
+            {{PI_invoice_form.Invoice_Date}}
         </div>
         <div class = "col-4 col-md-3 align-self">
-            <label for = "{{ invoice_form.Company_Name.id_for_label}}"><b>{{invoice_form.Company_Name.label}}</b></label>
-            {{invoice_form.Company_Name}}
+            <label for = "{{ PI_invoice_form.Company_Name.id_for_label}}"><b>{{PI_invoice_form.Company_Name.label}}</b></label>
+            {{PI_invoice_form.Company_Name}}
         </div>
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.Address.id_for_label}}"><b>{{invoice_form.Address.label}}</b></label>
-            {{invoice_form.Address}}
+            <label for = "{{ PI_invoice_form.Address.id_for_label}}"><b>{{PI_invoice_form.Address.label}}</b></label>
+            {{PI_invoice_form.Address}}
         </div>
     </div>
 <br>
-<div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 250px;">
+<div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 350px;">
     {% csrf_token %}
     <div class = 'row'>
      <div class = "col-4 col-md-3 align-self">
-            <label for = "{{ product_form.Product_Name.id_for_label}}"><b>{{product_form.Product_Name.label}}</b></label>
-            {{product_form.Product_Name}}
+            <label for = "{{ PI_product_form.Product_Name.id_for_label}}"><b>{{PI_product_form.Product_Name.label}}</b></label>
+            {{PI_product_form.Product_Name}}
         </div> 
 
     <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.Batch_No.id_for_label}}"><b>{{product_form.Batch_No.label}}</b></label>
-                {{product_form.Batch_No}}
+                <label for = "{{ PI_product_form.Batch_No.id_for_label}}"><b>{{PI_product_form.Batch_No.label}}</b></label>
+                {{PI_product_form.Batch_No}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.Manufacture_date.id_for_label}}"><b>{{product_form.Manufacture_date.label}}</b></label>
-                {{product_form.Manufacture_date}}
+                <label for = "{{ PI_product_form.Manufacture_date.id_for_label}}"><b>{{PI_product_form.Manufacture_date.label}}</b></label>
+                {{PI_product_form.Manufacture_date}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.Expiry_date.id_for_label}}"><b>{{product_form.Expiry_date.label}}</b></label>
-                {{product_form.Expiry_date}}
+                <label for = "{{ PI_product_form.Expiry_date.id_for_label}}"><b>{{PI_product_form.Expiry_date.label}}</b></label>
+                {{PI_product_form.Expiry_date}}
             </div>
         </div>
         <br>
         <div class = "row">
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.Size.id_for_label}}"><b>{{product_form.Size.label}}</b></label>
-                {{product_form.Size}}
+                <label for = "{{ PI_product_form.Size.id_for_label}}"><b>{{PI_product_form.Size.label}}</b></label>
+                {{PI_product_form.Size}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.Unit.id_for_label}}"><b>{{product_form.Unit.label}}</b></label>
-                {{product_form.Unit}}
+                <label for = "{{ PI_product_form.Unit.id_for_label}}"><b>{{PI_product_form.Unit.label}}</b></label>
+                {{PI_product_form.Unit}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.Quantity.id_for_label}}"><b>{{product_form.Quantity.label}}</b></label>
-                {{product_form.Quantity}}
+                <label for = "{{ PI_product_form.Quantity.id_for_label}}"><b>{{PI_product_form.Quantity.label}}</b></label>
+                {{PI_product_form.Quantity}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.BT_Rate.id_for_label}}"><b>{{product_form.BT_Rate.label}}</b></label>
-                {{product_form.BT_Rate}}
+                <label for = "{{ PI_product_form.BT_Rate.id_for_label}}"><b>{{PI_product_form.BT_Rate.label}}</b></label>
+                {{PI_product_form.BT_Rate}}
             </div>
 
         </div>
         <br>
         <div class = 'row'>
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.BT_Final_Amount.id_for_label}}"><b>{{product_form.BT_Final_Amount.label}}</b></label>
-                {{product_form.BT_Final_Amount}}
+                <label for = "{{ PI_product_form.BT_Final_Amount.id_for_label}}"><b>{{PI_product_form.BT_Final_Amount.label}}</b></label>
+                {{PI_product_form.BT_Final_Amount}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.CGST.id_for_label}}"><b>{{product_form.CGST.label}}</b></label>
-                {{product_form.CGST}}
+                <label for = "{{ PI_product_form.CGST.id_for_label}}"><b>{{PI_product_form.CGST.label}}</b></label>
+                {{PI_product_form.CGST}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.SGST.id_for_label}}"><b>{{product_form.SGST.label}}</b></label>
-                {{product_form.SGST}}
+                <label for = "{{ PI_product_form.SGST.id_for_label}}"><b>{{PI_product_form.SGST.label}}</b></label>
+                {{PI_product_form.SGST}}
             </div>
 
             <div class = "col-4 col-md-3">
-                <label for = "{{ product_form.PU_Final_Amount.id_for_label}}"><b>{{product_form.PU_Final_Amount.label}}</b></label>
-                {{product_form.PU_Final_Amount}}
+                <label for = "{{ PI_product_form.PU_Final_Amount.id_for_label}}"><b>{{PI_product_form.PU_Final_Amount.label}}</b></label>
+                {{PI_product_form.PU_Final_Amount}}
             </div>
         </div> 
         <br>
+        <div class = 'row'>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ price_form.MRP.id_for_label}}"><b>MRP</b></label>
+                {{price_form.MRP}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ price_form.Cost_Price.id_for_label}}"><b>Cost Price</b></label>
+                {{price_form.Cost_Price}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ price_form.Profit_percentage.id_for_label}}"><b>Profit percentage</b></label>
+                {{price_form.Profit_percentage}}
+            </div>
+
+            <div class = "col-4 col-md-3">
+                <label for = "{{ price_form.Selling_Price.id_for_label}}"><b>Selling Price</b></label>
+                {{price_form.Selling_Price}}
+            </div>
+        </div>
+        <br><br>
         <button type="submit" class="btn btn-success" onclick="document.getElementById('action_type').value='add_update'">Add +</button>
     </div>
 <br><br><br>
@@ -146,8 +168,13 @@
        <th>CGST</th>
        <th>SGST</th>
        <th>After Tax Final Amount</th>
+       <th>MRP</th>
+       <th>Cost Price</th>
+       <th>Profit percentage</th>
+       <th>Selling Price</th>
    </thead>
    {% for data in product_record%}
+    {% if data.Flag != 'Yes' %}
    <tr>
     <td>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
@@ -169,7 +196,7 @@
                         <button type="button" class="btn btn-outline-primary" onclick="populateFormForUpdate
                         (
                             JSON.stringify({
-                                'Id': '{{ data.Id }}',
+                                'Id': '{{ data.Id|escapejs }}',
                                 'Product_Name': '{{ data.Product_Name|escapejs }}',
                                 'Batch_No': '{{ data.Batch_No|escapejs }}',
                                 'Manufacture_date': '{{ data.Manufacture_date|escapejs }}',
@@ -181,7 +208,11 @@
                                 'BT_Final_Amount': '{{ data.BT_Final_Amount|escapejs }}',
                                 'CGST': '{{ data.CGST|escapejs }}',
                                 'SGST': '{{ data.SGST|escapejs }}',
-                                'PU_Final_Amount': '{{ data.PU_Final_Amount|escapejs }}'
+                                'PU_Final_Amount': '{{ data.PU_Final_Amount|escapejs }}',
+                                'MRP':'{{data.MRP|escapejs}}',
+                                'Cost_Price':'{{data.Cost_Price|escapejs}}',
+                                'Profit_percentage':'{{data.Profit_percentage|escapejs}}',
+                                'Selling_Price':'{{data.Selling_Price|escapejs}}',
                             })
                         )" data-bs-dismiss="modal">Update</button>
                         <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
@@ -204,10 +235,15 @@
     <td>{{ data.CGST }}</td>
     <td>{{ data.SGST }}</td>
     <td><b>{{ data.PU_Final_Amount }}</b></td>
+    <td>{{data.MRP}}</td>
+    <td>{{data.Cost_Price}}</td>
+    <td>{{ data.Profit_percentage }} %</td>
+    <td>{{ data.Selling_Price }} ₹</td>
     <!-- <td><input type="hidden" name="product_id" value="{{ data.Id }}">
     <input type="hidden" name="delete_product" value="1">
     <button class="btn btn-outline-danger" type="submit">Delete</button></td> -->
    </tr>
+   {% endif %}
    {%endfor%}
  </table>
 </div>
@@ -219,30 +255,31 @@
         {% csrf_token %}
        <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
         <div class = "col-4 col-md-3">
-            <label for = "{{ price_form.Final_Amount.id_for_label}}"><b>{{price_form.Final_Amount.label}}</b></label>
-            {{price_form.Final_Amount}}
+            <label for = "{{ PI_price_form.Final_Amount.id_for_label}}"><b>{{PI_price_form.Final_Amount.label}}</b></label>
+            {{PI_price_form.Final_Amount}}
         </div>
         <div class = "col-4 col-md-3">
-            <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
-            {{price_form.Additions}}
+            <label for = "{{ PI_price_form.Additions.id_for_label}}"><b>{{PI_price_form.Additions.label}}</b></label>
+            {{PI_price_form.Additions}}
         </div>
         <div class = "col-4 col-md-3">
-            <label for = "{{ price_form.Deductions.id_for_label}}"><b>{{price_form.Deductions.label}}</b></label>
-            {{price_form.Deductions}}
+            <label for = "{{ PI_price_form.Deductions.id_for_label}}"><b>{{PI_price_form.Deductions.label}}</b></label>
+            {{PI_price_form.Deductions}}
         </div>
         <div class = "col-4 col-md-3">
-            <label for = "{{ price_form.Revised_Amount.id_for_label}}"><b>{{price_form.Revised_Amount.label}}</b></label>
-            {{price_form.Revised_Amount}}
+            <label for = "{{ PI_price_form.Revised_Amount.id_for_label}}"><b>{{PI_price_form.Revised_Amount.label}}</b></label>
+            {{PI_price_form.Revised_Amount}}
         </div>
     
         <div class="form-floating">
-            {{price_form.Comments}}
-            <label for="{{ price_form.Revised_Amount.id_for_label}}">{{price_form.Comments.label}}</label>
+            {{PI_price_form.Comments}}
+            <label for="{{ PI_price_form.Revised_Amount.id_for_label}}">{{PI_price_form.Comments.label}}</label>
           </div>
        </div>
     
        <br><br>
        <button type="submit" class="btn btn-success" id="updateButton">Update</button>
+       <a href="{% url 'purchase_invoice' %}" class="btn btn-secondary">Back</a>
     </form>
     <br>
     <br>
@@ -353,6 +390,37 @@
         console.log("Document is ready. Initializing Select2.");
         initializeProductSelect2('#id_Product_Name');
     });
+//Profit Percentage Ajax--
+    $(document).ready(function() {
+    function fetchProfitPercentage() {
+        var productName = $('#id_Product_Name').val();
+        var batchNo = $('#id_Batch_No').val();
+        var size = $('#id_Size').val();
+        var unit = $('#id_Unit').val();
+
+        if (productName && batchNo && size && unit) {
+            $.ajax({
+                url: '{% url "get_profit_percentage" %}',
+                data: {
+                    'product_name': productName,
+                    'batch_no': batchNo,
+                    'size': size,
+                    'unit': unit,
+                },
+                success: function(data) {
+                    if (data.profit_percentage !== null) {
+                        $('#id_Profit_percentage').val(data.profit_percentage);
+                    } else {
+                        $('#id_Profit_percentage').val(''); // Clear the field if no data found
+                    }
+                }
+            });
+        }
+    }
+
+    // Attach the function to the change event of relevant fields
+    $('#id_Product_Name, #id_Batch_No, #id_Size, #id_Unit').change(fetchProfitPercentage);
+});
 
     // Auto calculated fields..
 function calculateBTFA(){
@@ -368,10 +436,10 @@ function calculateBTFA(){
 document.addEventListener("DOMContentLoaded", function() {
         function setDeleteActionAndSubmit(productId) {
             const actionTypeElement = document.getElementById('action_type');
-            const productIdElement = document.getElementById('product_id');
+            // const productIdElement = document.getElementById('product_id');
             const formElement = document.getElementById('invoiceForm');
             
-            if (actionTypeElement && productIdElement && formElement) {
+            if (actionTypeElement && formElement) {
                 actionTypeElement.value = 'delete';
                 productIdElement.value = productId;
                 formElement.submit();
@@ -447,6 +515,10 @@ function populateFormForUpdate(productData) {
     document.getElementById('id_CGST').value = data.CGST;
     document.getElementById('id_SGST').value = data.SGST;
     document.getElementById('id_PU_Final_Amount').value = data.PU_Final_Amount;
+    document.getElementById('id_MRP').value = data.MRP;
+    document.getElementById('id_Cost_Price').value = data.Cost_Price;
+    document.getElementById('id_Profit_percentage').value = data.Profit_percentage;
+    document.getElementById('id_Selling_Price').value = data.Selling_Price;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -553,6 +625,58 @@ $(document).ready(function() {
 
 
 //
+
+function calculateCostPrice() {
+        var ATFA = parseFloat(document.getElementById('id_PU_Final_Amount').value) || 0;
+        var Quantity = parseFloat(document.getElementById('id_Quantity').value) || 0;
+
+        var costprice = ATFA / Quantity;
+
+        document.getElementById('id_Cost_Price').value = costprice.toFixed(2);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputs = document.querySelectorAll('#id_Quantity , #id_CGST, #id_SGST , #id_BT_Rate, #id_BT_Final_Amount , #id_PU_Final_Amount');
+        inputs.forEach(function(input) {
+            input.addEventListener('input', calculateCostPrice);
+        });
+    });
+
+
+function calculateSellingPrice() {
+        var costPrice = parseFloat(document.getElementById('id_Cost_Price').value) || 0;
+        var profitPercentage = parseFloat(document.getElementById('id_Profit_percentage').value) || 0;
+
+        var profitAmount = costPrice * (profitPercentage / 100);
+        var sellingPrice = costPrice + profitAmount;
+
+        document.getElementById('id_Selling_Price').value = sellingPrice.toFixed(2);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputs = document.querySelectorAll('#id_Cost_Price, #id_Profit_percentage, #id_Quantity , #id_CGST, #id_SGST , #id_BT_Rate, #id_BT_Final_Amount , #id_PU_Final_Amount');
+        inputs.forEach(function(input) {
+            input.addEventListener('input', calculateSellingPrice);
+        });
+    });
+// For calculating profit percentage...
+    function calculateProfitPercentage() {
+            var costPrice = parseFloat(document.getElementById('id_Cost_Price').value) || 0;
+            var sellingPrice = parseFloat(document.getElementById('id_Selling_Price').value) || 0;
+
+            var profitPercentage = ((sellingPrice - costPrice) / costPrice) * 100;
+
+            document.getElementById('id_Profit_percentage').value = profitPercentage.toFixed(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var priceInputs = document.querySelectorAll('#id_Cost_Price, #id_Profit_percentage, #id_Quantity , #id_CGST, #id_SGST , #id_BT_Rate, #id_BT_Final_Amount , #id_PU_Final_Amount');
+            priceInputs.forEach(function(input) {
+                input.addEventListener('input', calculateSellingPrice);
+            });
+
+            document.getElementById('id_Selling_Price').addEventListener('input', calculateProfitPercentage);
+        });
 
 
 function refreshPage(invoiceId) {

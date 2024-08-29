@@ -26,8 +26,8 @@ urlpatterns = [
     # Price URLS
     path('price/', views.price,name='price'),
     path('price_add/', views.price_add,name='price_add'),
-    path('price_record/<str:pk>', views.price_record,name='price_record'),
-    path('price_update/<str:pk>', views.price_update,name='price_update'),
+    path('price_record/<slug:pk>/<slug:size>/<slug:unit>/', views.price_record,name='price_record'),
+    path('price_update/<slug:pk>/<slug:size>/<slug:unit>/<slug:batch_no>/', views.price_update,name='price_update'),
     path('price_del/<slug:pk>', views.price_del,name='price_del'),
     # Symptom URLS
     path('symptom_page/', views.symptom_page,name='symptom_page'),
@@ -44,7 +44,7 @@ urlpatterns = [
     path('purchase_invoice_add/', views.purchase_invoice_add, name='purchase_invoice_add'),
     path('get_company_address/', views.get_company_address, name='get_company_address'),
     path('get_product_name',views.get_product_name,name = 'get_product_name'),
-    path('purchase_invoice_on_db',views.submit_purchase_invoice_cache, name = 'purchase_invoice_on_db'),
+    # path('purchase_invoice_on_db',views.submit_purchase_invoice_cache, name = 'purchase_invoice_on_db'),
     path('purchase_invoice_record/<slug:pk>',views.purchase_invoice_record,name = 'purchase_invoice_record'),
     path('purchase_invoice_del/<slug:pk>',views.purchase_invoice_del,name='purchase_invoice_del'),
     path('purchase_invoice_update/<slug:pk>',views.purchase_invoice_update,name= 'purchase_invoice_update'),
@@ -53,4 +53,6 @@ urlpatterns = [
     #Return Invoice Urls
     path('return_invoice/',views.return_invoice_home,name = 'return_invoice'),
     path('return_invoice_add/',views.return_invoice_add,name = 'return_invoice_add'),
+    path('check_quantity/', views.check_quantity, name='check_quantity'),
+    path('get-profit-percentage/', views.get_profit_percentage, name='get_profit_percentage'),
 ]

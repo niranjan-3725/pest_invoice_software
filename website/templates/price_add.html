@@ -42,21 +42,16 @@
 <script>
     function calculateSellingPrice() {
         var costPrice = parseFloat(document.getElementById('id_Cost_Price').value) || 0;
-        var cgst = parseFloat(document.getElementById('id_CGST').value) || 0;
-        var sgst = parseFloat(document.getElementById('id_SGST').value) || 0;
         var profitPercentage = parseFloat(document.getElementById('id_Profit_percentage').value) || 0;
 
-        var cgstAmount = costPrice * (cgst / 100);
-        var sgstAmount = costPrice * (sgst / 100);
-        var basePrice = costPrice + cgstAmount + sgstAmount;
-        var profitAmount = basePrice * (profitPercentage / 100);
-        var sellingPrice = basePrice + profitAmount;
+        var profitAmount = costPrice * (profitPercentage / 100);
+        var sellingPrice = costPrice + profitAmount;
 
         document.getElementById('id_Selling_Price').value = sellingPrice.toFixed(2);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        var inputs = document.querySelectorAll('#id_Cost_Price, #id_CGST, #id_SGST, #id_Profit_percentage');
+        var inputs = document.querySelectorAll('#id_Cost_Price, #id_Profit_percentage');
         inputs.forEach(function(input) {
             input.addEventListener('input', calculateSellingPrice);
         });
@@ -64,20 +59,15 @@
 // For calculating profit percentage...
     function calculateProfitPercentage() {
             var costPrice = parseFloat(document.getElementById('id_Cost_Price').value) || 0;
-            var cgst = parseFloat(document.getElementById('id_CGST').value) || 0;
-            var sgst = parseFloat(document.getElementById('id_SGST').value) || 0;
             var sellingPrice = parseFloat(document.getElementById('id_Selling_Price').value) || 0;
 
-            var cgstAmount = costPrice * (cgst / 100);
-            var sgstAmount = costPrice * (sgst / 100);
-            var basePrice = costPrice + cgstAmount + sgstAmount;
-            var profitPercentage = ((sellingPrice - basePrice) / basePrice) * 100;
+            var profitPercentage = ((sellingPrice - costPrice) / costPrice) * 100;
 
             document.getElementById('id_Profit_percentage').value = profitPercentage.toFixed(2);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            var priceInputs = document.querySelectorAll('#id_Cost_Price, #id_CGST, #id_SGST, #id_Profit_percentage');
+            var priceInputs = document.querySelectorAll('#id_Cost_Price, #id_Profit_percentage');
             priceInputs.forEach(function(input) {
                 input.addEventListener('input', calculateSellingPrice);
             });

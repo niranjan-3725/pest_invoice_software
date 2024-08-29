@@ -5,18 +5,18 @@
 <div class="card">
     <div class="card-header">
         <div >
-            <strong>Invoice No:</strong> {{ Invoice_records.Invoice_Id }}
-            <strong style="padding-left: 900px;"> Invoice Date: </strong> {{Invoice_records.Invoice_Date}}
+            <strong>Invoice No:</strong> {{ PI_Invoice_records.Invoice_Id }}
+            <strong style="padding-left: 900px;"> Invoice Date: </strong> {{PI_Invoice_records.Invoice_Date}}
         </div>
         <!-- <div ">{{Invoice_records.Invoice_Date}}</div> -->
     </div>
     <div class="card-body">
         <p class="card-text">
-            <strong>Company Name: </strong>{{ Invoice_records.Company_Name }}
+            <strong>Company Name: </strong>{{ PI_Invoice_records.Company_Name }}
         </p>
         
         <p class="card-text">
-            <strong>Address: </strong>{{ Invoice_records.Address }}
+            <strong>Address: </strong>{{ PI_Invoice_records.Address }}
         </p>
     </div>
 
@@ -42,8 +42,12 @@
            <th>CGST</th>
            <th>SGST</th>
            <th>After Tax Final Amount</th>
+           <th>MRP</th>
+           <th>Cost Price</th>
+           <th>Profit Percentage</th>
+           <th>Selling Price</th>
        </thead>
-    {%for data in Product_records%}
+    {%for data in PI_Product_records%}
        <tr>
         <td>{{ data.Id }}</td>
         <td>{{ data.Product_Name }}</td>
@@ -58,6 +62,10 @@
         <td>{{ data.CGST }} ₹</td>
         <td>{{ data.SGST }} ₹</td>
         <td><b>{{ data.PU_Final_Amount }} ₹</b></td>
+        <td>{{data.Combo_Id.MRP}}</td>
+        <td>{{data.Combo_Id.Cost_Price}}</td>
+        <td>{{ data.Combo_Id.Profit_percentage }} %</td>
+        <td>{{ data.Combo_Id.Selling_Price }} ₹</td>
        </tr>
        {%endfor%}
      </table>
@@ -74,10 +82,10 @@
             <th>Revised Amount</th>
         </thead>
         <tr>
-            <td>{{Price_records.Final_Amount}} ₹</td>
-            <td>{{Price_records.Additions}} ₹</td>
-            <td>{{Price_records.Deductions}} ₹</td>
-            <td>{{Price_records.Revised_Amount}} ₹</td>
+            <td>{{PI_Price_records.Final_Amount}} ₹</td>
+            <td>{{PI_Price_records.Additions}} ₹</td>
+            <td>{{PI_Price_records.Deductions}} ₹</td>
+            <td>{{PI_Price_records.Revised_Amount}} ₹</td>
         </tr>
     </table>
 </div>
@@ -87,16 +95,16 @@
     </div>
 <div class="card-body">
         <blockquote class="blockquote mb-0">
-          <p>{{Price_records.Comments}}</p>
+          <p>{{PI_Price_records.Comments}}</p>
         </blockquote>
 </div>
     </div>
 <br>
 <a href="{% url 'purchase_invoice' %}" class="btn btn-secondary">Back</a>
 
-<a href="{%url 'purchase_invoice_del' Invoice_records.Invoice_Id %}" class="btn btn-danger">Delete</a>
+<a href="{%url 'purchase_invoice_del' PI_Invoice_records.Invoice_Id %}" class="btn btn-danger">Delete</a>
 
-<a href="{%url 'purchase_invoice_update_refresh' Invoice_records.Invoice_Id%}" class="btn btn-success">Update Record</a>
+<a href="{%url 'purchase_invoice_update_refresh' PI_Invoice_records.Invoice_Id%}" class="btn btn-success">Update Record</a>
 <br><br>
 {%endif%}
 

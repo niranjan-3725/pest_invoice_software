@@ -1,13 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<h5>Update Price details over here.</h5> 
-<div class="col-md-6 offset-md-3">
+<h5>Update {{Product}}-{{Batch_No}} 's details.</h5> 
+
     <br/>
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
-        <br/>
+        <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 75px;">
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Product.id_for_label}}"><b>{{form.Product.label}}</b></label>
+            {{form.Product}}
+            </div> 
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Batch_No.id_for_label}}"><b>{{form.Batch_No.label}}</b></label>
+            {{form.Batch_No}}
+            </div> 
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Size.id_for_label}}"><b>{{form.Size.label}}</b></label>
+            {{form.Size}}
+            </div> 
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Unit.id_for_label}}"><b>{{form.Unit.label}}</b></label>
+            {{form.Unit}}
+            </div> 
+        </div>
+        <!-- {{ form.as_p }} -->
+        <br>
+        <div class = 'row' style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 150px;">
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.MRP.id_for_label}}"><b>{{form.MRP.label}}</b></label>
+            {{form.MRP}}
+            </div> 
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Befor_Tax_price.id_for_label}}"><b>{{form.Befor_Tax_price.label}}</b></label>
+            {{form.Befor_Tax_price}}
+            </div>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Cost_Price.id_for_label}}"><b>{{form.Cost_Price.label}}</b></label>
+            {{form.Cost_Price}}
+            </div>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Profit_percentage.id_for_label}}"><b>{{form.Profit_percentage.label}}</b></label>
+            {{form.Profit_percentage}}
+            </div>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ form.Selling_Price.id_for_label}}"><b>{{form.Selling_Price.label}}</b></label>
+            {{form.Selling_Price}}
+            </div>
+        </div>
+        
+        <br>
         <button type="submit" class="btn btn-success">Update Price</button>
         <a href="{% url 'price' %}" class="btn btn-secondary">Back</a>
     </form>
@@ -57,7 +99,7 @@
             });
 
             // Preselect the current value
-            var current_product = "{{ form.instance.Product.Name }}";
+            var current_product = "{{ Product }}";
             if (current_product) {
                 var newOption = new Option(current_product, current_product, true, true);
                 $('#id_Product').append(newOption).trigger('change');

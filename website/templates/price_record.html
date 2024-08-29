@@ -4,48 +4,81 @@
 {% if user.is_authenticated %}
 
 <div class="card">
-    <div class="card-header"><strong> {{ price_rec_var.Product }} </strong>
+    <div class="card-header"><strong> {{ Product }} - {{ size }}/{{ unit }}</strong>
     </div>
     <div class="card-body">
+      <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">Batch code</th>
+            <th scope="col">MRP</th>
+            <th scope="col">Before Tax Price</th>
+            <th scope="col">Cost Price</th>
+            <!-- <th scope="col">CGST</th>  
+            <th scope="col">SGST</th> -->
+            <th scope="col">Profit Percentage</th>
+            <th scope="col">Selling Price</th>
+          </tr>
+        </thead>
+      <tbody>
+        {% if price_rec_var %}
+          {%for record in price_rec_var%}
+        <tr>
+            <!-- <td><a href="{}">{{record.Product}}</a></td> -->
+            <td ><a href="{%url 'price_update' record.Product record.Size record.Unit record.Batch_No %}">{{record.Batch_No}}</a></td>
+            <!-- <td >{{record.Size}}-{{record.Unit}} </td> -->
+            <!-- <td>{{record.Unit}}</td> -->
+            <td>{{record.MRP}} ₹</td>
+            <td>{{record.Befor_Tax_price}} ₹</td>
+            <td>{{record.Cost_Price}} ₹</td>
+            <!-- <td>{{record.CGST}} %</td>
+            <td>{{record.SGST}} %</td> -->
+            <td>{{record.Profit_percentage}} %</td>
+            <td>{{record.Selling_Price}} ₹</td>
+          {%endfor%}
+        </tr>
+      {%endif%}
+      </tbody>
+      </table>
+
+
+
+  <!-- <p class="card-text">
+  <strong>Batch code: </strong>{{ price_rec_var.Batch_No }}</p>
   
   <p class="card-text">
-  <strong>Batch code: </strong>{{ price_rec_var.Batch_code }}</p>
-  
-  <p class="card-text">
-  <strong>Packaging size: </strong>{{ price_rec_var.Packaging_Size }} {{ price_rec_var.Unit }}</p>
-  
+  <strong>Packaging size: </strong>{{ price_rec_var.Size }} {{ price_rec_var.Unit }}</p>
+   -->
   <!-- <p class="card-text">
   <strong>Unit: </strong>{{ price_rec_var.Unit }}
   </p> -->
   
-  <p class="card-text">
+  <!-- <p class="card-text">
   <strong>MRP: </strong>{{ price_rec_var.MRP }} Rupees</p>
   
   <p class="card-text">
-  <strong>Cost Price: </strong>{{ price_rec_var.Cost_Price }} Rupees</p>
+  <strong>Cost Price: </strong>{{ price_rec_var.Cost_Price }} Rupees</p> -->
   
-  <p class="card-text">
+  <!-- <p class="card-text">
   <strong>CGST: </strong>{{ price_rec_var.CGST }} %</p>
   
   <p class="card-text">
-  <strong>SGST: </strong>{{ price_rec_var.SGST }} %</p>
-  
-  <p class="card-text">
-  <strong>Selling Price: </strong>{{ price_rec_var.Selling_Price }} Rupees</p>
+  <strong>SGST: </strong>{{ price_rec_var.SGST }} %</p> -->
   
   <!-- <p class="card-text">
+  <strong>Selling Price: </strong>{{ price_rec_var.Selling_Price }} Rupees</p>
+   -->
+  <!-- <p class="card-text">
   <strong>ID: </strong>{{ price_rec_var.id }}</p> -->
-      
-      
     </div>
   </div>
 
   <br/><br/>
 <a href="{% url 'price' %}" class="btn btn-secondary">Back</a>
 
-<a href="{%url 'price_del' price_rec_var.Product%}" class="btn btn-danger">Delete</a>
+<!-- <a href="{}" class="btn btn-danger">Delete</a> -->
 
-<a href="{% url 'price_update' price_rec_var.Product %}" class="btn btn-success">Update Record</a>
+<!-- <a href="{}" class="btn btn-success">Update Record</a> -->
   
   {%endif%}
 

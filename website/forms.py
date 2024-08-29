@@ -119,44 +119,52 @@ class AddProductForm(forms.ModelForm):
 class AddPriceForm(forms.ModelForm):
 	class Meta:
 		model = Price
-		fields = ['Product','Batch_code', 'Packaging_Size', 'Unit','MRP','Cost_Price','CGST','SGST','Profit_percentage','Selling_Price']
+		fields = ['Product','Batch_No', 'Size', 'Unit','MRP','Befor_Tax_price','Cost_Price'
+			# ,'CGST','SGST'
+			,'Profit_percentage','Selling_Price'
+			]
 		widgets = {
-            'Product': forms.Select(attrs={'placeholder': 'Select Product here.','style': 'width: 100%;'}),
-			'Batch_code': forms.TextInput(attrs={'placeholder': 'Batch code','style': 'width: 100%;'}),
-            'Packaging_Size': forms.TextInput(attrs={'placeholder': 'Packaging Size(1,2..)','style': 'width: 100%;'}),
-            'Unit': forms.Select(attrs={'placeholder': 'Select Kgs or Grms','style': 'width: 100%;'}), 
-			'MRP': forms.TextInput(attrs={'placeholder': 'Maximum Retail Price','style': 'width: 100%;'}),
-			'Cost_Price': forms.TextInput(attrs={'placeholder': 'Cost Price','style': 'width: 100%;'}),
-			'CGST': forms.TextInput(attrs={'placeholder': 'CGST %','style': 'width: 100%;'}),
-			'SGST': forms.TextInput(attrs={'placeholder': 'SGST %','style': 'width: 100%;'}),
-			'Profit_percentage': forms.TextInput(attrs={'placeholder': 'Profit Percentage (%)','style': 'width: 100%;','oninput': 'calculateSellingPrice();'}),
-			'Selling_Price': forms.TextInput(attrs={'placeholder': 'Selling Price','style': 'width: 100%;'}),
+            'Product': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Product here.'}),
+			'Batch_No': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Batch code'}),
+            'Size': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Packaging Size(1,2..)'}),
+            'Unit': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Kgs or Grms'}), 
+			'MRP': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Maximum Retail Price'}),
+			'Befor_Tax_price': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Before Tax Price'}),
+			'Cost_Price': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Cost Price'}),
+			# 'CGST': forms.TextInput(attrs={'placeholder': 'CGST %','style': 'width: 100%;'}),
+			# 'SGST': forms.TextInput(attrs={'placeholder': 'SGST %','style': 'width: 100%;'}),
+			'Profit_percentage': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Profit Percentage (%)','oninput': 'calculateSellingPrice();'}),
+			'Selling_Price': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Selling Price'}),
         }
 		labels = {
             'Product': 'Product',
-			'Batch_code': '',
-            'Packaging_Size': '',
-            'Unit': '',
-			'MRP': '',
-			'Cost_Price': '',
-			'CGST': '',
-			'SGST': '',
-			'Profit_percentage':'',
-			'Selling_Price': '',
+			'Batch_No': 'Batch No',
+            'Size': 'Size',
+            'Unit': 'Unit',
+			'MRP': 'MRP',
+			'Befor_Tax_price':'Befor Tax Price',
+			'Cost_Price': 'Cost Price',
+			# 'CGST': '',
+			# 'SGST': '',
+			'Profit_percentage':'Profit Percentage',
+			'Selling_Price': 'Selling Price',
 			}
 		required = {
 			'Product':True,
-			'Batch_code':True
+			'Batch_No':True
 		}
 	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)
 		self.fields['Product'].queryset = Product.objects.none()
+		for field in self.fields.values():
+			field.required = False
 		
 		if 'Product' in self.data:
 			self.fields['Product'].queryset = Product.objects.all()
 		elif self.instance and self.instance.pk:
 			self.fields['Product'].queryset = Product.objects.all()
 			self.fields['Product'].initial = self.instance.Product
+		
 
 
 class AddSymptomForm(forms.ModelForm):
@@ -392,10 +400,10 @@ class RI_ProductForm(forms.ModelForm):
         ]
 		widgets = {
 			'Product_Name': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Product Name'}),
-			'Batch_No': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Batch No'}),
+			'Batch_No': forms.Select(attrs={'class': 'form-control','placeholder': 'Enter Batch No'}),
 			'Manufacture_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
 			'Expiry_date': forms.DateInput(attrs={'class':"form-control",'type':'date'}),
-			'Size': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Size',}),
+			'Size': forms.Select(attrs={'class': 'form-control','placeholder': 'Enter Size',}),
 			'Unit': forms.Select(attrs={'class': 'form-control','placeholder': 'Select unit',},choices=Unit_choices),
 			'Quantity': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Enter Quantity',}),
 			'BT_Rate': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Before Tax Rate/Unit',}),

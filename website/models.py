@@ -79,15 +79,15 @@ class Product(models.Model):
     def __str__(self):
         return self.Name
     def save(self, *args, **kwargs):
-        Name_var = re.sub(r'(\d)(%|\+|\-|\*|\/)', r'\1 \2 ', self.Name)
-        Name_var = re.sub(r'([^a-zA-Z0-9\s])', r' \1 ', Name_var)
-        Name_var = ' '.join(Name_var.split())
-        self.Name = Name_var.upper()
-        #Formula Column Trasformation
-        Fomrula_var = re.sub(r'(\d)(%|\+|\-|\*|\/)', r'\1 \2 ', self.Formula)
-        Fomrula_var = re.sub(r'([^a-zA-Z0-9\s])', r' \1 ', Fomrula_var)
-        Fomrula_var = ' '.join(Fomrula_var.split())
-        self.Formula = Fomrula_var.upper()
+        # Name_var = re.sub(r'(\d)(%|\+|\-|\*|\/)', r'\1 \2 ', self.Name)
+        # Name_var = re.sub(r'([^a-zA-Z0-9\s])', r' \1 ', Name_var)
+        # Name_var = ' '.join(Name_var.split())
+        # self.Name = Name_var.upper()
+        # #Formula Column Trasformation
+        # Fomrula_var = re.sub(r'(\d)(%|\+|\-|\*|\/)', r'\1 \2 ', self.Formula)
+        # Fomrula_var = re.sub(r'([^a-zA-Z0-9\s])', r' \1 ', Fomrula_var)
+        # Fomrula_var = ' '.join(Fomrula_var.split())
+        # self.Formula = Fomrula_var.upper()
         super(Product, self).save(*args, **kwargs)
 
         
@@ -98,29 +98,29 @@ class Price(models.Model):
 		('Lts','Lts'),
 		('Mls','Mls')
     ]
-    ID = models.CharField(primary_key=True,max_length=200,editable=False)
+    Combo_ID = models.CharField(primary_key=True,max_length=200,editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    # Product = models.CharField(max_length=100)
-    Product = models.ForeignKey(Product,on_delete=models.CASCADE,verbose_name='Product')
-    Batch_code = models.CharField(max_length=25)
-    Packaging_Size = models.IntegerField()
+    Product = models.CharField(max_length=255)
+    # Product = models.ForeignKey(Product,on_delete=models.CASCADE,verbose_name='Product')
+    Batch_No = models.CharField(max_length=25)
+    Size = models.IntegerField()
     Unit = models.CharField(max_length=25,choices=Unit_choices,default='Kg')
     MRP = models.DecimalField(max_digits=10,decimal_places=3)
+    Befor_Tax_price = models.DecimalField(max_digits=10,decimal_places=3)
     Cost_Price = models.DecimalField(max_digits=10,decimal_places=3)
-    CGST = models.DecimalField(max_digits=10,decimal_places=3)
-    SGST = models.DecimalField(max_digits=10,decimal_places=3)
+    # CGST = models.DecimalField(max_digits=10,decimal_places=3)
+    # SGST = models.DecimalField(max_digits=10,decimal_places=3)
     Profit_percentage = models.DecimalField(max_digits=10,decimal_places=3)
     Selling_Price = models.DecimalField(max_digits=10,decimal_places=3)
+
     
     #This db_table sets the table name in the db
     class Meta:
         db_table = 'price'
     def __str__(self):
         return str(self.Product)
-    def save(self, *args, **kwargs):
-        self.ID = f'{self.Product}_{self.Packaging_Size}_{self.Unit}_{self.Batch_code.upper()}'
-        self.Batch_code = self.Batch_code.upper()
-        super(Price, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     super(Price, self).save(*args, **kwargs)
 
 class symptom(models.Model):
     disease_choices = [
@@ -210,7 +210,11 @@ class PI_Product_info(models.Model):
     SGST = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
     PU_Final_Amount = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
     Combo_Pk_Id = models.CharField(max_length=255,primary_key=True) #Invoice_Id_Product_Name_Batch_No_Size+Unit
-    Combo_Id = models.CharField(max_length=255) #Product_Name_Batch_No_Size+Unit
+    Combo_Id = models.OneToOneField(Price, on_delete=models.DO_NOTHING, to_field='Combo_ID', 
+                              related_name='product_info', blank=True, null=True) #Product_Name_Batch_No_Size+Unit
+
+    # price = models.OneToOneField(Price, on_delete=models.CASCADE, to_field='Combo_ID', 
+    #                           related_name='product_info', blank=True, null=True)
 
     class Meta:
         db_table = 'PI_Product_info'
