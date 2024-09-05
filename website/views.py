@@ -31,8 +31,10 @@ def home(request):
 		if user is not None:
 			login(request, user)
 			messages.success(request, "You Have Been Logged In!")
-			context = {'username': request.user.username.replace('_',' ')}  
-			return redirect('home',context)
+			# context = {'username': request.user.username.replace('_',' ')}  
+			return redirect('home'
+				#    ,context
+				   )
 		else:
 			messages.success(request, "There Was An Error Logging In, Please Try Again...")
 			return redirect('home')
@@ -388,9 +390,9 @@ def Inventory_detail(request,product,Size,Unit):
 
 #inventory Addition or Updation logic
 def Add_Or_Update_to_inventory(product_lst,var,old_dict,Inv_Id):
+	print('0. Add or Update inventory is activated')
 	existing_combo_ids = inventory.objects.filter(Combo_Id__in=product_lst).values_list('Combo_Id', flat=True)
 	old = [item for item in product_lst if item in existing_combo_ids]
-	
 	new = [item for item in product_lst if item not in existing_combo_ids]
 	if var == 'PI':
 		for product in new:
@@ -433,31 +435,84 @@ def Add_Or_Update_to_inventory(product_lst,var,old_dict,Inv_Id):
 			print('New Product List --->',New_product_list)
 			for i in New_product_list:
 				for j in old_dict:
-					if i['Combo_Id'] == j['Combo_Id']:
+					if i['Combo_Id'] == j['Combo_Id'] and j['Flag'] != 'Yes':
 						i['Quantity'] -= j['Quantity']
 						#need to make changes here..
 					if j['Flag'] == 'Yes':
 						inventory.objects.filter(Combo_Id = j['Combo_Id']).update(
-							Quantity = j['Quantity']
-						)
+							Quantity = F('Quantity') +j['Quantity']
+						)	
 			print(f'After New Product List -->',New_product_list)
 			for data in New_product_list:
 				inventory.objects.filter(Combo_Id = data['Combo_Id']).update(
-				Product_Name = data['Product_Name'],
-				Batch_No = data['Batch_No'],
-				Size = data['Size'],
-				Unit = data['Unit'],
-				Quantity = F('Quantity') + data['Quantity'],
-				Manufacture_date = data['Manufacture_date'],
-				Expiry_date = data['Expiry_date'],
-				Combo_Id = data['Combo_Id']
-			)
+						Quantity = F('Quantity') + data['Quantity'],
+						)
 	if var == 'DEL':
 		for data in old_dict:
 			inventory.objects.filter(Combo_Id = data['Combo_Id']).update(
 				Quantity = F('Quantity') - data['Quantity'],
 			)
+	if var == 'RI':
+		# for product in old:
+		# 	Values = RI_Product_Info.objects.filter(Combo_Id = product, Return_Id =Inv_Id).values_list(
+		# 		'Product_Name',
+		# 		'Batch_No',
+		# 		'Size',
+		# 		'Unit',
+		# 		'Quantity',
+		# 		'Manufacture_date',
+		# 		'Expiry_date',
+		# 		'Combo_Id'
+		# 	)
+		# 	New_product_list = [dict(zip(('Product_Name', 'Batch_No', 'Size', 'Unit', 'Quantity', 'Manufacture_date', 'Expiry_date', 'Combo_Id'), item)) for item in Values]
+		# 	if old_dict:
+		# 		for i in New_product_list:
+		# 			for j in old_dict:
+		# 				if i['Combo_Id'] == j['Combo_Id']:
+		# 					i['Quantity'] = j['Quantity']
+		# 				#need to make changes here..
+		# 		for data in New_product_list:
+		# 			inventory.objects.filter(Combo_Id = data['Combo_Id']).update(
+		# 					Quantity = F('Quantity') - data['Quantity'],
+		# 				)
+		if old_dict:
+			Values = RI_Product_Info.objects\
+									.filter(Combo_Id = product, Return_Id =Inv_Id)\
+									.values_list(
+										'Product_Name',
+										'Batch_No',
+										'Size',
+										'Unit',
+										'Quantity',
+										'Manufacture_date',
+										'Expiry_date',
+										'Combo_Id'
+												)
+			New_product_list = [dict(zip(('Product_Name', 'Batch_No', 'Size', 'Unit', 'Quantity', 'Manufacture_date', 'Expiry_date', 'Combo_Id'), item)) for item in Values]
+			for data in old_dict:
+				inventory.objects\
+						.filter(Combo_Id = data['Combo_Id'])\
+						.update(
+								Quantity = F('Quantity') - data['Quantity'],
+							 	)
 		
+		else:
+			for data in old:
+				Values = RI_Product_Info.objects.filter(Combo_Id = product, Return_Id =Inv_Id).values_list(
+				'Product_Name',
+				'Batch_No',
+				'Size',
+				'Unit',
+				'Quantity',
+				'Manufacture_date',
+				'Expiry_date',
+				'Combo_Id'
+				)
+				New_product_list = [dict(zip(('Product_Name', 'Batch_No', 'Size', 'Unit', 'Quantity', 'Manufacture_date', 'Expiry_date', 'Combo_Id'), item)) for item in Values]
+				for data in New_product_list:
+					inventory.objects.filter(Combo_Id = data['Combo_Id']).update(
+								Quantity = F('Quantity') - data['Quantity'],
+						)
 	
 #Purchase Invoice
 def purchase_invoice_home(request):
@@ -799,7 +854,6 @@ def purchase_invoice_update_refresh(request, pk):
 	return redirect('purchase_invoice_update', pk=pk)
 
 
-##Need to work on this...
 def purchase_invoice_update(request, pk):
 	if request.user.is_authenticated:
 		ttl = 3600
@@ -949,7 +1003,7 @@ def purchase_invoice_update(request, pk):
 						if data['Flag'] == 'Yes':
 							for j in old_dict:
 								if j['Combo_Id'] == data['Product_Name']+'_'+str(data['Batch_No'])+'_'+str(data['Size'])+'_'+data['Unit']:
-									j['Quantity'] = 0
+									j['Quantity'] = -j['Quantity']
 									j['Flag'] = 'Yes'
 								else:
 									j['Flag'] = ''
@@ -1114,7 +1168,7 @@ def purchase_invoice_update(request, pk):
 				cache.delete('PI_product_update')
 				cache.delete('PI_price_update')
 				return redirect('purchase_invoice')
-		
+		# company_name = current_PI_invoice_record['Company_Name']
 		context = {
             'PI_invoice_form': PI_Invoice_form,
             'PI_product_form': PI_product_form,
@@ -1140,7 +1194,11 @@ def return_invoice_home(request):
 			records = RI_Invoice_Info.objects.filter(Return_Id__icontains = q)
 		else:
 			records = RI_Invoice_Info.objects.all()
-			print(records)
+			cache.delete('RI_product_data')
+			cache.delete('RI_invoice_data')
+			cache.delete('RI_invoice_update')
+			cache.delete('RI_product_update')
+			cache.delete('RI_price_update')
 		return render(request, 'return_invoice.html', {'records':records})
 	else:
 		messages.success(request, "You must be logged in..to view that page.")
@@ -1154,24 +1212,33 @@ def return_invoice_add(request):
 			update_action = request.POST.get('update_action', '')
 
 			if action_type == 'add_update':
+				
 				invoice_form = RI_InvoiceForm(request.POST)
 				product_form = RI_ProductForm(request.POST)
 				price_form = RI_PriceForm(request.POST)
 
-				if invoice_form.is_valid() and product_form.is_valid():
+				if invoice_form.is_valid() :
+					print('1.Invoice and Price form are valid')
 					return_id = invoice_form.cleaned_data['Return_Id']
 
                     # Update or add the invoice data in the cache
+					cache.set('RI_invoice_data', invoice_form.cleaned_data,ttl)
 					cached_invoice_details = cache.get("RI_invoice_data", [])
-					updated_invoice_details = [inv for inv in cached_invoice_details if inv['Return_Id'] != return_id]
-					updated_invoice_details.append(invoice_form.cleaned_data)
-					cache.delete('RI_invoice_data')
-					cache.set('RI_invoice_data', updated_invoice_details,ttl)
+					print(f'2. Cache of Invoice Details-->',cached_invoice_details)
 
-                    # Update or add the product data in the cache
+                    # Update or add the product data in the
+				price_form_copy_data = request.POST.copy() 
+				size_with_unit = price_form_copy_data.get('Size','')
+				size, unit = size_with_unit.split('-')
+				price_form_copy_data['Size'] = int(size)
+				price_form_copy_data['Unit'] = unit
+				product_form = RI_ProductForm(price_form_copy_data)
+				if product_form.is_valid():
+					# cache.set('RI_product_data',[product_form.cleaned_data],ttl)
 					cached_product_details = cache.get("RI_product_data", [])
 					if update_action == 'update':
 						product_id = int(request.POST.get('product_id'))
+					# print(f'product_id --->',product_id)
 						for prod in cached_product_details:
 							if prod['Id'] == product_id:
 								prod.update({
@@ -1212,7 +1279,7 @@ def return_invoice_add(request):
 						if not updated:
 							next_id = len(cached_product_details) + 1
 							new_product_record = {
-                                'Return_Id': return_id,
+                                'Return_Id': cached_invoice_details['Return_Id'],
                                 'Id': next_id,
                                 'Product_Name': product_form.cleaned_data['Product_Name'],
                                 'Batch_No': product_form.cleaned_data['Batch_No'],
@@ -1226,14 +1293,15 @@ def return_invoice_add(request):
                                 'CGST': product_form.cleaned_data['CGST'],
                                 'SGST': product_form.cleaned_data['SGST'],
                                 'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount']
-                            }
+                            	}
 							cached_product_details.append(new_product_record)
 					cache.set('RI_product_data', cached_product_details,ttl)
+					print(f'3. Cache Of Product Details-->',cached_product_details)
 					invoice_form = RI_InvoiceForm(request.POST)
 					product_form = RI_ProductForm()
 					price_form = RI_PriceForm(request.POST)
 				else:
-					print("Form errors:", invoice_form.errors, product_form.errors,price_form.errors)
+					print("Form errors:", invoice_form.errors, product_form.errors)
 
 			elif action_type == 'delete':
 				product_id = request.POST.get('product_id')
@@ -1249,56 +1317,106 @@ def return_invoice_add(request):
 							prod['Id'] -= 1
 
 					cache.set('RI_product_data', updated_product_details,ttl)
-		#Ajax Requests
-		if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-			request_type = request.GET.get('request_type', '')
-			print(request_type)
-
-			if request_type == 'company':
-				term = request.GET.get('term', '')
-				companies = Company.objects.filter(Company_name__icontains=term)
-				response_content = list(companies.values('Company_name'))
-				return JsonResponse(response_content, safe=False)
-        
-			elif request_type == 'product':
-				term = request.GET.get('term', '')
-				company_name = request.GET.get('company_name', '')
-				products = Product.objects.filter(Name__icontains=term, Manufacturer__icontains=company_name)
-				response_content = list(products.values('Name'))
-				return JsonResponse(response_content, safe=False)
-			
-			elif request_type == 'batch_no':
-				term = request.GET.get('term', '')
-				product_name = request.GET.get('product_name', '')
-				inv = inventory.objects.filter(Product_Name__icontains = product_name , Batch_No__icontains = term)
-				response_content = list(inv.values('Batch_No').distinct())
-				return JsonResponse(response_content, safe=False)
+			elif action_type == 'update_db':
+				cached_RI_invoice_data = cache.get('RI_invoice_data', [])
+				cached_RI_product_data = cache.get('RI_product_data', [])
+				cached_RI_price_data = cache.get('RI_price_data', [])
+				return_id_var = ''
+				RI_Invoice_Info.objects.create(
+                        Return_Id = cached_RI_invoice_data['Return_Id'],
+                        Return_Date = cached_RI_invoice_data['Return_Date'],
+                        To_Company_Name = cached_RI_invoice_data['To_Company_Name'],
+                        To_Address = cached_RI_invoice_data['To_Address'],
+                        From_Company_Name = cached_RI_invoice_data['From_Company_Name'],
+                        From_Address = cached_RI_invoice_data['From_Address'],
+                        
+                            )
+				return_id_var += str(cached_RI_invoice_data['Return_Id'])
+                
+				return_object = RI_Invoice_Info.objects.get(Return_Id=cached_RI_invoice_data['Return_Id'])
+                # Save data to the database
+				products_lst = []
+				for data in cached_RI_product_data:
+					RI_Product_Info.objects.create(
+                            Return_Id = return_object,
+                            Id = data['Id'],
+                            Product_Name = data['Product_Name'],
+                            Batch_No = str(data['Batch_No']),
+                            Manufacture_date = data['Manufacture_date'],
+                            Expiry_date = data['Expiry_date'],
+                            Size = data['Size'],
+                            Unit = data['Unit'],
+                            Quantity = data['Quantity'],
+                            BT_Rate = data['BT_Rate'],
+                            BT_Final_Amount = data['BT_Final_Amount'],
+                            CGST = data['CGST'],
+                            SGST = data['SGST'],
+                            PU_Final_Amount = data['PU_Final_Amount'],
+                            Combo_Pk_Id = str(data['Return_Id']) + '_' + str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']),
+                            Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit'])
+                        )
+					products_lst.append(str(data['Product_Name']).upper()+ '_' + str(data['Batch_No']).upper() + '_' +str( data['Size']) + '_' + str(data['Unit']))
+				
+				price_form = RI_PriceForm(request.POST)
+				if price_form.is_valid():
+					RI_Price_Info.objects.create(
+                        Return_Id = return_object,
+                        Final_Amount = price_form.cleaned_data['Final_Amount'],
+                        Additions = price_form.cleaned_data['Additions'],
+                        Deductions = price_form.cleaned_data['Deductions'],
+                        Revised_Amount = price_form.cleaned_data['Revised_Amount'],
+                        Comments = price_form.cleaned_data['Comments']
+                        )
+				#<-----Inventory Logic----->#
+				print('cached_RI_product_data---->',cached_RI_product_data)
+				for data in cached_RI_product_data:
+					inventory.objects.filter(
+						Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit'])
+					).update(
+						Quantity = F('Quantity')-data['Quantity']
+					)
+				# Add_Or_Update_to_inventory(
+                #     product_lst= products_lst,
+                #     var='RI',
+                #     old_dict=[],
+                #      Inv_Id=return_object
+				# 	 )
+                # Clear the cache
+				return redirect('return_invoice')
 		elif request.GET.get('request_type', '') == 'batch_details':
 			batch_no = request.GET.get('batch_no', '')
 			inv = inventory.objects.filter(Batch_No=batch_no).values('Manufacture_date', 'Expiry_date').first()
 			size = inventory.objects.filter(Batch_No=batch_no).values('Size','Unit')
 			size_lst = [str(i['Size'])+'-' + i['Unit'] for i in size]
+			size_lst
 			if inv:
 				response_content = {
-            'Manufacture_date': inv['Manufacture_date'],
-            'Expiry_date': inv['Expiry_date'],
-			'sizes': size_lst,
-        }
+            			'Manufacture_date': inv['Manufacture_date'],
+            			'Expiry_date': inv['Expiry_date'],
+						'sizes': size_lst,
+        			}
 			else:
 				response_content = {'error': 'Batch not found'}
 			return JsonResponse(response_content)
+		
+		
 		last_invoice = RI_Invoice_Info.objects.order_by('-Return_Id').first()
-
-		invoice_form = RI_InvoiceForm(initial={
-			'Return_Id' : 1 if last_invoice is None else last_invoice+1,
-			'From_Company_Name': request.user.username.replace('_',' '),
-			'From_Address':request.user.address}
-			)
+		Return_Id = 1 if last_invoice is None else (last_invoice.Return_Id)+1
+		from_company_name = request.user.username.replace('_',' ')
+		from_address = request.user.address
+		# invoice_form = RI_InvoiceForm(initial={
+		# 					'Return_Id' : 1 if last_invoice is None else (last_invoice.Return_Id)+1,
+		# 					'From_Company_Name': request.user.username.replace('_',' '),
+		# 					'From_Address':request.user.address}
+		# 					)
+		
+		invoice_form = RI_InvoiceForm(request.POST)
 		product_form = RI_ProductForm()
 		price_form = RI_PriceForm()
 
 		cached_invoice_data = cache.get('RI_invoice_data', [])
-		cached_product_data = cache.get('RI_product_data', [])
+		cached_product_data =  cache.get('RI_product_data', [])
+		# company_name = cached_invoice_data['To_Company_Name']
 		
 		context = {
             'invoice_form': invoice_form,
@@ -1306,10 +1424,24 @@ def return_invoice_add(request):
 			'price_form': price_form,
             'Product_cache': cached_product_data,
 			'invoice_cache': cached_invoice_data,
+			'Return_Id':Return_Id,
+			'from_company_name':from_company_name,
+			'from_address':from_address
+			# 'company_name':company_name
         }
 		return render(request, 'return_invoice_add.html', context)
 	else:
 		return redirect('home')
+
+def get_batch_nos(request):
+	request_type = request.GET.get('request_type', '')
+	if request_type == 'batch_no':
+		product_name = request.GET.get('product_name', '')
+		# Fetch all distinct batch numbers for the given product name
+		inv = inventory.objects.filter(Product_Name__icontains=product_name).values('Batch_No').distinct()
+		response_content = list(inv)
+	return JsonResponse(response_content, safe=False)
+
 
 def check_quantity(request):
 	product_name = request.GET.get('product_name', '')
@@ -1320,9 +1452,7 @@ def check_quantity(request):
 	entered_quantity = int(request.GET.get('quantity', 0))
 
     # Get the available quantity from the inventory
-	print(f'productname-->',product_name,'<--batch_no-->',batch_no,'<--size-->',size,'<--unit-->',unit)
 	inv = inventory.objects.filter(Product_Name=product_name, Batch_No=batch_no,Size = size, Unit = unit).first()
-	print(f'inv-->',inv)
 	if inv:
 		available_quantity = inv.Quantity
 		if entered_quantity > available_quantity:
@@ -1331,3 +1461,395 @@ def check_quantity(request):
 			return JsonResponse({'valid': True})
 	else:
 		return JsonResponse({'valid': False, 'error': 'Invalid product or batch number'})
+
+def get_before_tax_price(request):
+	product_name = request.GET.get('product_name')
+	batch_no = request.GET.get('batch_no')
+	var = request.GET.get('size').split('-')
+	size = int(var[0])
+	unit = var[1]
+
+	try:
+		price = Price.objects.get(
+			Product=product_name,
+            Batch_No=batch_no,
+            Size=size,
+			Unit = unit
+            # Optionally filter by quantity if needed
+		)
+		data = {
+            'Before_Tax_price': price.Befor_Tax_price,
+        }
+	except Price.DoesNotExist:
+		data = {
+            'Before_Tax_price': None,
+        }
+
+	return JsonResponse(data)
+
+def fetch_sizes_for_batch(request):
+    batch_no = request.GET.get('batch_no')
+    sizes = inventory.objects.filter(Batch_No=batch_no).values('Size', 'Unit').distinct()
+    size_data = [{'size': size['Size'], 'unit': size['Unit']} for size in sizes]
+    
+    return JsonResponse({'sizes': size_data})
+
+def return_invoice_record(request,pk):
+	if request.user.is_authenticated:
+		# if 'return_invoice_q' in request.GET:
+		# 	q =request.GET['return_invoice_q']
+		# 	records = RI_Invoice_Info.objects.filter(Return_Id__icontains = q)
+		# else:
+		RI_Invoice_records = RI_Invoice_Info.objects.get(Return_Id = pk)
+		RI_Product_records = RI_Product_Info.objects.filter(Return_Id=pk).order_by('Id')
+		RI_Price_records = RI_Price_Info.objects.get(Return_Id = pk)
+		context = {'RI_Invoice_records':RI_Invoice_records,
+			       'RI_Product_records':RI_Product_records,
+				   'RI_Price_records':RI_Price_records}
+		return render(request, 'return_invoice_record.html', context)
+	else:
+		messages.success(request, "You must be logged in..to view that page.")
+		return redirect('home')
+	
+
+def return_invoice_update_refresh(request, pk):
+	cache_list = ['RI_invoice_update', 'RI_product_update', 'RI_price_update']
+	for i in cache_list:
+		cache.delete(i)
+	return redirect('return_invoice_update', pk=pk)
+
+
+def return_invoice_update(request, pk):
+	if request.user.is_authenticated:
+		ttl = 3600
+		current_RI_invoice_record = cache.get('RI_invoice_update', RI_Invoice_Info.objects.filter(Return_Id=pk).values()[0])
+		product_data = RI_Product_Info.objects.filter(Return_Id=pk).order_by('Id')
+		product_var_list = []
+		for data in product_data:
+			product_var_list.append(
+				{'Return_Id':data.Return_Id,
+	 			'Id':data.Id,
+				'Product_Name':data.Product_Name,
+	 			'Batch_No':data.Batch_No,
+				'Size':data.Size,
+				'Unit':data.Unit,
+				'Manufacture_date':data.Manufacture_date,
+				'Expiry_date':data.Expiry_date,
+				'Quantity':data.Quantity,
+				'BT_Rate':data.BT_Rate,
+				'BT_Final_Amount':data.BT_Final_Amount,
+				'CGST':data.CGST,
+				'SGST':data.SGST,
+				'PU_Final_Amount':data.PU_Final_Amount,
+				'Combo_Pk_Id': data.Combo_Pk_Id,
+				'Combo_Id':data.Combo_Id,
+				'Flag': '',
+				}
+				)
+		current_RI_product_records = cache.get('RI_product_update',product_var_list)
+		# print('current_PI_product_records---->',current_PI_product_records)
+		current_RI_price_record = cache.get('RI_price_update', RI_Price_Info.objects.filter(Return_Id=pk).values()[0])
+
+		RI_Invoice_form = RI_InvoiceForm(request.POST or None, instance=RI_Invoice_Info.objects.get(Return_Id=pk))
+		RI_product_form = RI_ProductForm(request.POST or None)
+		RI_price_form = RI_PriceForm(request.POST or None, instance=RI_Price_Info.objects.get(Return_Id=pk))
+
+		cache.set('RI_invoice_update', current_RI_invoice_record)
+		cache.set('RI_product_update', current_RI_product_records)
+		cache.set('RI_price_update', current_RI_price_record)
+
+		#company_name = RI_Invoice_form.initial['Company_Name']
+
+		if request.method == 'POST':
+			print('POST Request has been activated')
+			action_type = request.POST.get('action_type', 'add_update')
+			if action_type == 'add_update':
+				if RI_Invoice_form.is_valid():
+					cache.set('RI_invoice_update', RI_Invoice_form.cleaned_data, ttl)
+
+				
+				# Update or add the product data in the
+				price_form_copy_data = request.POST.copy() 
+				size_with_unit = price_form_copy_data.get('Size','')
+				size, unit = size_with_unit.split('-')
+				price_form_copy_data['Size'] = int(size)
+				price_form_copy_data['Unit'] = unit
+				product_form = RI_ProductForm(price_form_copy_data)
+				if product_form.is_valid():
+					print('This product form is valid!!')
+					new_product_data = product_form.cleaned_data
+					cached_RI_product_records = cache.get('RI_product_update', [])
+					updated = False
+					for prod in cached_RI_product_records:
+						if (prod['Product_Name'] == new_product_data['Product_Name'] and
+                            prod['Batch_No'] == new_product_data['Batch_No'] and
+                            prod['Size'] == new_product_data['Size'] and
+                            prod['Unit'] == new_product_data['Unit']):
+							prod.update({
+                                'Manufacture_date': new_product_data['Manufacture_date'],
+                                'Expiry_date': new_product_data['Expiry_date'],
+                                'Quantity': new_product_data['Quantity'],
+                                'BT_Rate': new_product_data['BT_Rate'],
+                                'BT_Final_Amount': new_product_data['BT_Final_Amount'],
+                                'CGST': new_product_data['CGST'],
+                                'SGST': new_product_data['SGST'],
+                                'PU_Final_Amount': new_product_data['PU_Final_Amount'],
+								'Flag':'',
+                            })
+							updated = True
+							break
+					if not updated:
+						next_id = len(cached_RI_product_records) + 1
+						new_product_record = {
+                            'Return_Id': pk,
+                            'Id': next_id,
+                            'Product_Name': product_form.cleaned_data['Product_Name'],
+                            'Batch_No': product_form.cleaned_data['Batch_No'].upper(),
+                            'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                            'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                            'Size': product_form.cleaned_data['Size'],
+                            'Unit': product_form.cleaned_data['Unit'],
+                            'Quantity': product_form.cleaned_data['Quantity'],
+                            'BT_Rate': product_form.cleaned_data['BT_Rate'],
+                            'BT_Final_Amount': product_form.cleaned_data['BT_Final_Amount'],
+                            'CGST': product_form.cleaned_data['CGST'],
+                            'SGST': product_form.cleaned_data['SGST'],
+                            'PU_Final_Amount': product_form.cleaned_data['PU_Final_Amount'],
+							'Flag':'',
+                        }
+						cached_RI_product_records.append(new_product_record)
+					cache.set('RI_product_update', cached_RI_product_records, ttl)
+					current_RI_product_records = cache.get('RI_product_update')
+				elif not RI_product_form.is_valid():
+					print(f'Product Form errors---->',RI_product_form.errors)
+
+				elif RI_price_form.is_valid():
+					cache.set('RI_price_update', RI_price_form.cleaned_data, ttl)
+				
+				RI_product_form = RI_ProductForm()
+				RI_Invoice_form = RI_InvoiceForm(request.POST or None)
+				RI_price_form = RI_PriceForm(request.POST or None)
+
+			elif action_type == 'delete':
+				product_id = int(request.POST.get('product_id'))
+				current_RI_product_records = cache.get('RI_product_update')
+				if product_id:
+					updated_RI_product_records = []
+					for prod in current_RI_product_records:
+						if prod['Id'] == product_id:
+							prod['Flag'] = 'Yes'
+						if prod['Id'] > product_id and prod['Flag'] != 'Yes':
+							prod['Id'] -= 1
+						updated_RI_product_records.append(prod)
+					cache.set('RI_product_update', updated_RI_product_records, ttl)
+				current_RI_product_records = cache.get('RI_product_update')
+				
+				RI_product_form = RI_ProductForm()
+				RI_Invoice_form = RI_InvoiceForm(request.POST or None)
+				RI_price_form = RI_PriceForm(request.POST or None)
+
+			elif action_type == 'update_db':
+				cached_RI_invoice = cache.get('RI_invoice_update')
+				cached_RI_product = cache.get('RI_product_update')
+				if cached_RI_invoice:
+					old_quant = RI_Product_Info.objects.filter(Return_Id = pk).values_list('Combo_Id','Quantity')
+					old_dict = [dict(zip(('Combo_Id','Quantity'),item)) for item in old_quant]
+
+					RI_Invoice_Info.objects.filter(Return_Id = pk).update(
+                        Return_Date=cached_RI_invoice['Return_Date'],
+                        To_Company_Name=cached_RI_invoice['To_Company_Name'],
+                        To_Address=cached_RI_invoice['To_Address'],
+                        From_Company_Name = cached_RI_invoice['From_Company_Name'],
+                        From_Address = cached_RI_invoice['From_Address'],
+						Editable = 1
+                    )
+				
+				products_lst = []
+				for data in cached_RI_product:
+					return_object = RI_Invoice_Info.objects.get(Return_Id=cached_RI_invoice['Return_Id'])
+					
+					if RI_Product_Info.objects.filter(Return_Id = data['Return_Id']
+									   ,Product_Name = data['Product_Name']
+									   ,Batch_No = data['Batch_No']
+									   ,Size = data['Size']
+									   ,Unit = data['Unit']
+									   ).exists() and data['Flag'] != 'Yes':
+						RI_Product_Info.objects.filter(
+										Return_Id =  data['Return_Id']
+									   ,Product_Name = data['Product_Name']
+									   ,Batch_No = data['Batch_No']
+									   ,Size = data['Size']
+									   ,Unit = data['Unit']).update(
+                                Id=data['Id'],
+                                Manufacture_date=data['Manufacture_date'],
+                                Expiry_date=data['Expiry_date'],
+                                Unit=data['Unit'],
+                                Quantity=data['Quantity'],
+                                BT_Rate=data['BT_Rate'],
+                                BT_Final_Amount=data['BT_Final_Amount'],
+                                CGST=data['CGST'],
+                                SGST=data['SGST'],
+                                PU_Final_Amount=data['PU_Final_Amount'],
+                                Combo_Pk_Id=str(data['Return_Id']) + '_' + str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' + str(data['Size']) + '_' + str(data['Unit']),
+								Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' + str(data['Size']) + '_' + str(data['Unit'])
+                            )
+					if not RI_Product_Info.objects.filter(Return_Id = data['Return_Id']
+									   ,Product_Name = data['Product_Name']
+									   ,Batch_No = data['Batch_No']
+									   ,Size = data['Size']
+									   ,Unit = data['Unit']
+									   ).exists() and data['Flag'] != 'Yes':
+						RI_Product_Info.objects.create(
+										   Return_Id = return_object,
+										   Id = data['Id'],
+										   Product_Name = str(data['Product_Name']),
+										   Batch_No = str(data['Batch_No']),
+										   Manufacture_date = data['Manufacture_date'],
+										   Expiry_date = data['Expiry_date'],
+										   Size = data['Size'],
+										   Unit = data['Unit'],
+										   Quantity = data['Quantity'],
+										   BT_Rate = data['BT_Rate'],
+										   BT_Final_Amount = data['BT_Final_Amount'],
+										   CGST = data['CGST'],
+										   SGST = data['SGST'],
+										   PU_Final_Amount = data['PU_Final_Amount'],
+										   Combo_Pk_Id = str(data['Return_Id']) + '_' + str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' + str(data['Size']) + '_' + str(data['Unit']),
+										   Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' + str(data['Size']) + '_' + str(data['Unit'])
+									   )
+					#Deletes values which are not in the cache but in the DB.
+					if data['Flag'] == 'Yes':
+						print('This Delete statement has been activated')
+
+						RI_Product_Info.objects.filter(
+						Return_Id = data['Return_Id']
+						,Product_Name = data['Product_Name']
+						,Batch_No = data['Batch_No']
+						,Size = data['Size']
+						,Unit = data['Unit']
+						).delete()
+					products_lst.append(str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']))
+				RI_price_form = RI_PriceForm(request.POST, None)
+				if RI_price_form.is_valid():
+					RI_Price_Info.objects.filter(Return_Id = data['Return_Id']).update(
+                            Final_Amount=RI_price_form.cleaned_data['Final_Amount'],
+                            Additions=RI_price_form.cleaned_data['Additions'],
+                            Deductions=RI_price_form.cleaned_data['Deductions'],
+                            Revised_Amount=RI_price_form.cleaned_data['Revised_Amount'],
+                            Comments=RI_price_form.cleaned_data['Comments']
+                        )
+
+			## This logic is for making udpadting inventory
+				New_Product_List = []
+				for cache_data in cached_RI_product:
+					New_Product_List.append({
+      						'Combo_Id':cache_data['Product_Name']+'_'+str(cache_data['Batch_No'])+'_'+str(cache_data['Size'])+'_'+cache_data['Unit'],
+      						'Quantity':cache_data['Quantity'],
+      						'Flag':cache_data['Flag']
+      						})
+				New_list = []
+				for New_Data in New_Product_List:
+					found = False
+					for Old_Data in old_dict:
+						if New_Data['Combo_Id'] == Old_Data['Combo_Id']:
+							found = True
+							if New_Data['Flag']== 'Yes':
+								New_list.append(
+									{
+									'Combo_Id':New_Data['Combo_Id'],
+                      				'Quantity' : -Old_Data['Quantity']
+                      				}
+											)
+							elif  New_Data['Quantity'] > Old_Data['Quantity']:
+									New_list.append(
+									{
+									'Combo_Id':New_Data['Combo_Id'],
+                      				'Quantity' : 0
+                      				}
+											)
+							elif  New_Data['Quantity'] < Old_Data['Quantity']:
+								New_list.append(
+									{
+									'Combo_Id':New_Data['Combo_Id'],
+                      				'Quantity' : New_Data['Quantity'] - Old_Data['Quantity']
+                      				}
+											)
+					if not found:
+						New_list.append(
+							{
+								'Combo_Id':New_Data['Combo_Id'],
+                      			'Quantity' : New_Data['Quantity']
+                      		}
+										)
+				for data in New_list:
+					inventory.objects.filter(
+						Combo_Id = data['Combo_Id']
+					).update(
+						Quantity = F('Quantity') - data['Quantity']
+					)
+				cache.delete('RI_invoice_update')
+				cache.delete('RI_product_update')
+				cache.delete('RI_price_update')
+				return redirect('return_invoice')
+		# company_name = current_PI_invoice_record['Company_Name']
+		context = {
+            'RI_invoice_form': RI_Invoice_form,
+            'RI_product_form': RI_product_form,
+            'RI_price_form': RI_price_form,
+            'product_record': current_RI_product_records,
+            'invoice_record': current_RI_invoice_record,
+        }
+		
+		return render(request, 'return_invoice_update.html', context)
+	else:
+		messages.success(request, 'You must be logged in!')
+		return redirect('home')
+
+def check_quantity_RI_Update(request):
+	product_name = request.GET.get('product_name', '')
+	batch_no = request.GET.get('batch_no', '')
+	var = request.GET.get('size').split('-')
+	size = int(var[0])
+	unit = var[1]
+	entered_quantity = int(request.GET.get('quantity', 0))
+
+	old_data = cache.get('RI_product_update')
+	if entered_quantity: 
+		if any([True for data in old_data if data['Product_Name'] ==product_name and data['Batch_No'] == batch_no and data['Size'] == size and data['Unit'] == unit]):
+			old_quantity = [data['Quantity'] for data in old_data if data['Product_Name'] ==product_name and data['Batch_No'] == batch_no and data['Size'] == size and data['Unit'] == unit][0]
+			if entered_quantity < old_quantity:
+				return JsonResponse({'valid': True})
+			else:
+				print('Entered quantity is greater than the old quanityt')
+				remaining_quantity = (entered_quantity-old_quantity)
+				return JsonResponse({'valid': False, 'remaining_quantity': remaining_quantity})
+		else:
+			inv = inventory.objects.filter(Product_Name=product_name, Batch_No=batch_no, Size=size, Unit=unit).first()
+			available_quantity = inv.Quantity
+			if entered_quantity > available_quantity:
+				return JsonResponse({'valid': False, 'available_quantity': available_quantity})
+			else:
+				return JsonResponse({'valid': True})
+			
+
+def return_invoice_del(request,pk):
+	if request.user.is_authenticated:
+		RI_Invoice_Del = RI_Invoice_Info.objects.get(Return_Id = pk)
+		RI_Product_Del = RI_Product_Info.objects.filter(Return_Id = pk)
+		RI_Purchase_Del = RI_Price_Info.objects.get(Return_Id = pk)
+		old_quant = RI_Product_Info.objects.filter(Return_Id = pk).values_list('Combo_Id','Quantity')
+		old_dict = [dict(zip(('Combo_Id','Quantity'),item)) for item in old_quant]
+		
+		RI_Invoice_Del.delete()
+		RI_Product_Del.delete()
+		RI_Purchase_Del.delete()
+        
+		for product in old_dict:
+			inventory.objects.filter(Combo_Id = product['Combo_Id']).update(
+                                                                            Quantity = F('Quantity') + product['Quantity']
+                                                                            )
+		messages.success(request, f"{pk}'s {' Record has been deleted!'} ")
+		return redirect('return_invoice')
+	else:
+		messages.success(request, 'You must be logged in!')
+		return redirect('home')

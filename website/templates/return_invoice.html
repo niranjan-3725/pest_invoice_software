@@ -23,7 +23,7 @@
   {% if records %}
     {%for record in records%}
   <tr>
-      <td><a href="{}">{{record.Return_Id}}</a></td>
+      <td><a href="{% url 'return_invoice_record' record.Return_Id %}">{{record.Return_Id}}</a></td>
       <td >{{record.Return_Date}} </td>
       <td>{{record.To_Company_Name}}</td>
       {%endfor%}

@@ -55,4 +55,12 @@ urlpatterns = [
     path('return_invoice_add/',views.return_invoice_add,name = 'return_invoice_add'),
     path('check_quantity/', views.check_quantity, name='check_quantity'),
     path('get-profit-percentage/', views.get_profit_percentage, name='get_profit_percentage'),
+    path('get_before_tax_price/',views.get_before_tax_price,name='get_before_tax_price'),
+    path('fetch_sizes_for_batch/',views.fetch_sizes_for_batch,name='fetch_sizes_for_batch'),
+    path('get-batch-no/',views.get_batch_nos,name = 'get_batch_nos'),
+    path('return_invoice_record/<slug:pk>',views.return_invoice_record,name = 'return_invoice_record'),
+    path('return_invoice_update/<slug:pk>',views.return_invoice_update,name= 'return_invoice_update'),
+    path('check_quantity_RI_Update/',views.check_quantity_RI_Update,name='check_quantity_RI_Update'),
+    path('return_invoice_update_refresh/<slug:pk>', views.return_invoice_update_refresh, name='return_invoice_update_refresh'),
+    path('return_invoice_del/<slug:pk>',views.return_invoice_del,name = 'return_invoice_del'),
 ]

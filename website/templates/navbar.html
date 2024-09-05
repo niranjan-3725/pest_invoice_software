@@ -1,8 +1,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: radial-gradient(759px at 14% 22.3%, rgb(10, 64, 88) 0%, rgb(15, 164, 102) 90%);">
     <div class="container-fluid">
 
-      <a class="navbar-brand" href="{% url 'home'%}">AGRIBILL CRM</a>
+      <a class="navbar-brand" href="{% url 'home' %}">AGRIBILL CRM</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -21,11 +21,11 @@
               </button>
               <ul class="dropdown-menu">
                 
-                <li><a class="dropdown-item" href="{% url 'home' %}"><b>Customer</b></a></li>
-                <li><a class="dropdown-item" href="{%url 'company'%}"><b>Company</b></a></li>
-                <li><a class="dropdown-item" href="{%url 'product_master' %}"><b>Product</b></a></li>
-                <li><a class="dropdown-item" href="{% url 'price' %}"><b>Price</b></a></li>
-                <li><a class="dropdown-item" href="{% url 'symptom_page'%}"><b>Symptom</b></a></li>
+                <li><a class="dropdown-item" href="{% url 'home' %}"><b>Customer <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M708-432v-84h-84v-72h84v-84h72v84h84v72h-84v84h-72Zm-324-48q-60 0-102-42t-42-102q0-60 42-102t102-42q60 0 102 42t42 102q0 60-42 102t-102 42ZM96-192v-92q0-25.78 12.5-47.39T143-366q55-32 116-49t125-17q64 0 125 17t116 49q22 13 34.5 34.61T672-284v92H96Zm72-72h432v-20q0-6.47-3.03-11.76-3.02-5.3-7.97-8.24-47-27-99-41.5T384-360q-54 0-106 14.5T179-304q-4.95 2.94-7.98 8.24Q168-290.47 168-284v20Zm216.21-288Q414-552 435-573.21t21-51Q456-654 434.79-675t-51-21Q354-696 333-674.79t-21 51Q312-594 333.21-573t51 21Zm-.21-73Zm0 361Z"/></svg></b></a></li>
+                <li><a class="dropdown-item" href="{%url 'company'%}"><b>Company</b> <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M144-144v-528h144v-144h360v288h168v384H528v-144h-96v144H144Zm72-72h72v-72h-72v72Zm0-156h72v-72h-72v72Zm0-156h72v-72h-72v72Zm144 156h72v-72h-72v72Zm0-156h72v-72h-72v72Zm0-144h72v-72h-72v72Zm144 300h72v-72h-72v72Zm0-156h72v-72h-72v72Zm0-144h72v-72h-72v72Zm168 456h72v-72h-72v72Zm0-156h72v-72h-72v72Z"/></svg></a></li>
+                <li><a class="dropdown-item" href="{%url 'product_master' %}"><b>Product</b> <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="m276-528 204-336 204 336H276ZM696-96q-70 0-119-49t-49-119q0-70 49-119t119-49q70 0 119 49t49 119q0 70-49 119T696-96Zm-552-24v-288h288v288H144Zm551.77-48Q736-168 764-195.77q28-27.78 28-68Q792-304 764.23-332q-27.78-28-68-28Q656-360 628-332.23q-28 27.78-28 68Q600-224 627.77-196q27.78 28 68 28ZM216-192h144v-144H216v144Zm188-408h152l-76-125-76 125Zm76 0ZM360-336Zm331 67Z"/></svg></a></li>
+                <li><a class="dropdown-item" href="{% url 'price' %}"><b>Price</b> <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M547-144 288-408v-72h132q50 0 89-35.5t43-84.5H264v-72h274q-19-35-49.5-53.5T420-744H264v-72h432v72H576q13 17 23.5 33.5T615-672h81v72h-72q-5 81-64 136.5T420-408h-31l259 264H547Z"/></svg></a></li>
+                <li><a class="dropdown-item" href="{% url 'symptom_page'%}"><b>Symptom</b> <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M478-480Zm2 288q-142.6 0-259.8-78.5Q103-349 48-480q55-131 172.2-209.5Q337.4-768 480-768q142.6 0 259.8 78.5Q857-611 912-480q-5.05 11.51-10.53 22.26Q896-447 890-436l-62-53q-52-96-145.5-151.5T480-696q-112 0-207 58T127-480q51 100 146 158t207 58h24.19q11.81 0 23.81-2-2 18 0 36t7 35q-14 2-27.5 2.5t-27.5.5Zm0-120q-70 0-119-49t-49-119q0-70 49-119t119-49q69 0 118.5 49.5T648-480.4q0 6.4-.5 11.92-.5 5.53-1.5 11.48l-33 28q-26 21-44.5 48T539-322q-14 5-29 7.5t-30 2.5Zm0-72q40 0 68-28t28-68q0-40-28-68t-68-28q-40 0-68 28t-28 68q0 40 28 68t68 28ZM755.99-96Q690-96 645-142.5T600-255q0-35 16.5-65.5T660-374l96-82 95 82q27 23 44 53.5t17 65.5q0 66-45.5 112.5T755.99-96Zm.5-72q34.45 0 58.98-25.5Q840-219 840-255q0-20-11.5-36T802-321l-46-40-48 40q-15 14-25.5 30T672-255q0 36 24.5 61.5t59.99 25.5Zm-.49-97Z"/></svg></a></li>
               </ul>
               <!-- Modal Starts -->
                <!-- Button trigger modal -->
@@ -55,21 +55,21 @@
       </div>
     <div class="position-relative">
       <div class="modal-body">
-        <a class="btn btn-success" style="width: 180px;" href="{% url 'purchase_invoice' %}">Purchase Invoice</a>
+        <a class="btn btn-success" style="width: 180px;" href="{% url 'purchase_invoice' %}">Purchase Invoice <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e8eaed"><path d="M263.79-96Q234-96 213-117.21t-21-51Q192-198 213.21-219t51-21Q294-240 315-218.79t21 51Q336-138 314.79-117t-51 21Zm432 0Q666-96 645-117.21t-21-51Q624-198 645.21-219t51-21Q726-240 747-218.79t21 51Q768-138 746.79-117t-51 21ZM253-696l83 192h301l82-192H253Zm-31-72h570q14 0 20.5 11t1.5 23L702.63-476.14Q694-456 676.5-444T637-432H317l-42 72h493v72H276q-43 0-63.5-36.15-20.5-36.16.5-71.85l52-90-131-306H48v-72h133l41 96Zm114 264h301-301Z"/></svg></a>
       </div>
       <div class="modal-body">
-        <a class="btn btn-success" style="width: 180px;" href="{% url 'return_invoice' %}">Return Invoice</a>
+        <a class="btn btn-success" style="width: 180px;" href="{% url 'return_invoice' %}">Return Invoice <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e8eaed"><path d="M354-270 144-480l210-210 51 51-123 123h462v-108h72v180H282l123 123-51 51Z"/></svg></a>
       </div>
       <div class = "modal-body position-absolute top-50 start-50 translate-middle">
-        <a class="btn btn-success " style="width: 180px;" href="{% url 'inventory' %}">Inventory</a>
+        <a class="btn btn-success " style="width: 180px;" href="{% url 'inventory' %}">Inventory <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e8eaed"><path d="M216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-412q-21-8-34.5-26.5T96-648v-144q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v144q0 23-13.5 41.5T816-580v411.86Q816-138 794.85-117T744-96H216Zm0-480v408h528v-408H216Zm-48-72h624v-144H168v144Zm216 240h192v-72H384v72Zm96 36Z"/></svg></a>
       </div>
       
       <div class = "modal-body position-absolute top-0 end-0">
-        <a class="btn btn-success" style="width: 180px;" href="{}">Sale Invoice</a>
+        <a class="btn btn-success" style="width: 180px;" href="{}">Sale Invoice <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e8eaed"><path d="M288-648q-29.7 0-50.85-21.19Q216-690.37 216-720.12v-72.13Q216-822 237.15-843T288-864h384q29.7 0 50.85 21.19Q744-821.63 744-791.88v72.13Q744-690 722.85-669T672-648H288Zm0-72h384v-72H288v72ZM168-96q-29.7 0-50.85-21.15Q96-138.3 96-168v-24h768v24q0 29.7-21.15 50.85Q821.7-96 792-96H168ZM96-240l149-318q8.8-19.66 26.4-30.83Q289-600 309.82-600h340.36q20.82 0 38.42 11.17T715-558l149 318H96Zm264-72h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm0-84h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm0-84h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm108 168h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm0-84h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm0-84h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm108 168h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm0-84h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Zm0-84h24q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-24q-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8 0 9.6 7.2 16.8 7.2 7.2 16.8 7.2Z"/></svg></a>
       </div>
 
       <div class = "modal-body position-absolute bottom-0 end-0">
-       <a class="btn btn-success" style="width: 180px;" href="{}">Sale Return Invoice</a>
+       <a class="btn btn-success" style="width: 180px;" href="{}">Sale Return Invoice </a>
       </div>
     </div>
 
@@ -84,7 +84,7 @@
              
               <ul>
               <li class="nav-item">
-                <a class="nav-link ms-auto" href="{%url 'logout'%}">Logout</a>
+                <a class="nav-link ms-auto" href="{%url 'logout'%}">Logout <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e8eaed"><path d="M216-144q-29.7 0-50.85-21.15Q144-186.3 144-216v-528q0-29.7 21.15-50.85Q186.3-816 216-816h264v72H216v528h264v72H216Zm432-168-51-51 81-81H384v-72h294l-81-81 51-51 168 168-168 168Z"/></svg></a>
                 </li>
             </ul>
 

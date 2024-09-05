@@ -1,114 +1,145 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h5>Return Invoice</h5>
+{% if user.is_authenticated %}
 
-<form id="invoiceForm" method="POST" action="{% url 'return_invoice_add' %}">
-    {% csrf_token %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 40
+    }
+</style>
+
+<form id="invoiceForm" method="POST" action="{% url 'return_invoice_update' RI_invoice_form.Return_Id.value %}">
+<div class="position-relative">
+    <div class="position-absolute top-0 end-0">
+        <button type="button" class="btn btn-secondary" onclick="refreshPage('{{ RI_invoice_form.Return_Id.value }}')" style="
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            height: 3vw;
+            border-radius: 0.315vw;
+            font-weight: bold;
+            text-align: center;
+            transition: 0.7s ease-in-out transform, 0.7s ease-in-out;">
+            <span class="material-symbols-outlined">
+                refresh
+            </span> Refresh
+        </button>
+    </div>
+</div>
+<br><br><br>
+
+{% csrf_token %}
     <input type="hidden" name="action_type" id="action_type" value="add_update">
     <input type="hidden" name="product_id" id="product_id" value="">
     <input type="hidden" name="update_action" id="update_action" value="">
     <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 300px;">
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.Return_Id.id_for_label}}"><b>{{invoice_form.Return_Id.label}}</b></label>
-            {{invoice_form.Return_Id}}
+            <label for = "{{ RI_invoice_form.Return_Id.id_for_label}}"><b>{{RI_invoice_form.Return_Id.label}}:</b></label>
+            <input type="text" name="Return_Id" class="form-control" placeholder="Enter Return Id" maxlength="255" readonly value="{{ RI_invoice_form.Return_Id.value }}" id="id_Return_Id">
+            <!-- {{invoice_form.Invoice_Id}} -->
         </div>
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.Return_Date.id_for_label}}"><b>{{invoice_form.Return_Date.label}}</b></label>
-            {{invoice_form.Return_Date}}
+            <label for = "{{ RI_invoice_form.Return_Date.id_for_label}}"><b>{{RI_invoice_form.Return_Date.label}}</b></label>
+            {{RI_invoice_form.Return_Date}}
         </div>
         <div class = "col-4 col-md-3 align-self">
-            <label for = "{{ invoice_form.To_Company_Name.id_for_label}}"><b>{{invoice_form.To_Company_Name.label}}</b></label>
-            {{invoice_form.To_Company_Name}}
+            <label for = "{{ RI_invoice_form.To_Company_Name.id_for_label}}"><b>{{RI_invoice_form.To_Company_Name.label}}</b></label>
+            {{RI_invoice_form.To_Company_Name}}
         </div>
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.From_Company_Name.id_for_label}}"><b>{{invoice_form.From_Company_Name.label}}</b></label>
-            {{invoice_form.From_Company_Name}}
+            <label for = "{{ RI_invoice_form.From_Company_Name.id_for_label}}"><b>{{RI_invoice_form.From_Company_Name.label}}</b></label>
+            {{RI_invoice_form.From_Company_Name}}
         </div>
         <div class = "form-floating">
-            {{invoice_form.To_Address}}
-            <label for = "{{ invoice_form.To_Address.id_for_label}}"><b>{{invoice_form.To_Address.label}}</b></label>
+            {{RI_invoice_form.To_Address}}
+            <label for = "{{ RI_invoice_form.To_Address.id_for_label}}"><b>{{RI_invoice_form.To_Address.label}}</b></label>
         </div>
         <div class = "form-floating">
-            {{invoice_form.From_Address}}
-            <label for = "{{ invoice_form.From_Address.id_for_label}}"><b>{{invoice_form.From_Address.label}}</b></label>
+            {{RI_invoice_form.From_Address}}
+            <label for = "{{ RI_invoice_form.From_Address.id_for_label}}"><b>{{RI_invoice_form.From_Address.label}}</b></label>
         </div>
     </div>
-    <br>
-    <div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 300px;">
-        {% csrf_token %}
+<br>
+<div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 300px;">
+    {% csrf_token %}
         <div class = 'row'>
             <div class = "col-4 col-md-3 align-self">
-                <label for = "{{ product_form.Product_Name.id_for_label}}"><b>{{product_form.Product_Name.label}}</b></label>
-                {{product_form.Product_Name}}
+                <label for = "{{ RI_product_form.Product_Name.id_for_label}}"><b>{{RI_product_form.Product_Name.label}}</b></label>
+                {{RI_product_form.Product_Name}}
             </div> 
     
         <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Batch_No.id_for_label}}"><b>{{product_form.Batch_No.label}}</b></label>
-                    {{product_form.Batch_No}}
+                    <label for = "{{ RI_product_form.Batch_No.id_for_label}}"><b>{{RI_product_form.Batch_No.label}}</b></label>
+                    {{RI_product_form.Batch_No}}
                 </div>
     
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Manufacture_date.id_for_label}}"><b>{{product_form.Manufacture_date.label}}</b></label>
-                    {{product_form.Manufacture_date}}
+                    <label for = "{{ RI_product_form.Manufacture_date.id_for_label}}"><b>{{RI_product_form.Manufacture_date.label}}</b></label>
+                    {{RI_product_form.Manufacture_date}}
                 </div>
     
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Expiry_date.id_for_label}}"><b>{{product_form.Expiry_date.label}}</b></label>
-                    {{product_form.Expiry_date}}
+                    <label for = "{{ RI_product_form.Expiry_date.id_for_label}}"><b>{{RI_product_form.Expiry_date.label}}</b></label>
+                    {{RI_product_form.Expiry_date}}
                 </div>
             </div>
             <br>
             <div class = "row">
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Size.id_for_label}}"><b>{{product_form.Size.label}}</b></label>
-                    {{product_form.Size}}
+                    <label for = "{{ RI_product_form.Size.id_for_label}}"><b>{{RI_product_form.Size.label}}</b></label>
+                    {{RI_product_form.Size}}
                 </div>
     
                 <!-- <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Unit.id_for_label}}"><b>{{product_form.Unit.label}}</b></label>
-                    {{product_form.Unit}}
+                    <label for = "{{ RI_product_form.Unit.id_for_label}}"><b>{{RI_product_form.Unit.label}}</b></label>
+                    {{RI_product_form.Unit}}
                 </div> -->
     
                 <div class = "col-4 col-md-3">
-                    <label for="{{ product_form.Quantity.id_for_label }}"><b>{{ product_form.Quantity.label }}</b></label>
-                        {{ product_form.Quantity }}
+                    <label for="{{ RI_product_form.Quantity.id_for_label }}"><b>{{ RI_product_form.Quantity.label }}</b></label>
+                        {{ RI_product_form.Quantity }}
                     <small id="quantity-error" class="text-danger"></small>  <!-- Error message container -->
                 </div>
     
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.BT_Rate.id_for_label}}"><b>{{product_form.BT_Rate.label}}</b></label>
-                    {{product_form.BT_Rate}}
+                    <label for = "{{ RI_product_form.BT_Rate.id_for_label}}"><b>{{RI_product_form.BT_Rate.label}}</b></label>
+                    {{RI_product_form.BT_Rate}}
                 </div>
 
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.BT_Final_Amount.id_for_label}}"><b>{{product_form.BT_Final_Amount.label}}</b></label>
-                    {{product_form.BT_Final_Amount}}
+                    <label for = "{{ RI_product_form.BT_Final_Amount.id_for_label}}"><b>{{RI_product_form.BT_Final_Amount.label}}</b></label>
+                    {{RI_product_form.BT_Final_Amount}}
                 </div>
             </div>
             <br>
             <div class = 'row'>
     
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.CGST.id_for_label}}"><b>{{product_form.CGST.label}}</b></label>
-                    {{product_form.CGST}}
+                    <label for = "{{ RI_product_form.CGST.id_for_label}}"><b>{{RI_product_form.CGST.label}}</b></label>
+                    {{RI_product_form.CGST}}
                 </div>
     
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.SGST.id_for_label}}"><b>{{product_form.SGST.label}}</b></label>
-                    {{product_form.SGST}}
+                    <label for = "{{ RI_product_form.SGST.id_for_label}}"><b>{{RI_product_form.SGST.label}}</b></label>
+                    {{RI_product_form.SGST}}
                 </div>
     
                 <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.PU_Final_Amount.id_for_label}}"><b>{{product_form.PU_Final_Amount.label}}</b></label>
-                    {{product_form.PU_Final_Amount}}
+                    <label for = "{{ RI_product_form.PU_Final_Amount.id_for_label}}"><b>{{RI_product_form.PU_Final_Amount.label}}</b></label>
+                    {{RI_product_form.PU_Final_Amount}}
                 </div>
-            </div> 
-            <br><br><br><br>
-            <button type="submit" class="btn btn-success" onclick="document.getElementById('action_type').value='add_update'">Add +</button>
-        </div>
+            </div>
+<br><br><br><br>
+        <button type="submit" class="btn btn-success" onclick="document.getElementById('action_type').value='add_update'">Add +</button>
+</div>
     <br><br><br><br><br>
-    <div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
+<div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
     <table class="table table-hover table-bordered" >
        <thead class = 'table-dark' style = "position: sticky; top: 0px;">
            <th id="product_id">Id</th>
@@ -123,11 +154,11 @@
            <th>CGST</th>
            <th>SGST</th>
            <th>After Tax Final Amount</th>
-       </thead>
-       {% for data in Product_cache%}
-       {% if data.Flag != 'Yes' %}
+</thead>
+{% for data in product_record%}
+{% if data.Flag != 'Yes' %}
       <tr>
-       <td>
+     <td>
            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
                {{ data.Id }}
            </button>
@@ -159,7 +190,7 @@
                                    'BT_Final_Amount': '{{ data.BT_Final_Amount|escapejs }}',
                                    'CGST': '{{ data.CGST|escapejs }}',
                                    'SGST': '{{ data.SGST|escapejs }}',
-                                   'PU_Final_Amount': '{{ data.PU_Final_Amount|escapejs }}'
+                                   'PU_Final_Amount': '{{ data.PU_Final_Amount|escapejs }}',
                                })
                            )" data-bs-dismiss="modal">Update</button>
                            <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
@@ -189,45 +220,52 @@
       {% endif %}
       {%endfor%}
     </table>
-      </div> 
-    <br><br>
-<b>Price Summary:</b>
-<br><br>
-{% csrf_token %}
-   <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Final_Amount.id_for_label}}"><b>{{price_form.Final_Amount.label}}</b></label>
-        {{price_form.Final_Amount}}
-    </div>
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
-        {{price_form.Additions}}
-    </div>
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Deductions.id_for_label}}"><b>{{price_form.Deductions.label}}</b></label>
-        {{price_form.Deductions}}
-    </div>
-    <div class = "col-4 col-md-3">
-        <label for = "{{ price_form.Revised_Amount.id_for_label}}"><b>{{price_form.Revised_Amount.label}}</b></label>
-        {{price_form.Revised_Amount}}
-    </div>
-
-    <div class="form-floating">
-        {{price_form.Comments}}
-        <label for="{{ price_form.Revised_Amount.id_for_label}}">{{price_form.Comments.label}}</label>
-      </div>
    </div>
+   <br>
+   <br>
+<b>Price Summary:</b>
    <br><br>
-   <button type="submit" class="btn btn-success" id="updateButton">Submit</button>
-   <a href="{% url 'return_invoice' %}" class="btn btn-secondary">Back</a>
-</form>
-<br><br><br><br>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<!-- Ensure Select2 is loaded -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script>
-    function initializeCompanySelect2(selector) {
+   {% csrf_token %}
+      <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
+       <div class = "col-4 col-md-3">
+           <label for = "{{ RI_price_form.Final_Amount.id_for_label}}"><b>{{RI_price_form.Final_Amount.label}}</b></label>
+           {{RI_price_form.Final_Amount}}
+       </div>
+       <div class = "col-4 col-md-3">
+           <label for = "{{ RI_price_form.Additions.id_for_label}}"><b>{{RI_price_form.Additions.label}}</b></label>
+           {{RI_price_form.Additions}}
+       </div>
+       <div class = "col-4 col-md-3">
+           <label for = "{{ RI_price_form.Deductions.id_for_label}}"><b>{{RI_price_form.Deductions.label}}</b></label>
+           {{RI_price_form.Deductions}}
+       </div>
+       <div class = "col-4 col-md-3">
+           <label for = "{{ RI_price_form.Revised_Amount.id_for_label}}"><b>{{RI_price_form.Revised_Amount.label}}</b></label>
+           {{RI_price_form.Revised_Amount}}
+       </div>
+   
+       <div class="form-floating">
+           {{RI_price_form.Comments}}
+           <label for="{{ RI_price_form.Revised_Amount.id_for_label}}">{{RI_price_form.Comments.label}}</label>
+         </div>
+      </div>
+      <br><br>
+      <button type="submit" class="btn btn-success" id="updateButton">Update</button>
+      <a href="{% url 'return_invoice' %}" class="btn btn-secondary">Back</a>
+   </form>
+   <br><br><br><br>
+   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+   <!-- Ensure Select2 is loaded -->
+   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+   <script>
+    //disables invoice id field//
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     document.querySelector('[name="{{ invoice_form.Invoice_Id.name }}"]').disabled = true;
+    // });
+    //***********************//
+    function initializeCompanySelect2(selector,initialValue) {
         console.log("Initializing Select2 for selector:", selector);
         $(selector).select2({
             ajax: {
@@ -259,9 +297,14 @@
             var data = e.params.data;
             fetchCompanyAddress(data.id);
         });
+
+        if (initialValue) {
+            var newOption = new Option(initialValue.text, initialValue.id, true, true);
+            $(selector).append(newOption).trigger('change');
+        }
     }
 
-    function fetchCompanyAddress(companyName) {
+function fetchCompanyAddress(companyName) {
         console.log("Fetching address for company:", companyName);
         fetch(`/get_company_address?company_name=${companyName}`)
             .then(response => response.json())
@@ -273,13 +316,17 @@
                 console.error("Error fetching address:", error);
             });
     }
-
-    $(document).ready(function () {
+$(document).ready(function () {
         console.log("Document is ready. Initializing Select2.");
-        initializeCompanySelect2('#id_To_Company_Name');
+        var initialManufacturer = {
+            id: "{{ invoice_record.To_Company_Name }}",
+            text: "{{ invoice_record.To_Company_Name }}"
+        };
+        initializeCompanySelect2('#id_To_Company_Name',initialManufacturer);
     });
-// Product Name Ajax
 
+
+// Product Name Ajax
 function initializeProductSelect2(selector) {
         console.log("Initializing Select2 for selector:", selector);
         $(selector).select2({
@@ -308,13 +355,7 @@ function initializeProductSelect2(selector) {
             placeholder: 'Select a manufacturer',
             minimumInputLength: 1,
             width: 'resolve'
-        }).on('select2:select', function (e) {
-        var data = e.params.data;  // Correctly access the selected data
-        selectedProductName = data.id;  // Store the selected batch number
-        
-        // Fetch and set manufacture and expiry dates (implement this function separately)
-        fetchBatchNumbers(selectedProductName);
-    });
+        })
     }
 
     $(document).ready(function () {
@@ -342,56 +383,7 @@ function initializeProductSelect2(selector) {
     });
     var selectedProductName = '';
 
-
-// Assuming 'selectedCompanyName' and 'selectedProductName' are set elsewhere in your code
-
-// function initializeBatchNoSelect2(selector) {
-//     console.log("Initializing Select2 for selector:", selector);
-//     $(selector).select2({
-//         ajax: {
-//             url: "{% url 'get_batch_nos' %}",
-//             dataType: 'json',
-//             delay: 250,
-//             data: function (params) {
-//                 // Ensure 'selectedProductName' is correctly set from the product selection
-//                 console.log("AJAX request params:", params);
-//                 return {
-//                     term: params.term,
-//                     request_type: 'batch_no',  // Specify the request type
-//                     product_name: selectedProductName  // Pass the selected product name
-//                 };
-//             },
-//             processResults: function (data) {
-//                 console.log("Received data:", data);
-//                 return {
-//                     results: $.map(data, function (item) {
-//                         return { id: item.Batch_No, text: item.Batch_No };
-//                     })
-//                 };
-//             },
-//             error: function(xhr, status, error) {
-//                 console.error("Error in AJAX request:", error);
-//             }
-//         },
-//         placeholder: 'Select a batch number',
-//         minimumInputLength: 1,
-//         width: 'resolve'
-//     }).on('select2:select', function (e) {
-//         var data = e.params.data;  // Correctly access the selected data
-//         selectedBatchNo = data.id;  // Store the selected batch number
-        
-//         // Fetch and set manufacture and expiry dates (implement this function separately)
-//         fetchBatchDetails(selectedBatchNo);
-//     });
-// }
-
-// $(document).ready(function () {
-//     console.log("Document is ready. Initializing Select2.");
-//     initializeBatchNoSelect2('#id_Batch_No');
-// });
-
-
-function fetchBatchNumbers(productName) {
+    function fetchBatchNumbers(productName) {
     console.log("Fetching batch numbers for product:", productName);
     fetch(`/get-batch-no/?product_name=${productName}&request_type=batch_no`)
         .then(response => response.json())
@@ -433,14 +425,6 @@ $(document).ready(function () {
     });
 });
 
-
-// $(document).ready(function () {
-//     $('#id_Product_Name').on('change', function() {
-//         selectedProductName = $(this).val();
-//         console.log("Selected Product Name:", selectedProductName);
-//         initializeBatchNoSelect2('#id_Batch_No');
-//     });
-// });
 
 function fetchBatchDetails(batchNo) {
     console.log("Fetching batch details for:", batchNo);
@@ -488,7 +472,6 @@ $(document).ready(function () {
     });
 });
 
-
 document.addEventListener("DOMContentLoaded", function() {
         function setDeleteActionAndSubmit(productId) {
             const actionTypeElement = document.getElementById('action_type');
@@ -507,7 +490,6 @@ document.addEventListener("DOMContentLoaded", function() {
         // Ensure setDeleteActionAndSubmit is available globally
         window.setDeleteActionAndSubmit = setDeleteActionAndSubmit;
 });
-
 
 
 $(document).ready(function () {
@@ -545,8 +527,13 @@ $(document).ready(function () {
     $('#id_Product_Name, #id_Batch_No, #id_Size , #id_Quantity').click(function() {
     fetchPriceDetails();
 })
-    // Listen for changes in the quantity field
-$('#id_Quantity').on('input', function () {
+
+
+// Listen for changes in the quantity field
+$(document).ready(function () {
+    var isValidQuantity = true;
+
+    $('#id_Quantity').on('input', function () {
         var productName = $('#id_Product_Name').val();
         var batchNo = $('#id_Batch_No').val();
         var size = $('#id_Size').val();
@@ -554,7 +541,7 @@ $('#id_Quantity').on('input', function () {
 
         if (productName && batchNo && size && enteredQuantity) {
             $.ajax({
-                url: "{% url 'check_quantity' %}",  // Ensure this URL matches your Django view
+                url: "{% url 'check_quantity_RI_Update' %}",
                 data: {
                     'product_name': productName,
                     'batch_no': batchNo,
@@ -566,10 +553,23 @@ $('#id_Quantity').on('input', function () {
                     if (data.valid) {
                         $('#quantity-error').text('');  // Clear error message if quantity is valid
                         isValidQuantity = true;
-                    } else {
+                    } 
+                    else if (!data.valid && data.available_quantity){
                         var errorMessage = 'Entered quantity exceeds available quantity (' + data.available_quantity + ').';
                         $('#quantity-error').text(errorMessage);  // Display error message
                         isValidQuantity = false;
+                    }
+                    
+                    else if (!data.valid && data.remaining_quantity) {
+                        var errorMessage = 'This Correction of ' + (data.remaining_quantity) + ' units dosent effect inventory';
+                        $('#quantity-error').text(errorMessage);  // Display error message
+                        // Display confirmation dialog
+                            if (confirm('This Correction of ' + (data.remaining_quantity) + ' units dosent effect inventory. '+ "Please click OK to proceed with the update.")) {
+                                isValidQuantity = true;
+                            } else {
+                                isValidQuantity = false;
+                            }
+                        
                     }
 
                     // Trigger fetchPriceDetails after the quantity check
@@ -577,20 +577,22 @@ $('#id_Quantity').on('input', function () {
                 }
             });
         }
-    
-        $('#invoiceForm').on('submit', function (e) {
-            if (!isValidQuantity) {
-                e.preventDefault();  // Prevent form submission
-                alert('Please correct the quantity before submitting the form.');
-            }
-        });
+    });
 
+    $('#invoiceForm').on('submit', function (e) {
+        if (!isValidQuantity) {
+            e.preventDefault();  // Prevent form submission
+            alert('Please correct the quantity before submitting the form.');
+        }
     });
 });
+});
+
+
 
     // Auto calculated fields..
 
-function calculateBTFA() {
+    function calculateBTFA() {
     var Quantity = parseInt(document.getElementById('id_Quantity').value) || 0;
     var BT_Rate = parseFloat(document.getElementById('id_BT_Rate').value) || 0;
 
@@ -653,6 +655,8 @@ function formatDate(dateStr) {
     return `${year}-${month}-${day}`;
 }
 
+
+
 function populateFormForUpdate(productData) {
     const data = JSON.parse(productData);
     document.getElementById('update_action').value = 'update';
@@ -696,7 +700,6 @@ function populateFormForUpdate(productData) {
     fetchBatchDetails(data.Batch_No);
 }
 
-
 function fetchSizesForBatch(batchNo, selectedSize, selectedUnit) {
     $.ajax({
         url: "{% url 'fetch_sizes_for_batch' %}",  // Update this URL to match your Django URL
@@ -721,7 +724,6 @@ function fetchSizesForBatch(batchNo, selectedSize, selectedUnit) {
     });
 }
 
-
 document.addEventListener('DOMContentLoaded', function () {
     function calculateFinalAmount() {
         let total = 0;
@@ -732,36 +734,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         document.getElementById('id_Final_Amount').textContent = total.toFixed(2);
     }})
-
-
-const Return_Id = "{{ Return_Id }}";
-const from_company_name = "{{ from_company_name }}";
-const from_address = "{{ from_address }}";
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById('id_Return_Id').value = Return_Id;
-    document.getElementById('id_From_Company_Name').value = from_company_name;
-    document.getElementById('id_From_Address').value = from_address;
-    
-    // You can also trigger the revised amount calculation if needed
-    // calculateRevisedAmount();
-})
-
-
-//Manitains Invoice details till the submit button is clicked...
-$(document).ready(function () {
-        console.log("Document is ready. Initializing Select2.");
-        initializeCompanySelect2('#id_To_Company_Name');
-
-        // Set the initial value for the Company_Name select2 widget
-        var initialCompanyName = '{{ invoice_cache.To_Company_Name }}';
-        if (initialCompanyName) {
-            var newOption = new Option(initialCompanyName, initialCompanyName, true, true);
-            $('#id_To_Company_Name').append(newOption).trigger('change');
-        }
-    });
-
 
 //Price form Related Calculations
 document.addEventListener('DOMContentLoaded', function () {
@@ -856,5 +828,12 @@ document.getElementById('updateButton').addEventListener('click', function(event
     document.getElementById('action_type').value = 'update_db';
 });
 
+function refreshPage(returnId) {
+        const refreshUrl = `/return_invoice_update_refresh/${returnId}`;
+        window.location.href = refreshUrl;
+    }
+
 </script>
-{% endblock %}
+{%endif%}
+
+{%endblock%}

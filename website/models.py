@@ -243,6 +243,7 @@ class RI_Invoice_Info(models.Model):
     To_Address = models.TextField()
     From_Company_Name = models.CharField(max_length=255)
     From_Address = models.TextField()
+    Editable = models.CharField(max_length=10,default=0)
     class Meta:
         db_table = 'RI_Invoice_Info'
     def __str__(self):

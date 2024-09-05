@@ -384,6 +384,7 @@ class RI_InvoiceForm(forms.ModelForm):
 		def __init__(self,*args,**kwargs):
 			super().__init__(*args,**kwargs)
 			self.fields['To_Company_Name'].queryset = Company.objects.all()
+
 class RI_ProductForm(forms.ModelForm):
 	class Meta:
 		Unit_choices = [
