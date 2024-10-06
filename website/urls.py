@@ -44,6 +44,7 @@ urlpatterns = [
     path('purchase_invoice_add/', views.purchase_invoice_add, name='purchase_invoice_add'),
     path('get_company_address/', views.get_company_address, name='get_company_address'),
     path('get_product_name',views.get_product_name,name = 'get_product_name'),
+    path('get-profit-percentage/', views.get_profit_percentage, name='get_profit_percentage'),
     # path('purchase_invoice_on_db',views.submit_purchase_invoice_cache, name = 'purchase_invoice_on_db'),
     path('purchase_invoice_record/<slug:pk>',views.purchase_invoice_record,name = 'purchase_invoice_record'),
     path('purchase_invoice_del/<slug:pk>',views.purchase_invoice_del,name='purchase_invoice_del'),
@@ -54,7 +55,6 @@ urlpatterns = [
     path('return_invoice/',views.return_invoice_home,name = 'return_invoice'),
     path('return_invoice_add/',views.return_invoice_add,name = 'return_invoice_add'),
     path('check_quantity/', views.check_quantity, name='check_quantity'),
-    path('get-profit-percentage/', views.get_profit_percentage, name='get_profit_percentage'),
     path('get_before_tax_price/',views.get_before_tax_price,name='get_before_tax_price'),
     path('fetch_sizes_for_batch/',views.fetch_sizes_for_batch,name='fetch_sizes_for_batch'),
     path('get-batch-no/',views.get_batch_nos,name = 'get_batch_nos'),
@@ -63,4 +63,16 @@ urlpatterns = [
     path('check_quantity_RI_Update/',views.check_quantity_RI_Update,name='check_quantity_RI_Update'),
     path('return_invoice_update_refresh/<slug:pk>', views.return_invoice_update_refresh, name='return_invoice_update_refresh'),
     path('return_invoice_del/<slug:pk>',views.return_invoice_del,name = 'return_invoice_del'),
+
+    #Sales Invoive Urls
+    path('sale_invoice/',views.Sales_invoice_home,name = 'Sales_invoice'),
+    path('sale_invoice_add/',views.sales_invoice_add,name = 'sales_invoice_add'),
+    path('load_phone_no/',views.load_mobile_no,name= 'ajax_load_mobile_no'),
+    path('get_customer_details/',views.get_customer_details,name = 'get_customer_details'),
+    path('get_product_name_based_on_company/',views.get_product_name_based_on_company,name = 'get_product_name_based_on_company'),
+    path('get_batch_details/',views.get_batch_details,name = 'get_batch_details'),
+    path('get_retail_price/',views.get_retail_price,name='get_retail_price'),
+    path('sale_invoice_record/<slug:pk>',views.sale_invoice_record,name = 'sale_invoice_record'),
+    path('get_category/',views.get_category,name='get_category'),
+    path('sales_invoice_del/<slug:pk>',views.sales_invoice_del,name='sales_invoice_del'),
 ]

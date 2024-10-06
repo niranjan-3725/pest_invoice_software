@@ -11,7 +11,7 @@
     <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 300px;">
         <div class = "col-4 col-md-3">
             <label for = "{{ invoice_form.Return_Id.id_for_label}}"><b>{{invoice_form.Return_Id.label}}</b></label>
-            {{invoice_form.Return_Id}}
+            <input type="text" name="Return_Id" class="form-control" placeholder="Enter Return Id" maxlength="255" readonly id="id_Return_Id">
         </div>
         <div class = "col-4 col-md-3">
             <label for = "{{ invoice_form.Return_Date.id_for_label}}"><b>{{invoice_form.Return_Date.label}}</b></label>
@@ -444,7 +444,7 @@ $(document).ready(function () {
 
 function fetchBatchDetails(batchNo) {
     console.log("Fetching batch details for:", batchNo);
-    fetch(`/return_invoice_add/?batch_no=${batchNo}&request_type=batch_details`)
+    fetch(`/get_batch_details/?batch_no=${batchNo}&request_type=batch_details`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {

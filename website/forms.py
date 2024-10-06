@@ -464,3 +464,108 @@ class RI_PriceForm(forms.ModelForm):
 			self.fields['Additions'].required = False
 			self.fields['Deductions'].required = False
 			self.fields['Comments'].required = False
+
+class Sales_InvoiceForm(forms.ModelForm):
+	class Meta:
+		model = Sales_Invoice_Info
+		fields = ['Sale_Id', 'Sale_Date', 'Customer_Name', 'Address','Mobile_No','City','Expected_Payment_Date']
+		widgets = {
+			'Sale_Id':forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Sale Id',}),
+			'Sale_Date':forms.DateInput(attrs={'class':"form-control",'type':'date'}),
+			'Customer_Name': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Select Customer Name'}),
+			'Address': forms.TextInput(attrs={'class': 'form-control'}),
+			'Mobile_No': forms.Select(attrs={'class': 'form-control','placeholder': 'Mobile No'}),
+			'City': forms.TextInput(attrs={'class': 'form-control'}),
+			'Expected_Payment_Date': forms.DateInput(attrs={'class':"form-control",'type':'date'})
+		}
+
+		labels ={
+			'Sale_Id': 'Sale Id',
+			'Sale_Date' : 'Sale Date',
+			'Customer_Name': 'Customer Name',
+			'Address': 'Address',
+			'Mobile_No': 'Mobile No',
+			'City': 'City',
+			'Expected_Payment_Date':'Expected Payment Date'
+			}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Customer_Name'].queryset = Record.objects.all()
+
+class Sales_ProductForm(forms.ModelForm):
+	class Meta:
+		Unit_choices = [
+        ('Kg','Kg'),
+		('Grms','Grms'),
+		('Lts','Lts'),
+		('Mls','Mls')
+		]
+
+		model = Sales_Product_Info
+		fields = [
+            'Company_Name','Product_Name', 'Batch_No','Category', 'Manufacture_date', 'Expiry_date',
+            'Size', 'Unit', 'Quantity', 'Retail_Price', 'Total_Price',
+        ]
+		widgets = {
+			'Company_Name':forms.Select(attrs={'class': 'form-control','placeholder': 'Select Company Name', 'required': 'required'}),
+			'Product_Name': forms.Select(attrs={'class': 'form-control','placeholder': 'Select Product Name', 'required': 'required'}),
+			'Batch_No': forms.Select(attrs={'class': 'form-control','placeholder': 'Enter Batch No', 'required': 'required'}),
+			'Category':forms.TextInput(attrs={'class': 'form-control','placeholder': 'Category', 'required': 'required'}),
+			'Manufacture_date': forms.DateInput(attrs={'class':"form-control",'type':'date', 'required': 'required'}),
+			'Expiry_date': forms.DateInput(attrs={'class':"form-control",'type':'date', 'required': 'required'}),
+			'Size': forms.Select(attrs={'class': 'form-control','placeholder': 'Enter Size', 'required': 'required'}),
+			'Unit': forms.Select(attrs={'class': 'form-control','placeholder': 'Select unit', 'required': 'required'}),
+			'Quantity': forms.NumberInput(attrs={'class': 'form-control','placeholder': 'Enter Quantity', 'required': 'required'}),
+			'Retail_Price': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Retail Price', 'required': 'required'}),
+			'Total_Price': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Total Price', 'required': 'required'}),
+        }
+
+		labels = {
+			'Company_Name': 'Company Name',
+			'Product_Name': 'Product Name',
+			'Batch_No': 'Batch No',
+			'Category': 'Category',
+			'Manufacture_date' : 'Manufacture Date',
+			'Expiry_date': 'Expiry Date',
+			'Size' : 'Size',
+			'Unit' : 'Unit',
+			'Quantity' : 'Quantity',
+			'Retail_Price' : 'Retail Price',
+			'Total_Price' : 'Total Price'
+		}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Product_Name'].queryset = Product.objects.all()
+
+class Sales_PriceForm(forms.ModelForm):
+	class Meta:
+		model = Sales_Price_Info
+		fields = [
+			# 'Invoice_Id',
+			'Aggregate_Sale_Amount',
+			'Additions',
+			'Deductions',
+			'Revised_Amount',
+			'Comments',
+		]
+		widgets = {
+			# 'Invoice_Id': forms.TextInput(attrs={'class': 'form-control'}),
+			'Aggregate_Sale_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Additions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Deductions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Revised_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Comments': forms.Textarea(attrs={'class':'form-control','placeholder':"Leave a comment here" ,'style':"height: 100px"})
+		}
+		labels = {
+			# 'Invoice_Id': 'Invoice Id',
+			'Aggregate_Sale_Amount': "Aggregate Sale Amount" ,
+			'Additions' : "Additions",
+			'Deductions' :"Deductions",
+			'Revised_Amount': 'Revised Amount',
+			'Comments': " Comments"
+		}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Additions'].required = False
+			self.fields['Deductions'].required = False
+			self.fields['Comments'].required = False

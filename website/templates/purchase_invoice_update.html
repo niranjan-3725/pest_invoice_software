@@ -352,9 +352,8 @@
         initializeCompanySelect2('#id_Company_Name',initialManufacturer);
     });
 
-    // Product Name Ajax
-
-    function initializeProductSelect2(selector) {
+// Product Name Ajax
+function initializeProductSelect2(selector) {
         console.log("Initializing Select2 for selector:", selector);
         $(selector).select2({
             ajax: {
@@ -393,16 +392,16 @@
     $(document).ready(function() {
     function fetchProfitPercentage() {
         var productName = $('#id_Product_Name').val();
-        var batchNo = $('#id_Batch_No').val();
+        // var batchNo = $('#id_Batch_No').val();
         var size = $('#id_Size').val();
         var unit = $('#id_Unit').val();
 
-        if (productName && batchNo && size && unit) {
+        if (productName && size && unit) {
             $.ajax({
                 url: '{% url "get_profit_percentage" %}',
                 data: {
                     'product_name': productName,
-                    'batch_no': batchNo,
+                    // 'batch_no': batchNo,
                     'size': size,
                     'unit': unit,
                 },
@@ -418,7 +417,7 @@
     }
 
     // Attach the function to the change event of relevant fields
-    $('#id_Product_Name, #id_Batch_No, #id_Size, #id_Unit').change(fetchProfitPercentage);
+    $('#id_Product_Name, #id_Size, #id_Unit').change(fetchProfitPercentage);
 });
 
     // Auto calculated fields..

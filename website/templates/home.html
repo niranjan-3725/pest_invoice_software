@@ -15,26 +15,24 @@
 <table class="table table-striped table-hover table-bordered">
   <thead class="table-dark">
     <tr>
+      <th scope="col">Phone</th>
       <th scope="col">Name</th>
       <th scope="col">Email</th>
-      <th scope="col">Phone</th>
       <th scope="col">Address</th>
       <th scope="col">City</th>
       <th scope="col">Pincode</th>
-      <th scope="col">ID</th>
     </tr>
   </thead>
 <tbody>
   {% if records %}
     {%for record in records%}
   <tr>
+      <td><a href="{% url 'record' record.phone %}">{{record.phone}}</a></td>
       <td>{{record.first_name}} {{record.last_name}}</td>
       <td>{{record.email}} </td>
-      <td>{{record.phone}}</td>
       <td>{{record.address}}</td>
       <td>{{record.city}}</td>
       <td>{{record.zipcode}}</td>
-      <td><a href="{% url 'record' record.id %}"> {{record.id}} </a></td>
     {%endfor%}
   </tr>
 {%endif%}

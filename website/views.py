@@ -10,6 +10,7 @@ from .forms import *
 from django.core.cache import cache
 import json
 from .models import *
+from django.utils import timezone
 # Create your views here.
 
 def home(request):
@@ -66,7 +67,7 @@ def register_user(request):
 
 def customer_record(request,pk):
 	if request.user.is_authenticated:
-		customer_record = Record.objects.get(id=pk)
+		customer_record = Record.objects.get(phone=pk)
 		return render(request, 'record.html', {'customer_record':customer_record})
 	else:
 		messages.success(request, "You must be logged in..to view that page.")
@@ -74,7 +75,7 @@ def customer_record(request,pk):
 
 def delete_record(request,pk):
 	if request.user.is_authenticated:
-		delete_it = Record.objects.get(id=pk)
+		delete_it = Record.objects.get(phone=pk)
 		delete_it.delete()
 		messages.success(request, f"{delete_it.first_name}'s {' Record has been deleted!'} ")
 		return redirect('home')
@@ -97,7 +98,7 @@ def add_record(request):
 
 def update_record(request,pk):
 	if request.user.is_authenticated:
-		current_record = Record.objects.get(id=pk)
+		current_record = Record.objects.get(phone=pk)
 		form = AddRecordForm(request.POST or None, instance= current_record)
 		if form.is_valid():
 			update_record = form.save()
@@ -551,22 +552,21 @@ def get_product_name(request):
 
 def get_profit_percentage(request):
     product_name = request.GET.get('product_name')
-    batch_no = request.GET.get('batch_no')
+    # batch_no = request.GET.get('batch_no')
     size = request.GET.get('size')
     unit = request.GET.get('unit')
 
-    try:
-        price = Price.objects.get(
+	#Gets the latest profit percentage set for that product, Size and Unit.
+    if Price.objects.filter(Product=product_name,Size=size,Unit = unit).exists():
+        price = Price.objects.filter(
             Product=product_name,
-            Batch_No=batch_no,
+            # Batch_No=batch_no,
             Size=size,
-			Unit = unit
-            # Optionally filter by quantity if needed
-        )
+			Unit = unit).order_by('-created_at').first()
         data = {
             'profit_percentage': price.Profit_percentage,
         }
-    except Price.DoesNotExist:
+    else:
         data = {
             'profit_percentage': None,
         }
@@ -1438,7 +1438,7 @@ def get_batch_nos(request):
 	if request_type == 'batch_no':
 		product_name = request.GET.get('product_name', '')
 		# Fetch all distinct batch numbers for the given product name
-		inv = inventory.objects.filter(Product_Name__icontains=product_name).values('Batch_No').distinct()
+		inv = inventory.objects.filter(Product_Name__icontains=product_name,Quantity__gt=0,Expiry_date__gt=date.today()).values('Batch_No').distinct()
 		response_content = list(inv)
 	return JsonResponse(response_content, safe=False)
 
@@ -1853,3 +1853,438 @@ def return_invoice_del(request,pk):
 	else:
 		messages.success(request, 'You must be logged in!')
 		return redirect('home')
+
+
+#Sales Invoice Views
+
+def Sales_invoice_home(request):
+	if request.user.is_authenticated:
+		if 'sales_invoice_q' in request.GET:
+			q =request.GET['sales_invoice_q']
+			records = Sales_Invoice_Info.objects.filter(Sale_Id__icontains = q)
+		else:
+			records = Sales_Invoice_Info.objects.all()
+			cache.delete('Sale_product_data')
+			cache.delete('Sale_invoice_data')
+			cache.delete('Sales_invoice_update')
+			cache.delete('Sales_product_update')
+			cache.delete('Sales_price_update')
+		return render(request, 'Sales_Invoice.html', {'records':records})
+	else:
+		messages.success(request, "You must be logged in..to view that page.")
+		return redirect('home')
+
+
+def sales_invoice_add(request):
+	if request.user.is_authenticated:
+		if request.method == 'POST':
+			if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+			# 	print('Ajax for Payment has been initiated')
+			# 	payment_type = request.POST.get('payment_type')
+			# 	print("Received Payment_Type:", payment_type)
+			# 	cached_invoice_data = cache.get('Sale_invoice_data', {})
+
+            # # Update the payment type in the cache
+			# 	cached_invoice_data['Payment_Type'] = payment_type
+			# 	cache.set('Sale_invoice_data', cached_invoice_data, 3600)  # Update the cache
+			# 	print(f'Cache Invoice-->',cache.get('Sale_invoice_data'))
+			# 	return JsonResponse({'status': 'success', 'payment_type': payment_type})
+				sale_id = request.POST.get('Sale_Id')
+				sale_date = request.POST.get('Sale_Date')
+				customer_name = request.POST.get('Customer_Name')
+				address = request.POST.get('Address')
+				mobile_no = request.POST.get('Mobile_No')
+				city = request.POST.get('City')
+				expected_payment_date = request.POST.get('Expected_Payment_Date')
+				payment_type = request.POST.get('Payment_Type')
+
+                # Get the existing cached data
+				cached_invoice_data = cache.get('Sale_invoice_data', {})
+
+                # Update the cached data with the new form values
+				cached_invoice_data.update({
+                    'Sale_Id': sale_id,
+                    'Sale_Date': sale_date,
+                    'Customer_Name': customer_name,
+                    'Address': address,
+                    'Mobile_No': mobile_no,
+                    'City': city,
+                    'Expected_Payment_Date': expected_payment_date,
+                    'Payment_Type': payment_type,
+                })
+
+                # Save updated data to cache
+				cache.set('Sale_invoice_data', cached_invoice_data, 3600)
+				print(f'Updated cache invoice data: {cache.get("Sale_invoice_data")}')
+				return JsonResponse({'status': 'success', 'invoice_data': cached_invoice_data})
+			# cached_invoice_data = cache.get('Sale_invoice_data',{})
+			# payment_type = cached_invoice_data['Payment_Type']
+			# sale_date = cached_invoice_data['Sale_Date']
+			# customer_name = cached_invoice_data['Customer_Name']
+			# address = cached_invoice_data['Address']
+			# mobile_no = cached_invoice_data['Mobile_No']
+			# city = cached_invoice_data['City']
+			# expected_payment_date = cached_invoice_data['Expected_Payment_Date']
+			ttl = 3600
+			action_type = request.POST.get('action_type', 'add_update')
+			print(f'action_type--->',action_type)
+			update_action = request.POST.get('update_action', '')
+
+			if action_type == 'add_update':
+				
+				invoice_form = Sales_InvoiceForm(request.POST)
+				product_form = Sales_ProductForm(request.POST)
+				price_form = Sales_PriceForm(request.POST)
+
+				# if invoice_form.is_valid() :
+				# 	print('1.Invoice and Price form are valid')
+				# 	Sale_id = invoice_form.cleaned_data['Sale_Id']
+
+                #     # Update or add the invoice data in the cache
+				# 	# cached_invoice_dict = {
+				# 	# 	'Sale_Id': invoice_form.cleaned_data['']
+				# 	# }
+				# 	# payment_type = request.POST.get('payment_type', '')
+				# 	print("Received Payment_Type:", payment_type)
+				# 	invoice_data = {
+				# 		'Sale_Id': invoice_form.cleaned_data['Sale_Id'],
+				# 		'Sale_Date': sale_date,
+				# 		'Customer_Name': invoice_form.cleaned_data['Customer_Name'],
+				# 		'Address':  invoice_form.cleaned_data['Address'],
+				# 		'Mobile_No': invoice_form.cleaned_data['Mobile_No'],
+				# 		'City': invoice_form.cleaned_data['City'],
+				# 		'Expected_Payment_Date':invoice_form.cleaned_data['Expected_Payment_Date'],
+				# 		'Payment_Type': payment_type,
+				# 	}
+				# 	cache.set('Sale_invoice_data', invoice_data,ttl)
+				cached_invoice_details = cache.get("Sale_invoice_data", [])
+				# 	print(f'2. Cache of Invoice Details-->',cached_invoice_details)
+					# payment_type = request.POST.get('payment_type', '')
+					# print(f'payment type-->',payment_type)
+
+                    # Update or add the product data in the
+				sales_form_copy_data = request.POST.copy() 
+				size_with_unit = sales_form_copy_data.get('Size','')
+				size, unit = size_with_unit.split('-')
+				sales_form_copy_data['Size'] = int(size)
+				sales_form_copy_data['Unit'] = unit
+				product_form = Sales_ProductForm(sales_form_copy_data)
+				if product_form.is_valid():
+					# cache.set('RI_product_data',[product_form.cleaned_data],ttl)
+					cached_product_details = cache.get("Sale_product_data", [])
+					if update_action == 'update':
+						product_id = int(request.POST.get('product_id'))
+						for prod in cached_product_details:
+							if prod['Id'] == product_id:
+								prod.update({
+									'Company_Name':product_form.cleaned_data['Company_Name'],
+                                    'Product_Name': product_form.cleaned_data['Product_Name'],
+                                    'Batch_No': product_form.cleaned_data['Batch_No'],
+                                    'Category':product_form.cleaned_data['Category'],
+                                    'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                    'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                    'Size': product_form.cleaned_data['Size'],
+                                    'Unit': product_form.cleaned_data['Unit'],
+                                    'Quantity': product_form.cleaned_data['Quantity'],
+                                    'Retail_Price': product_form.cleaned_data['Retail_Price'],
+                                    'Total_Price': product_form.cleaned_data['Total_Price'],
+                                })
+								break
+					else:
+						updated = False
+						for prod in cached_product_details:
+							if (prod['Product_Name'] == product_form.cleaned_data['Product_Name'] and
+                                prod['Batch_No'] == product_form.cleaned_data['Batch_No'] and
+                                prod['Size'] == product_form.cleaned_data['Size'] and
+                                prod['Unit'] == product_form.cleaned_data['Unit']):
+								prod.update({
+									'Company_Name':product_form.cleaned_data['Company_Name'],
+                                    'Category':product_form.cleaned_data['Category'],
+                                    'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                    'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                    'Quantity': product_form.cleaned_data['Quantity'],
+                                    'Retail_Price': product_form.cleaned_data['Retail_Price'],
+                                    'Total_Price': product_form.cleaned_data['Total_Price'],
+                                })
+								updated = True
+								break
+
+						if not updated:
+							next_id = len(cached_product_details) + 1
+							new_product_record = {
+                                'Sale_Id': cached_invoice_details['Sale_Id'],
+                                'Id': next_id,
+								'Company_Name':product_form.cleaned_data['Company_Name'],
+                                'Product_Name': product_form.cleaned_data['Product_Name'],
+                                'Batch_No': product_form.cleaned_data['Batch_No'],
+                                'Category':product_form.cleaned_data['Category'],
+                                'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+                                'Expiry_date': product_form.cleaned_data['Expiry_date'],
+                                'Size': product_form.cleaned_data['Size'],
+                                'Unit': product_form.cleaned_data['Unit'],
+                                'Quantity': product_form.cleaned_data['Quantity'],
+                                'Retail_Price': product_form.cleaned_data['Retail_Price'],
+                                'Total_Price': product_form.cleaned_data['Total_Price'],
+                            	}
+							cached_product_details.append(new_product_record)
+					cache.set('Sale_product_data', cached_product_details,ttl)
+					print(f'3. Cache Of Product Details-->',cached_product_details)
+					invoice_form = Sales_InvoiceForm(request.POST)
+					product_form = Sales_ProductForm()
+					price_form = Sales_PriceForm(request.POST)
+				else:
+					print("Form errors:", invoice_form.errors, product_form.errors)
+
+			elif action_type == 'delete':
+				product_id = request.POST.get('product_id')
+				product_id = int(product_id)
+				if product_id:
+					cached_product_details = cache.get("Sale_product_data", [])
+					updated_product_details = [prod for prod in cached_product_details if prod['Id'] != product_id]
+                    # Adjust the IDs of remaining products
+					for prod in updated_product_details:
+						if prod['Id'] > product_id:
+							prod['Id'] -= 1
+
+					cache.set('Sale_product_data', updated_product_details,ttl)
+			elif action_type == 'update_db':
+				cached_Sales_invoice_data = cache.get('Sale_invoice_data', [])
+				cached_Sales_product_data = cache.get('Sale_product_data', [])
+				cached_Sales_price_data = cache.get('Sale_price_data', [])
+				Sales_Invoice_Info.objects.create(
+                        Sale_Id = cached_Sales_invoice_data['Sale_Id'],
+                        Sale_Date = cached_Sales_invoice_data['Sale_Date'],
+                        Customer_Name = cached_Sales_invoice_data['Customer_Name'],
+                        Address = cached_Sales_invoice_data['Address'],
+                        Mobile_No = cached_Sales_invoice_data['Mobile_No'],
+                        City = cached_Sales_invoice_data['City'],
+						Expected_Payment_Date = cached_Sales_invoice_data['Expected_Payment_Date']
+                        
+                            )
+				Sale_id_var = str(cached_Sales_invoice_data['Sale_Id'])
+                
+				Sale_object = Sales_Invoice_Info.objects.get(Sale_Id=cached_Sales_invoice_data['Sale_Id'])
+                # Save data to the database
+				products_lst = []
+				for data in cached_Sales_product_data:
+					Sales_Product_Info.objects.create(
+                            Sale_Id = Sale_object,
+                            Id = data['Id'],
+							Company_Name = data['Company_Name'],
+                            Product_Name = data['Product_Name'],
+                            Batch_No = str(data['Batch_No']),
+                            Category = data['Category'],
+                            Manufacture_date = data['Manufacture_date'],
+                            Expiry_date = data['Expiry_date'],
+                            Size = data['Size'],
+                            Unit = data['Unit'],
+                            Quantity = data['Quantity'],
+                            Retail_Price= data['Retail_Price'],
+                            Total_Price = data['Total_Price'],
+                            Combo_Pk_Id = str(data['Sale_Id']) + '_' + str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']),
+                            Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit'])
+                        )
+					products_lst.append(str(data['Product_Name']).upper()+ '_' + str(data['Batch_No']).upper() + '_' +str( data['Size']) + '_' + str(data['Unit']))
+				
+				price_form = Sales_PriceForm(request.POST)
+				if price_form.is_valid():
+					Sales_Price_Info.objects.create(
+                        Sale_Id = Sale_object,
+                        Aggregate_Sale_Amount = price_form.cleaned_data['Aggregate_Sale_Amount'],
+                        Additions = price_form.cleaned_data['Additions'],
+                        Deductions = price_form.cleaned_data['Deductions'],
+                        Revised_Amount = price_form.cleaned_data['Revised_Amount'],
+                        Comments = price_form.cleaned_data['Comments']
+                        )
+				#<-----Inventory Logic----->#
+				for data in cached_Sales_product_data:
+					inventory.objects.filter(
+						Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit'])
+					).update(
+						Quantity = F('Quantity')-data['Quantity']
+					)
+				return redirect('Sales_invoice')
+		#<-------Sale Id Logic---->
+		last_invoice = Sales_Invoice_Info.objects.order_by('-Sale_Id').first()
+		Sale_Id = 1 if last_invoice is None else (last_invoice.Sale_Id)+1
+	
+
+		invoice_form = Sales_InvoiceForm(request.POST)
+		product_form = Sales_ProductForm()
+		price_form = Sales_PriceForm()
+
+		cached_invoice_data = cache.get('Sale_invoice_data', [])
+		cached_product_data =  cache.get('Sale_product_data', [])
+
+		## Profit view logic..
+		product_lst = []
+		for data in cached_product_data:
+			product_lst.append(data['Product_Name']+'_'+str(data['Batch_No'])+'_'+str(data['Size'])+'_'+data['Unit'])
+		Price_values = Price.objects.filter(Combo_ID__in = product_lst).values('Combo_ID','Cost_Price','Profit_percentage')
+
+		profit_view_dict = []
+		for data in cached_product_data:
+			for j in Price_values:
+				if j['Combo_ID'] == data['Product_Name']+'_'+str(data['Batch_No'])+'_'+str(data['Size'])+'_'+data['Unit']:
+					profit_view_dict.append({
+         				'Product_Name': data['Product_Name'],
+         				'Batch_No':data['Batch_No'],
+         				'Size': data['Size'],
+         				'Unit': data['Unit'],
+         				'Quantity': data['Quantity'],
+         				'Retail_Price': round(float(data['Retail_Price']),2),
+         				'Cost_Price': round(float(j['Cost_Price']),2),
+         				'Profit_percentage': round(float(j['Profit_percentage']),2),
+         				'Total_Price': data['Total_Price'],
+         				'Profit': round((float(data['Retail_Price']) - float(j['Cost_Price'])) * float(data['Quantity']),2)
+      					})
+
+		context = {
+            'invoice_form': invoice_form,
+            'product_form': product_form,
+			'price_form': price_form,
+            'Product_cache': cached_product_data,
+			'invoice_cache': cached_invoice_data,
+			'Sale_Id':Sale_Id,
+			'profit_view_values':profit_view_dict
+			# 'mobile_no':mobile_no,
+        }
+		return render(request, 'Sales_invoice_add.html', context)
+	else:
+		return redirect('home')
+
+def load_mobile_no(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        term = request.GET.get('term', '')  # Get the term directly from the request
+        mobile_nos = Record.objects.filter(phone__icontains=term)
+        response_content = list(mobile_nos.values('phone'))
+        print(response_content)
+        return JsonResponse(response_content, safe=False)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def get_customer_details(request):
+	mobile_no = request.GET.get('MobileNo', '')
+	customer_details = Record.objects.filter(phone__icontains=mobile_no).values('first_name','last_name','address','city')
+	response_content = {}
+	for data in customer_details:
+		response_content['Name'] = data['first_name']+' '+data['last_name']
+		response_content['address'] = data['address']
+		response_content['city'] = data['city']
+	print(response_content)
+	if response_content:
+		return JsonResponse(response_content, safe=False)
+	else:
+		return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_product_name_based_on_company(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        term = request.GET.get('term', '')
+        company_name = request.GET.get('company', None)  # Get the selected company
+
+        # Filter products by company and name
+        if company_name:
+            Products = Product.objects.filter(Name__icontains=term, Manufacturer=company_name)
+        else:
+            Products = Product.objects.filter(Name__icontains=term)
+
+        response_content = list(Products.values('Name'))
+        return JsonResponse(response_content, safe=False)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_batch_details(request):
+	if request.GET.get('request_type', '') == 'batch_details':
+			batch_no = request.GET.get('batch_no', '')
+			inv = inventory.objects.filter(Batch_No=batch_no).values('Manufacture_date', 'Expiry_date').first()
+			size = inventory.objects.filter(Batch_No=batch_no).values('Size','Unit')
+			size_lst = [str(i['Size'])+'-' + i['Unit'] for i in size]
+			size_lst
+			if inv:
+				response_content = {
+            			'Manufacture_date': inv['Manufacture_date'],
+            			'Expiry_date': inv['Expiry_date'],
+						'sizes': size_lst,
+        			}
+			else:
+				response_content = {'error': 'Batch not found'}
+			return JsonResponse(response_content)
+
+def get_retail_price(request):
+	product_name = request.GET.get('product_name')
+	batch_no = request.GET.get('batch_no')
+	var = request.GET.get('size').split('-')
+	size = int(var[0])
+	unit = var[1]
+
+	try:
+		price = Price.objects.get(
+			Product=product_name,
+            Batch_No=batch_no,
+            Size=size,
+			Unit = unit
+            # Optionally filter by quantity if needed
+		)
+		data = {
+            'Retail_Price': price.Selling_Price,
+        }
+	except Price.DoesNotExist:
+		data = {
+            'Retail_Price': None,
+        }
+
+	return JsonResponse(data)
+
+def sale_invoice_record(request,pk):
+	if request.user.is_authenticated:
+		# if 'return_invoice_q' in request.GET:
+		# 	q =request.GET['return_invoice_q']
+		# 	records = RI_Invoice_Info.objects.filter(Return_Id__icontains = q)
+		# else:
+		Sales_Invoice_records = Sales_Invoice_Info.objects.get(Sale_Id = pk)
+		Sales_Product_records = Sales_Product_Info.objects.filter(Sale_Id=pk).order_by('Id')
+		Sales_Price_records = Sales_Price_Info.objects.get(Sale_Id = pk)
+		context = {'Sales_Invoice_records':Sales_Invoice_records,
+			       'Sales_Product_records':Sales_Product_records,
+				   'Sales_Price_records':Sales_Price_records}
+		return render(request, 'Sales_invoice_record.html', context)
+	else:
+		messages.success(request, "You must be logged in..to view that page.")
+		return redirect('home')
+
+def sales_invoice_del(request,pk):
+	if request.user.is_authenticated:
+		Sale_Invoice_Del = Sales_Invoice_Info.objects.get(Sale_Id = pk)
+		Sale_Product_Del = Sales_Product_Info.objects.filter(Sale_Id = pk)
+		Sale_Purchase_Del = Sales_Price_Info.objects.get(Sale_Id = pk)
+		old_quant = Sales_Product_Info.objects.filter(Sale_Id = pk).values_list('Combo_Id','Quantity')
+		old_dict = [dict(zip(('Combo_Id','Quantity'),item)) for item in old_quant]
+		
+		Sale_Invoice_Del.delete()
+		Sale_Product_Del.delete()
+		Sale_Purchase_Del.delete()
+        
+		for product in old_dict:
+			inventory.objects.filter(Combo_Id = product['Combo_Id']).update(
+                                                                            Quantity = F('Quantity') + product['Quantity']
+                                                                            )
+		messages.success(request, f"{pk}'s {' Record has been deleted!'} ")
+		return redirect('Sales_invoice')
+	else:
+		messages.success(request, 'You must be logged in!')
+		return redirect('home')
+
+def get_category(request):
+	product_name = request.GET.get('product_name')
+	try:
+		catgory = Product.objects.get(
+			Name=product_name,
+		)
+		data = {
+            'Category': catgory.Category,
+        }
+	except Product.DoesNotExist:
+		data = {
+            'Category': None,
+        }
+	return JsonResponse(data)

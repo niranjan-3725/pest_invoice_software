@@ -1,0 +1,990 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h5>Sales Invoice</h5>
+
+<form id="invoiceForm" method="POST" action="{% url 'sales_invoice_add' %}">
+    {% csrf_token %}
+
+    <div class="position-relative">
+        <div class="form-check form-switch position-absolute top-0 end-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+            <label class="form-check-label" for="flexSwitchCheckDefault" id="paymentTypeLabel">Cash</label>
+      </div>
+    </div>
+    <br><br>
+    <input type="hidden" name="action_type" id="action_type" value="add_update">
+    <input type="hidden" name="product_id" id="product_id" value="">
+    <input type="hidden" name="update_action" id="update_action" value="">
+    <input type="hidden" name="payment_type" id="id_Payment_Type" value="">
+
+    <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 175px;">
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Sale_Id.id_for_label}}"><b>{{invoice_form.Sale_Id.label}}</b></label>
+            <input type="text" name="Sale_Id" class="form-control" placeholder="Enter Sale Id" maxlength="255" readonly id="id_Sale_Id" value="{{Sale_Id}}">
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Sale_Date.id_for_label}}"><b>{{invoice_form.Sale_Date.label}}</b></label>
+            {{invoice_form.Sale_Date}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Mobile_No.id_for_label}}"><b>{{invoice_form.Mobile_No.label}}</b></label>
+            {{invoice_form.Mobile_No}}
+        </div>
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ invoice_form.Customer_Name.id_for_label}}"><b>{{invoice_form.Customer_Name.label}}</b></label>
+            {{invoice_form.Customer_Name}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Address.id_for_label}}"><b>{{invoice_form.Address.label}}</b></label>
+            {{invoice_form.Address}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.City.id_for_label}}"><b>{{invoice_form.City.label}}</b></label>
+            {{invoice_form.City}}
+        </div>
+        <div class = "col-4 col-md-3 expected-payment-date-div" >
+            <label for = "{{ invoice_form.Expected_Payment_Date.id_for_label}}"><b>{{invoice_form.Expected_Payment_Date.label}}</b></label>
+            {{invoice_form.Expected_Payment_Date}}
+        </div>
+    </div>
+
+    <br>
+    <div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 300px;">
+        {% csrf_token %}
+        <div class = 'row'>
+            <div class = "col-4 col-md-3 align-self">
+                <label for = "{{ product_form.Company_Name.id_for_label}}"><b>{{product_form.Company_Name.label}}</b></label>
+                {{product_form.Company_Name}}
+            </div>
+            <div class = "col-4 col-md-3 align-self">
+                <label for = "{{ product_form.Product_Name.id_for_label}}"><b>{{product_form.Product_Name.label}}</b></label>
+                {{product_form.Product_Name}}
+            </div> 
+
+            <div class = "col-4 col-md-3 align-self">
+                <label for = "{{ product_form.Category.id_for_label}}"><b>{{product_form.Category.label}}</b></label>
+                <input type="text" name="Category" class="form-control" placeholder="Category" maxlength="255" readonly id="id_Category">
+            </div> 
+    
+            <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Batch_No.id_for_label}}"><b>{{product_form.Batch_No.label}}</b></label>
+                    {{product_form.Batch_No}}
+                </div>
+            </div>
+            <br>
+            <div class = "row">
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Manufacture_date.id_for_label}}"><b>{{product_form.Manufacture_date.label}}</b></label>
+                    {{product_form.Manufacture_date}}
+                </div>
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Expiry_date.id_for_label}}"><b>{{product_form.Expiry_date.label}}</b></label>
+                    {{product_form.Expiry_date}}
+                </div>
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Size.id_for_label}}"><b>{{product_form.Size.label}}</b></label>
+                    {{product_form.Size}}
+                </div>
+    
+                <!-- <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Unit.id_for_label}}"><b>{{product_form.Unit.label}}</b></label>
+                    {{product_form.Unit}}
+                </div> -->
+    
+                <div class = "col-4 col-md-3">
+                    <label for="{{ product_form.Quantity.id_for_label }}"><b>{{ product_form.Quantity.label }}</b></label>
+                        {{ product_form.Quantity }}
+                    <small id="quantity-error" class="text-danger"></small>  <!-- Error message container -->
+                </div>
+            </div>
+            <br>
+            <div class = "row">
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Retail_Price.id_for_label}}"><b>{{product_form.Retail_Price.label}}</b></label>
+                    <input type="text" name="Retail_Price" class="form-control" placeholder="Retail Price" maxlength="255" readonly id="id_Retail_Price">
+                </div>
+                <div class = "col-4 col-md-3">
+                    <label for = "{{ product_form.Total_Price.id_for_label}}"><b>{{product_form.Total_Price.label}}</b></label>
+                    <input type="text" name="Total_Price" class="form-control" placeholder="Total Price" maxlength="255" readonly id="id_Total_Price">
+                </div>
+            </div>
+            <br><br><br><br>
+            <button type="submit" class="btn btn-success" id="addButton" onclick="document.getElementById('action_type').value='add_update'">Add +</button>
+        </div>
+        <br><br><br><br><br>
+    <div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
+    <table class="table table-hover table-bordered" id = 'Product_Table' >
+       <thead class = 'table-dark' style = "position: sticky; top: 0px;">
+           <th id="product_id">Id</th>
+           <th>Company Name</th>
+           <th>Product Name</th>
+           <th>Category</th>
+           <th>Batch No</th>
+           <th>Manufacture Date</th>
+           <th>Expiry Date</th>
+           <th>Size</th>
+           <th>Quantity</th>
+           <th>Retail Price</th>
+           <th>Total Price</th>
+       </thead>
+       {% for data in Product_cache%}
+       {% if data.Flag != 'Yes' %}
+      <tr>
+       <td>
+           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
+               {{ data.Id }}
+           </button>
+           <!-- Modal Starts -->
+           <div class="modal fade" id="modal{{ data.Id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+               <div class="modal-dialog">
+                   <div class="modal-content">
+                       <div class="modal-header">
+                           <h1 class="modal-title fs-5" id="exampleModalLabel"><b>Update or Delete</b></h1>
+                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                       </div>
+                       <div class="modal-body">
+                           {{ data.Product_Name }} ({{ data.Batch_No }}) - {{data.Size}} {{ data.Unit|escapejs }} 
+                       </div>
+                       <div class="modal-footer">
+                           <!-- <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button> -->
+                           <button type="button" class="btn btn-outline-primary" onclick="populateFormForUpdate
+                           (
+                               JSON.stringify({
+                                   'Id': '{{ data.Id|escapejs }}',
+                                   'Company_Name': '{{ data.Company_Name|escapejs }}',
+                                   'Product_Name': '{{ data.Product_Name|escapejs }}',
+                                   'Category': '{{ data.Category|escapejs }}',
+                                   'Batch_No': '{{ data.Batch_No|escapejs }}',
+                                   'Manufacture_date': '{{ data.Manufacture_date|escapejs }}',
+                                   'Expiry_date': '{{ data.Expiry_date|escapejs }}',
+                                   'Size': '{{ data.Size|escapejs }}',
+                                   'Unit': '{{ data.Unit|escapejs }}',
+                                   'Quantity': '{{ data.Quantity|escapejs }}',
+                                   'Retail_Price': '{{ data.Retail_Price|escapejs }}',
+                                   'Total_Price': '{{ data.Total_Price|escapejs }}',
+                               })
+                           )" data-bs-dismiss="modal">Update</button>
+                           <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           <!-- Modal Ends -->
+       </td>
+       <!-- <td>{{ data.Id }}</td> -->
+        <td>{{data.Company_Name}}</td>
+       <td>{{ data.Product_Name }}</td>
+       <td>{{data.Category}}</td>
+       <td>{{ data.Batch_No }}</td>
+       <td>{{ data.Manufacture_date }}</td>
+       <td>{{ data.Expiry_date }}</td>
+       <td>{{ data.Size }} {{ data.Unit }}</td>
+       <!-- <td>{{ data.Unit }}</td> -->
+       <td>{{ data.Quantity}}</td>
+       <td>{{ data.Retail_Price }}</td>
+       <td>{{ data.Total_Price }}</td>
+      </tr>
+      {% endif %}
+      {%endfor%}
+    </table>
+      </div> 
+    <br><br>
+<div class="position-relative">
+<b>Price Summary:</b> 
+<button type="button" class="btn btn-primary position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalProfitView">
+    Profit View
+</button>
+<!-- Modal -->
+<div class="modal fade" id="modalProfitView" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Profit View</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-hover table-bordered" >
+                <thead class = 'table-dark' style = "position: sticky; top: 0px;">
+                    <th>Product Name</th>
+                    <th>Batch No</th>
+                    <th>Size</th>
+                    <th>Quantity</th>
+                    <th>Retail Price</th>
+                    <th>Cost Price</th>
+                    <th>Profit percentage</th>
+                    <th>Total Price</th>
+                    <th>Profit</th>
+                </thead>
+                {% for data in profit_view_values%}
+                <tr>
+                    <td>{{data.Product_Name}}</td>
+                    <td>{{data.Batch_No}}</td>
+                    <td>{{data.Size}} {{data.Unit}}</td>
+                    <td>{{data.Quantity}}</td>
+                    <td>{{data.Retail_Price}}</td>
+                    <td>{{data.Cost_Price}}</td>
+                    <td>{{data.Profit_percentage}} %</td>
+                    <td>{{data.Total_Price}}</td>
+                    <td>{{data.Profit}}</td>
+                </tr>
+                {%endfor%}
+                <tr>
+                    <td colspan="7" style="text-align: center;"><b> Grand Total </b></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br><br>
+{% csrf_token %}
+   <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Aggregate_Sale_Amount.id_for_label}}"><b>{{price_form.Aggregate_Sale_Amount.label}}</b></label>
+        {{price_form.Aggregate_Sale_Amount}}
+    </div>
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
+        {{price_form.Additions}}
+    </div>
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Deductions.id_for_label}}"><b>{{price_form.Deductions.label}}</b></label>
+        {{price_form.Deductions}}
+    </div>
+    <div class = "col-4 col-md-3">
+        <label for = "{{ price_form.Revised_Amount.id_for_label}}"><b>{{price_form.Revised_Amount.label}}</b></label>
+        {{price_form.Revised_Amount}}
+    </div>
+
+    <div class="form-floating">
+        {{price_form.Comments}}
+        <label for="{{ price_form.Revised_Amount.id_for_label}}">{{price_form.Comments.label}}</label>
+      </div>
+   </div>
+   <br><br>
+   <button type="submit" class="btn btn-success" id="updateButton">Submit</button>
+   <a href="{% url 'Sales_invoice' %}" class="btn btn-secondary">Back</a>
+</form>
+<br><br><br><br>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<!-- Ensure Select2 is loaded -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    const addButton = document.getElementById('addButton');
+    const submitButton = document.getElementById('updateButton');
+    const form = document.getElementById('invoiceForm');
+
+    // Fields to validate for Add+ action
+    const addRequiredFields = [
+        'Company_Name', 'Product_Name', 'Batch_No', 'Category', 
+        'Manufacture_date', 'Expiry_date', 'Size', 'Unit', 
+        'Quantity', 'Retail_Price', 'Total_Price'
+    ];
+
+    // Helper function to check if required fields for Add+ are filled
+    function areAddFieldsValid() {
+        let isValid = true;
+        addRequiredFields.forEach(fieldId => {
+            const field = document.getElementById(`id_${fieldId}`);
+            if (field && !field.value.trim()) {
+                field.classList.add('error');  // You can add a CSS class to highlight invalid fields
+                isValid = false;
+            } else {
+                field.classList.remove('error'); // Remove the error class if field is valid
+            }
+        });
+        return isValid;
+    }
+
+    // Add+ button click handler
+    addButton.addEventListener('click', function (event) {
+        // Prevent the default form submission if Add+ required fields are not valid
+        if (!areAddFieldsValid()) {
+            event.preventDefault();  // Stop form submission
+            alert("Please fill in the required fields before adding the product.");
+            return;
+        }
+        // Set form validation to be enforced for Add+ action
+        form.noValidate = false;
+        document.getElementById('action_type').value = 'add_update';  // Mark as add action
+    });
+
+
+    submitButton.addEventListener('click', function (event) {
+    // Exclude these fields from validation on submit
+    const submitExcludedFields = ['product_id', 'update_action', 'Payment_Type'];
+
+    // Combine addRequiredFields and submitExcludedFields into one array
+    const fieldsToExclude = addRequiredFields.concat(submitExcludedFields);
+
+    // Validate all fields for the submit button, except the ones excluded
+    let allFieldsValid = true;
+    form.querySelectorAll('input, select').forEach(field => {
+        const fieldId = field.id.replace('id_', '');  // Strip the "id_" prefix for comparison
+        const fieldValue = field.value.trim();
+
+        // Log the current field being checked and its value (for debugging purposes)
+        console.log(`Checking field: ${fieldId}, Value: "${fieldValue}"`);
+
+        // Check if field is empty and not part of the excluded fields
+        if (!fieldValue && !fieldsToExclude.includes(fieldId)) {
+            field.classList.add('error');
+            allFieldsValid = false;
+
+            // Log the field that caused the validation failure
+            console.log(`Field validation failed: ${fieldId}, empty value`);
+        } else {
+            field.classList.remove('error');
+        }
+    });
+
+    // Log the final result of validation
+    console.log(`All fields valid: ${allFieldsValid}`);
+
+    if (!allFieldsValid) {
+        event.preventDefault();  // Stop form submission
+        alert("Please fill in all the required fields before submitting.");
+        return;
+    }
+
+    // Disable validation for Submit action
+    form.noValidate = true;
+    document.getElementById('action_type').value = 'update_db';
+});
+
+});
+
+////////<<<<<<-------------******************----------------->>>>>>>>>>>>>>////////////
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentSwitch = document.getElementById('flexSwitchCheckDefault');
+    const paymentTypeLabel = document.getElementById('paymentTypeLabel');
+    const expectedPaymentDateDiv = document.querySelector('.expected-payment-date-div');
+    const expectedPaymentDateInput = document.getElementById('id_Expected_Payment_Date');
+
+    // Get cached payment type from the server context
+    const cachedPaymentType = "{{ invoice_cache.Payment_Type }}";  // Passed from views.py
+
+    // Initialize the toggle based on the cached payment type
+    if (cachedPaymentType === 'Credit') {
+        paymentSwitch.checked = true;
+        paymentTypeLabel.textContent = 'Credit';
+        expectedPaymentDateDiv.style.display = 'block';  // Show Expected_Payment_Date
+    } else {
+        paymentSwitch.checked = false;
+        paymentTypeLabel.textContent = 'Cash';
+        expectedPaymentDateDiv.style.display = 'none';  // Hide Expected_Payment_Date
+    }
+
+    // Capture change events for all invoice form fields
+    const relevantFields = document.querySelectorAll('#id_Sale_Id, #id_Sale_Date, #id_Mobile_No, #id_Customer_Name, #id_Address, #id_City , #id_Expected_Payment_Date');
+    relevantFields.forEach(function(field) {
+    field.addEventListener('mouseover', function() {
+        updateInvoiceData();  // Update cache when any of these fields change
+    });
+    });
+
+    // Add event listener to handle toggle changes
+    paymentSwitch.addEventListener('change', function() {
+        handlePaymentTypeChange();
+        updateInvoiceData();  // Trigger AJAX update for all invoice fields
+    });
+
+
+
+    function handlePaymentTypeChange() {
+        if (paymentSwitch.checked) {
+            paymentTypeLabel.textContent = 'Credit';
+            expectedPaymentDateDiv.style.display = 'block'; // Show Expected_Payment_Date
+        } else {
+            paymentTypeLabel.textContent = 'Cash';
+            expectedPaymentDateDiv.style.display = 'none'; // Hide Expected_Payment_Date
+            expectedPaymentDateInput.value = new Date().toISOString().split('T')[0]; // Default to today's date
+        }
+    }
+
+    // Function to send all invoice form data to the backend via AJAX
+    function updateInvoiceData() {
+        const invoiceData = {
+            'Sale_Id': document.getElementById('id_Sale_Id').value,
+            'Sale_Date': document.getElementById('id_Sale_Date').value,
+            'Customer_Name': document.getElementById('id_Customer_Name').value,
+            'Address': document.getElementById('id_Address').value,
+            'Mobile_No': document.getElementById('id_Mobile_No').value,
+            'City': document.getElementById('id_City').value,
+            'Expected_Payment_Date': document.getElementById('id_Expected_Payment_Date').value,
+            'Payment_Type': paymentSwitch.checked ? 'Credit' : 'Cash',
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "sales_invoice_add" %}',  // Same view as form submission
+            data: invoiceData,
+            success: function(response) {
+                console.log('Invoice data updated successfully:', response);
+            },
+            error: function(error) {
+                console.log('Error updating invoice data:', error);
+            }
+        });
+    }
+});
+
+
+
+
+function fetchCustomerDetails() {
+        var MobileNo = $('#id_Mobile_No').val();
+
+        if (MobileNo) {
+            $.ajax({
+                url: '{% url "get_customer_details" %}',
+                data: {
+                    'MobileNo': MobileNo,
+                },
+                success: function(data) {
+                    if (data.Name !== null) {
+                        $('#id_Customer_Name').val(data.Name);
+                    } else {
+                        $('#id_Customer_Name').val(''); // Clear the field if no data found
+                    }
+
+                    if (data.address !== null) {
+                        $('#id_Address').val(data.address);
+                    } else {
+                        $('#id_Address').val(''); // Clear the field if no data found
+                    }
+
+                    if (data.city !== null) {
+                        $('#id_City').val(data.city);
+                    } else {
+                        $('#id_City').val(''); // Clear the field if no data found
+                    }
+                }
+            });
+        }
+    }
+
+    // Initialize the Select2 for Mobile No field
+    function initializePhoneNoSelect2(selector) {
+        console.log("Initializing Select2 for selector:", selector);
+        $(selector).select2({
+            ajax: {
+                url: "{% url 'ajax_load_mobile_no' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("AJAX request params:", params);
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: String(item.phone), text: String(item.phone) };  // Convert phone to string
+                        })
+                    };
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error in AJAX request:", error);
+                }
+            },
+            placeholder: 'Mobile No',
+            minimumInputLength: 1,
+            width: 'resolve'
+        }).on('select2:select', function (e) {
+            var selectedData = e.params.data;
+            console.log("Selected data:", selectedData);
+            $(selector).val(selectedData.id).trigger('change');
+            console.log("Field value after selection:", $(selector).val());  // Log the value after setting
+            
+            // Trigger fetchCustomerDetails after selecting a Mobile No
+            fetchCustomerDetails();
+            // Manually trigger click event after initialization
+            setTimeout(function() {
+            console.log("Triggering click event on Mobile No field.");
+            $('#id_Mobile_No').trigger('click');  // Manually trigger the click event
+            }, 1000);  // Adjust the delay as needed
+        });
+    }
+
+    $(document).ready(function () {
+        console.log("Document is ready. Initializing Select2.");
+        initializePhoneNoSelect2('#id_Mobile_No');
+    });
+
+const Mobile_No = "{{invoice_cache.Mobile_No}}";
+const Customer_Name = "{{invoice_cache.Customer_Name}}";
+const Address = "{{invoice_cache.Address}}";
+const City = "{{invoice_cache.City}}";
+const today = new Date().toISOString().split('T')[0]; 
+const cachedExpectedPaymentDate = formatDate("{{ invoice_cache.Expected_Payment_Date }}") || today;
+const cachedSaleDate = formatDate("{{ invoice_cache.Sale_Date }}") || today;
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('id_Expected_Payment_Date').value = cachedExpectedPaymentDate;
+    document.getElementById('id_Sale_Date').value = cachedSaleDate;
+    document.getElementById('id_Customer_Name').value = Customer_Name;
+    document.getElementById('id_Address').value = Address;
+    document.getElementById('id_City').value = City;
+    var option = new Option(Mobile_No, Mobile_No, true, true);
+    $('#id_Mobile_No').append(option).trigger('change');
+
+
+    document.getElementById('id_Additions').value = '0';
+    document.getElementById('id_Deductions').value = '0';
+    
+
+    // Set default value for Comments
+    document.getElementById('id_Comments').value = 'NA';
+})
+function initializeCompanySelect2(selector) {
+        console.log("Initializing Select2 for selector:", selector);
+        $(selector).select2({
+            ajax: {
+                url: "{% url 'ajax_load_companies' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("AJAX request params:", params);
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: item.Company_name, text: item.Company_name };
+                        })
+                    };
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error in AJAX request:", error);
+                }
+            },
+            placeholder: 'Select a manufacturer',
+            minimumInputLength: 1,
+            width: 'resolve'
+        }).on('select2:select', function (e) {
+            var data = e.params.data;
+            fetchCompanyAddress(data.id);
+        });
+    }
+
+// Product Name Ajax
+
+function initializeProductSelect2(selector, companySelector) {
+    console.log("Initializing Select2 for product selector:", selector);
+
+    $(selector).select2({
+        ajax: {
+            url: "{% url 'get_product_name_based_on_company' %}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                console.log("AJAX request params:", params);
+                
+                // Get the selected company ID from the company selector
+                var selectedCompany = $('#id_Company_Name').val(); 
+
+                return {
+                    term: params.term,    // Search term
+                    company: selectedCompany // Pass selected company as parameter
+                };
+            },
+            processResults: function (data) {
+                console.log("Received product data:", data);
+                return {
+                    results: $.map(data, function (item) {
+                        return { id: item.Name, text: item.Name };
+                    })
+                };
+            },
+            error: function(xhr, status, error) {
+                console.error("Error in product AJAX request:", error);
+            }
+        },
+        placeholder: 'Select a product',
+        minimumInputLength: 1,
+        width: 'resolve'
+    }).on('select2:select', function (e) {
+        var data = e.params.data;
+        selectedProductName = data.id;
+        fetchBatchNumbers(selectedProductName);  // Implement fetchBatchNumbers separately
+    });
+}
+
+
+function fetchBatchNumbers(productName) {
+    console.log("Fetching batch numbers for product:", productName);
+    fetch(`/get-batch-no/?product_name=${productName}&request_type=batch_no`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Received batch numbers:", data);
+            const batchNoSelect = document.getElementById('id_Batch_No');
+            batchNoSelect.innerHTML = ''; // Clear existing options
+
+            // Populate the Batch_No dropdown
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.Batch_No;
+                option.text = item.Batch_No;
+                batchNoSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching batch numbers:", error);
+        });
+}
+
+function fetchBatchDetails(batchNo) {
+    console.log("Fetching batch details for:", batchNo);
+    fetch(`/get_batch_details/?batch_no=${batchNo}&request_type=batch_details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error("Error fetching batch details:", data.error);
+            } else {
+                console.log("Received batch details:", data);
+                document.getElementById('id_Manufacture_date').value = data.Manufacture_date;
+                document.getElementById('id_Expiry_date').value = data.Expiry_date;
+
+                // Populate the Size dropdown
+                const sizeSelect = document.getElementById('id_Size');
+                sizeSelect.innerHTML = ''; // Clear existing options
+                data.sizes.forEach(size => {
+                    const option = document.createElement('option');
+                    option.value = size;
+                    option.text = size;
+                    sizeSelect.appendChild(option);
+                });
+                 // Pre-select the size being updated, if applicable
+                // const selectedSize = '{{ product_form.Size.value }}';
+                // if (selectedSize) {
+                //     sizeSelect.value = selectedSize;
+                // }
+            }
+        })
+        .catch(error => {
+            console.error("Error in fetchBatchDetails:", error);
+        });
+}
+
+$(document).ready(function () {
+    console.log("Document is ready. Initializing Select2.");
+
+    // Initialize company and product select2 fields
+    initializeCompanySelect2('#id_Company_Name');
+    initializeProductSelect2('#id_Product_Name');
+    
+    // Fetch batch details when a batch number is selected
+    $('#id_Batch_No').on('click', function () {
+        const selectedBatchNo = this.value;
+        fetchBatchDetails(selectedBatchNo);
+    });
+});
+
+
+$(document).ready(function () {
+    // Function to fetch price details based on selected fields
+    function fetchPriceDetails() {
+        var productName = $('#id_Product_Name').val();
+        var batchNo = $('#id_Batch_No').val();
+        var size = $('#id_Size').val();
+
+        if (productName && batchNo && size) {
+            $.ajax({
+                url: '{% url "get_retail_price" %}',
+                data: {
+                    'product_name': productName,
+                    'batch_no': batchNo,
+                    'size': size,
+                },
+                success: function(data) {
+                    if (data.Retail_Price !== null) {
+                        $('#id_Retail_Price').val(data.Retail_Price);
+                    } else {
+                        $('#id_Retail_Price').val(''); // Clear the field if no data found
+                    }
+                }
+            });
+        }
+    }
+
+    // Call fetchPriceDetails immediately after the page is loaded
+    fetchPriceDetails();
+    $('#id_Product_Name, #id_Batch_No, #id_Size').click(function() {
+    fetchPriceDetails();
+})
+    // Listen for changes in the quantity field
+$('#id_Quantity').on('input', function () {
+        var productName = $('#id_Product_Name').val();
+        var batchNo = $('#id_Batch_No').val();
+        var size = $('#id_Size').val();
+        var enteredQuantity = $(this).val();
+
+        if (productName && batchNo && size && enteredQuantity) {
+            $.ajax({
+                url: "{% url 'check_quantity' %}",  // Ensure this URL matches your Django view
+                data: {
+                    'product_name': productName,
+                    'batch_no': batchNo,
+                    'size': size,
+                    'quantity': enteredQuantity
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.valid) {
+                        $('#quantity-error').text('');  // Clear error message if quantity is valid
+                        isValidQuantity = true;
+                    } else {
+                        var errorMessage = 'Entered quantity exceeds available quantity (' + data.available_quantity + ').';
+                        $('#quantity-error').text(errorMessage);  // Display error message
+                        isValidQuantity = false;
+                    }
+
+                    // Trigger fetchPriceDetails after the quantity check
+                    fetchPriceDetails();
+                }
+            });
+        }
+    
+        $('#invoiceForm').on('submit', function (e) {
+            if (!isValidQuantity) {
+                e.preventDefault();  // Prevent form submission
+                alert('Please correct the quantity before submitting the form.');
+            }
+        });
+
+    });
+});
+
+
+
+$(document).ready(function () {
+    // Function to fetch price details based on selected fields
+    function fetchCategory() {
+        var productName = $('#id_Product_Name').val();
+		
+        if (productName) {
+            $.ajax({
+                url: '{% url "get_category" %}',
+                data: {
+                    'product_name': productName,
+                },
+                success: function(data) {
+                    if (data.Category !== null) {
+                        $('#id_Category').val(data.Category);
+                    } else {
+                        $('#id_Category').val(''); // Clear the field if no data found
+                    }
+                }
+            });
+        }
+    }
+	
+	// Call fetchPriceDetails immediately after the page is loaded
+    fetchCategory();
+    $('#id_Product_Name').change(function() {
+    fetchCategory();
+})
+
+});
+
+    // Auto calculated fields..
+
+function calculateTotalPrice() {
+    var Quantity = parseInt(document.getElementById('id_Quantity').value) || 0;
+    var Retail_Price = parseFloat(document.getElementById('id_Retail_Price').value) || 0;
+
+    var Total_Price = Quantity * Retail_Price;
+    document.getElementById('id_Total_Price').value = Total_Price.toFixed(2);
+}
+
+// Event listeners to trigger calculateBTFA
+var inputsBTFA = document.querySelectorAll('#id_Size ,#id_Quantity, #id_Retail_Price');
+inputsBTFA.forEach(function(input) {
+    input.addEventListener('input', calculateTotalPrice);
+});
+
+
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function populateFormForUpdate(productData) {
+    const data = JSON.parse(productData);
+    document.getElementById('update_action').value = 'update';
+    document.getElementById('product_id').value = data.Id;
+
+
+    var companyNameSelect = $('#id_Company_Name');
+    var newOption = new Option(data.Company_Name, data.Company_Name, true, true);
+    companyNameSelect.append(newOption).trigger('change')
+    // Set the value for the Product_Name select2 field
+    var productNameSelect = $('#id_Product_Name');
+    var newOption = new Option(data.Product_Name, data.Product_Name, true, true);
+    productNameSelect.append(newOption).trigger('change');
+
+    // document.getElementById('update_action').value = 'update';
+    // document.getElementById('product_id').value = data.Id;
+    // document.getElementById('id_Product_Name').value = data.Product_Name;
+    // document.getElementById('id_Batch_No').value = data.Batch_No;
+    var BatchNoSelect = $('#id_Batch_No');
+    var newOption = new Option(data.Batch_No, data.Batch_No, true, true);
+    BatchNoSelect.append(newOption).trigger('change');
+    // productNameSelect.append(newOption).trigger('change');
+
+    //var SizeSelect = $('#id_Size');
+    //var newOption = new Option(''+data.Size+'-'+data.Unit, ''+data.Size+'-'+data.Unit, true, true);
+    //SizeSelect.append(newOption).trigger('change');
+    // Fetch sizes based on Batch_No
+    fetchBatchDetails(data.Batch_No);
+
+    document.getElementById('id_Manufacture_date').value = formatDate(data.Manufacture_date);
+    document.getElementById('id_Expiry_date').value = formatDate(data.Expiry_date);
+    // document.getElementById('id_Size').value = data.Size;
+    // document.getElementById('id_Unit').value = data.Unit;
+    document.getElementById('id_Quantity').value = data.Quantity;
+    document.getElementById('id_Retail_Price').value = data.Retail_Price;
+    document.getElementById('id_Total_Price').value = data.Total_Price;
+
+    fetchBatchDetails(data.Batch_No);
+}
+
+// function calculateFinalAmount() {
+//     let total = 0;
+//     const rows = document.querySelectorAll('table.table-hover tbody tr');
+//     rows.forEach(row => {
+//         const puFinalAmount = parseFloat(row.querySelector('td:nth-child(9)').textContent) || 0;
+//         total += puFinalAmount;
+//     });
+//     document.getElementById('id_Aggregate_Sale_Amount').value = total.toFixed(2); // Ensure this element is an input
+//     calculateRevisedAmount();
+// }
+// calculateFinalAmount();
+
+
+////////-------------->>>>>><<<<<<<<<<-----------//////////
+//Price form Related Calculations
+function calculateFinalAmount() {
+    let total = 0;
+    // Select all the rows in the table
+    const rows = document.querySelectorAll('#Product_Table tbody tr');
+    
+    rows.forEach(row => {
+        // Select the 11th cell for Total Price
+        const totalPriceCell = row.querySelector('td:nth-child(11)');
+        if (totalPriceCell) {
+            const totalPrice = parseFloat(totalPriceCell.textContent) || 0;
+            total += totalPrice;
+        }
+    });
+
+    // Update the Aggregate Sale Amount field
+    document.getElementById('id_Aggregate_Sale_Amount').value = total.toFixed(2);
+    calculateRevisedAmount();
+}
+
+// Recalculate the amounts whenever the form is submitted or table data changes
+document.getElementById('invoiceForm').addEventListener('submit', function (event) {
+    calculateFinalAmount();
+});
+
+// Ensure that the amount is recalculated after product addition or deletion
+function setDeleteActionAndSubmit(productId) {
+    document.getElementById('action_type').value = 'delete';
+    document.getElementById('product_id').value = productId;
+    document.getElementById('invoiceForm').submit();
+    calculateFinalAmount(); // Recalculate after deletion
+}
+
+// Call calculateFinalAmount on page load to initialize
+document.addEventListener('DOMContentLoaded', calculateFinalAmount);
+
+
+//Calculate Revised Amount
+function calculateRevisedAmount(){
+    var FinalAmount = parseInt(document.getElementById('id_Aggregate_Sale_Amount').value) || 0;
+    var AmountAdd = parseFloat(document.getElementById('id_Additions').value) || 0;
+    var AmountDeducted = parseFloat(document.getElementById('id_Deductions').value) || 0;
+
+    var RevisedAmount = FinalAmount + AmountAdd - AmountDeducted;
+    document.getElementById('id_Revised_Amount').value = RevisedAmount.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    var inputsRevisedAmount = document.querySelectorAll('#id_Additions, #id_Deductions');
+    inputsRevisedAmount.forEach(function(input) {
+        input.addEventListener('input', calculateRevisedAmount);
+    });
+
+    // Add event listeners to BT_Final_Amount for both calculations
+    var FinalAmountInput = document.getElementById('id_Aggregate_Sale_Amount');
+    if (FinalAmountInput) {
+        FinalAmountInput.addEventListener('input', calculateRevisedAmount);
+    }
+});
+
+document.getElementById('updateButton').addEventListener('click', function(event) {
+    document.getElementById('action_type').value = 'update_db';
+});
+
+
+
+function calculateGrandTotal() {
+    let totalSum = 0;
+    let profitSum = 0;
+
+    // Select all rows from the table, excluding the header and the 'Grand Total' row
+    const rows = document.querySelectorAll('#modalProfitView table tbody tr');
+    
+    // Iterate over each row and calculate the sum of 'Total Price' and 'Profit'
+    rows.forEach(row => {
+        const totalPriceCell = row.querySelector('td:nth-child(8)'); // 'Total Price' is the 8th cell
+        const profitCell = row.querySelector('td:nth-child(9)'); // 'Profit' is the 9th cell
+
+        if (totalPriceCell && profitCell) {
+            const totalPrice = parseFloat(totalPriceCell.textContent) || 0;
+            const profit = parseFloat(profitCell.textContent) || 0;
+            totalSum += totalPrice;
+            profitSum += profit;
+        }
+    });
+
+    // Find the 'Grand Total' row and populate the sum of 'Total Price' and 'Profit'
+    const grandTotalRow = document.querySelector('#modalProfitView table tbody tr:last-child');
+    
+    if (grandTotalRow) {
+        grandTotalRow.innerHTML = `
+            <td colspan="7" style="text-align: center;"><b>Grand Total</b></td>
+            <td><b>${totalSum.toFixed(2)}</b></td>
+            <td><b>${profitSum.toFixed(2)}</b></td>
+        `;
+    }
+}
+
+// Trigger the function when the modal is shown (using Bootstrap's modal event)
+document.getElementById('modalProfitView').addEventListener('shown.bs.modal', calculateGrandTotal);
+</script>
+
+{% endblock %}

@@ -33,9 +33,6 @@
 
 <p class="card-text">
 <strong>Create At: </strong>{{ customer_record.created_at }}</p>
-
-<p class="card-text">
-<strong>ID: </strong>{{ customer_record.id }}</p>
     
     
   </div>
@@ -43,8 +40,8 @@
 <br/><br/>
 <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
 
-<a href="{% url 'delete_record' customer_record.id %}" class="btn btn-danger">Delete</a>
+<a href="{% url 'delete_record' customer_record.phone %}" class="btn btn-danger">Delete</a>
 
-<a href="{% url 'update_record' customer_record.id %}" class="btn btn-success">Update Record</a>
+<a href="{% url 'update_record' customer_record.phone %}" class="btn btn-success">Update Record</a>
 
 {% endblock %}

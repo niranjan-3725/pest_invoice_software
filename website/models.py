@@ -15,7 +15,7 @@ class Record(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.CharField(max_length=100)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15,primary_key=True)
     address = models.CharField(max_length=250)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
@@ -286,3 +286,55 @@ class RI_Price_Info(models.Model):
         db_table = 'RI_Price_Info'
     def __str__(self):
         return str(self.Return_Id)
+
+
+class Sales_Invoice_Info(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    Sale_Id = models.IntegerField(primary_key=True)
+    Sale_Date = models.DateField(blank=False,null=False)
+    Customer_Name = models.CharField(max_length=255)
+    Address = models.TextField()
+    Mobile_No = models.CharField(max_length=10)
+    City = models.CharField(max_length=255)
+    Editable = models.CharField(max_length=1,default=0)
+    Payment_Type = models.CharField(max_length=5,default='Cash')
+    Expected_Payment_Date = models.DateField(blank=False,null=False)
+    class Meta:
+        db_table = 'Sale_Invoice_Info'
+    def __str__(self):
+        return str(self.Sale_Id)
+
+class Sales_Product_Info(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    Sale_Id = models.ForeignKey(Sales_Invoice_Info,on_delete=models.CASCADE,verbose_name='Sale_Id')
+    Id = models.IntegerField()
+    Company_Name = models.CharField(max_length=255,blank=True, null=True)
+    Product_Name = models.CharField(max_length=255,blank=True, null=True)
+    Batch_No = models.CharField(max_length=255,blank=True, null=True)
+    Category = models.CharField(max_length=255,blank=True, null=True)
+    Manufacture_date = models.DateField(blank=True, null=True)
+    Expiry_date = models.DateField(blank=True, null=True)
+    Size = models.IntegerField(blank=True, null=True)
+    Unit = models.CharField(max_length=25,blank=True, null=True)
+    Quantity = models.IntegerField(blank=True, null=True)
+    Retail_Price = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Total_Price = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Combo_Pk_Id = models.CharField(max_length=255,primary_key=True) #Sale_Id_Product_Name_Batch_No_Size+Unit
+    Combo_Id = models.CharField(max_length=255) #Product_Name_Batch_No_Size+Unit
+    class Meta:
+        db_table = 'Sale_Product_info'
+    def __str__(self):
+        return str(self.Sale_Id)
+
+class Sales_Price_Info(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    Sale_Id = models.ForeignKey(Sales_Invoice_Info,on_delete=models.CASCADE,verbose_name='Sale_Id')
+    Aggregate_Sale_Amount = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Additions = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Deductions = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Revised_Amount = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Comments = models.TextField()
+    class Meta:
+        db_table = 'Sale_Price_Info'
+    def __str__(self):
+        return str(self.Sale_Id)
