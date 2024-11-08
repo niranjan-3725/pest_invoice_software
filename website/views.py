@@ -1879,16 +1879,6 @@ def sales_invoice_add(request):
 	if request.user.is_authenticated:
 		if request.method == 'POST':
 			if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-			# 	print('Ajax for Payment has been initiated')
-			# 	payment_type = request.POST.get('payment_type')
-			# 	print("Received Payment_Type:", payment_type)
-			# 	cached_invoice_data = cache.get('Sale_invoice_data', {})
-
-            # # Update the payment type in the cache
-			# 	cached_invoice_data['Payment_Type'] = payment_type
-			# 	cache.set('Sale_invoice_data', cached_invoice_data, 3600)  # Update the cache
-			# 	print(f'Cache Invoice-->',cache.get('Sale_invoice_data'))
-			# 	return JsonResponse({'status': 'success', 'payment_type': payment_type})
 				sale_id = request.POST.get('Sale_Id')
 				sale_date = request.POST.get('Sale_Date')
 				customer_name = request.POST.get('Customer_Name')
@@ -1917,14 +1907,6 @@ def sales_invoice_add(request):
 				cache.set('Sale_invoice_data', cached_invoice_data, 3600)
 				print(f'Updated cache invoice data: {cache.get("Sale_invoice_data")}')
 				return JsonResponse({'status': 'success', 'invoice_data': cached_invoice_data})
-			# cached_invoice_data = cache.get('Sale_invoice_data',{})
-			# payment_type = cached_invoice_data['Payment_Type']
-			# sale_date = cached_invoice_data['Sale_Date']
-			# customer_name = cached_invoice_data['Customer_Name']
-			# address = cached_invoice_data['Address']
-			# mobile_no = cached_invoice_data['Mobile_No']
-			# city = cached_invoice_data['City']
-			# expected_payment_date = cached_invoice_data['Expected_Payment_Date']
 			ttl = 3600
 			action_type = request.POST.get('action_type', 'add_update')
 			print(f'action_type--->',action_type)
@@ -1936,33 +1918,8 @@ def sales_invoice_add(request):
 				product_form = Sales_ProductForm(request.POST)
 				price_form = Sales_PriceForm(request.POST)
 
-				# if invoice_form.is_valid() :
-				# 	print('1.Invoice and Price form are valid')
-				# 	Sale_id = invoice_form.cleaned_data['Sale_Id']
-
-                #     # Update or add the invoice data in the cache
-				# 	# cached_invoice_dict = {
-				# 	# 	'Sale_Id': invoice_form.cleaned_data['']
-				# 	# }
-				# 	# payment_type = request.POST.get('payment_type', '')
-				# 	print("Received Payment_Type:", payment_type)
-				# 	invoice_data = {
-				# 		'Sale_Id': invoice_form.cleaned_data['Sale_Id'],
-				# 		'Sale_Date': sale_date,
-				# 		'Customer_Name': invoice_form.cleaned_data['Customer_Name'],
-				# 		'Address':  invoice_form.cleaned_data['Address'],
-				# 		'Mobile_No': invoice_form.cleaned_data['Mobile_No'],
-				# 		'City': invoice_form.cleaned_data['City'],
-				# 		'Expected_Payment_Date':invoice_form.cleaned_data['Expected_Payment_Date'],
-				# 		'Payment_Type': payment_type,
-				# 	}
-				# 	cache.set('Sale_invoice_data', invoice_data,ttl)
 				cached_invoice_details = cache.get("Sale_invoice_data", [])
-				# 	print(f'2. Cache of Invoice Details-->',cached_invoice_details)
-					# payment_type = request.POST.get('payment_type', '')
-					# print(f'payment type-->',payment_type)
 
-                    # Update or add the product data in the
 				sales_form_copy_data = request.POST.copy() 
 				size_with_unit = sales_form_copy_data.get('Size','')
 				size, unit = size_with_unit.split('-')
@@ -2058,8 +2015,8 @@ def sales_invoice_add(request):
                         Address = cached_Sales_invoice_data['Address'],
                         Mobile_No = cached_Sales_invoice_data['Mobile_No'],
                         City = cached_Sales_invoice_data['City'],
-						Expected_Payment_Date = cached_Sales_invoice_data['Expected_Payment_Date']
-                        
+						Expected_Payment_Date = cached_Sales_invoice_data['Expected_Payment_Date'],
+                        Payment_Type = cached_Sales_invoice_data['Payment_Type']
                             )
 				Sale_id_var = str(cached_Sales_invoice_data['Sale_Id'])
                 
@@ -2094,6 +2051,8 @@ def sales_invoice_add(request):
                         Additions = price_form.cleaned_data['Additions'],
                         Deductions = price_form.cleaned_data['Deductions'],
                         Revised_Amount = price_form.cleaned_data['Revised_Amount'],
+						Partial_Payment = price_form.cleaned_data['Partial_Payment'],
+						Due_Payment = price_form.cleaned_data['Due_Payment'],
                         Comments = price_form.cleaned_data['Comments']
                         )
 				#<-----Inventory Logic----->#
@@ -2184,11 +2143,11 @@ def get_product_name_based_on_company(request):
 
         # Filter products by company and name
         if company_name:
-            Products = Product.objects.filter(Name__icontains=term, Manufacturer=company_name)
+            Products = inventory.objects.filter(Product_Name__icontains=term, Quantity__gt = 0 ).distinct()
         else:
-            Products = Product.objects.filter(Name__icontains=term)
+            Products = inventory.objects.filter(Product_Name__icontains=term, Quantity__gt = 0 ).distinct()
 
-        response_content = list(Products.values('Name'))
+        response_content = list(Products.values('Product_Name'))
         return JsonResponse(response_content, safe=False)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
@@ -2244,6 +2203,9 @@ def sale_invoice_record(request,pk):
 		Sales_Invoice_records = Sales_Invoice_Info.objects.get(Sale_Id = pk)
 		Sales_Product_records = Sales_Product_Info.objects.filter(Sale_Id=pk).order_by('Id')
 		Sales_Price_records = Sales_Price_Info.objects.get(Sale_Id = pk)
+		cache.delete('Sale_invoice_update')
+		cache.delete('Sale_product_update')
+		cache.delete('Sale_price_update')
 		context = {'Sales_Invoice_records':Sales_Invoice_records,
 			       'Sales_Product_records':Sales_Product_records,
 				   'Sales_Price_records':Sales_Price_records}
@@ -2288,3 +2250,364 @@ def get_category(request):
             'Category': None,
         }
 	return JsonResponse(data)
+
+
+
+def sale_invoice_update(request,pk):
+	if request.user.is_authenticated:
+		ttl = 3600
+		if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+			sale_id = request.POST.get('Sale_Id')
+			sale_date = request.POST.get('Sale_Date')
+			customer_name = request.POST.get('Customer_Name')
+			address = request.POST.get('Address')
+			mobile_no = request.POST.get('Mobile_No')
+			city = request.POST.get('City')
+			expected_payment_date = request.POST.get('Expected_Payment_Date')
+			payment_type = request.POST.get('Payment_Type')
+
+               # Get the existing cached data
+			current_Sale_invoice_record = cache.get('Sale_invoice_update', {})
+
+               # Update the cached data with the new form values
+			current_Sale_invoice_record.update({
+                    'Sale_Id': sale_id,
+                    'Sale_Date': sale_date,
+                    'Customer_Name': customer_name,
+                    'Address': address,
+                    'Mobile_No': mobile_no,
+                    'City': city,
+                    'Expected_Payment_Date': expected_payment_date,
+                    'Payment_Type': payment_type,
+             })
+
+                # Save updated data to cache
+			cache.set('Sale_invoice_update', current_Sale_invoice_record, ttl)
+			return JsonResponse({'status': 'success', 'invoice_record': current_Sale_invoice_record})
+		
+		current_Sale_invoice_record = cache.get('Sale_invoice_update', Sales_Invoice_Info.objects.filter(Sale_Id=pk).values()[0])
+		cache.set('Sale_invoice_update', current_Sale_invoice_record, ttl)
+		if not cache.get('Sale_product_update',{}):
+			product_data = Sales_Product_Info.objects.filter(Sale_Id=pk).order_by('Id')
+			product_var_list = []
+			for data in product_data:
+				product_var_list.append(
+					{'Sale_Id':data.Sale_Id,
+	 				'Id':data.Id,
+					'Company_Name': data.Company_Name,
+					'Product_Name':data.Product_Name,
+					'Category':data.Category,
+	 				'Batch_No':data.Batch_No,
+					'Size':data.Size,
+					'Unit':data.Unit,
+					'Manufacture_date':data.Manufacture_date,
+					'Expiry_date':data.Expiry_date,
+					'Quantity':data.Quantity,
+					'Retail_Price':data.Retail_Price,
+					'Total_Price':data.Total_Price,
+					'Combo_Pk_Id': data.Combo_Pk_Id,
+					'Combo_Id':data.Combo_Id,
+					'Flag': '',
+					}
+					)
+			cache.set('Sale_product_update',product_var_list)
+		current_Sale_product_records = cache.get('Sale_product_update')
+		current_Sale_price_record = cache.get('Sale_price_update', Sales_Price_Info.objects.filter(Sale_Id=pk).values()[0])
+
+		Sale_Invoice_form = Sales_InvoiceForm(request.POST or None, instance=Sales_Invoice_Info.objects.get(Sale_Id=pk))
+		Sale_product_form = Sales_ProductForm(request.POST or None)
+		Sale_price_form = Sales_PriceForm(request.POST or None, instance=Sales_Price_Info.objects.get(Sale_Id=pk))
+		if request.method == 'POST':
+			print('POST Request has been activated')
+			action_type = request.POST.get('action_type', 'add_update')
+			if action_type == 'add_update':
+				# if Sale_Invoice_form.is_valid():
+					# cache.set('Sale_invoice_update', Sale_Invoice_form.cleaned_data, ttl)
+					# current_Sale_invoice_record = cache.get('Sale_invoice_update', {})
+
+               		# Update the cached data with the new form values
+					# current_Sale_invoice_record.update({
+            		        # 'Sale_Id': sale_id,
+            		        # 'Sale_Date': sale_date,
+            		        # 'Customer_Name': customer_name,
+            		        # 'Address': address,
+            		        # 'Mobile_No': mobile_no,
+            		        # 'City': city,
+            		        # 'Expected_Payment_Date': expected_payment_date,
+            		        # 'Payment_Type': payment_type,
+            		#  })
+					# cache.set('Sale_invoice_update', current_Sale_invoice_record, ttl)
+				invoice_form = Sales_InvoiceForm(request.POST)
+				product_form = Sales_ProductForm(request.POST)
+				price_form = Sales_PriceForm(request.POST)
+				cached_invoice_details = cache.get("Sale_invoice_update", [])
+			
+				sales_form_copy_data = request.POST.copy() 
+				size_with_unit = sales_form_copy_data.get('Size','')
+				size, unit = size_with_unit.split('-')
+				sales_form_copy_data['Size'] = int(size)
+				sales_form_copy_data['Unit'] = unit
+				product_form = Sales_ProductForm(sales_form_copy_data)
+				if product_form.is_valid():
+					print('Product form is valid')
+					cached_product_details = cache.get("Sale_product_update", [])
+					print(f'cached_product_details before update --->',cached_product_details)
+					updated = False
+					for prod in cached_product_details:
+						if (prod['Product_Name'] == product_form.cleaned_data['Product_Name'] and
+            	                prod['Batch_No'] == product_form.cleaned_data['Batch_No'] and
+            	                prod['Size'] == product_form.cleaned_data['Size'] and
+            	                prod['Unit'] == product_form.cleaned_data['Unit']):
+							prod.update({
+            	                    'Category': product_form.cleaned_data['Category'],
+            	                    'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+            	                    'Expiry_date': product_form.cleaned_data['Expiry_date'],
+            	                    'Quantity': product_form.cleaned_data['Quantity'],
+            	                    'Retail_Price': product_form.cleaned_data['Retail_Price'],
+            	                    'Total_Price': product_form.cleaned_data['Total_Price'],
+									'Flag':'',
+            	                })
+							updated = True
+							break
+					if not updated:
+						next_id = len(cached_product_details)+1
+						new_product_record = {
+            	           'Sale_Id': pk,
+            	           'Id': next_id,
+						   'Company_Name':product_form.cleaned_data['Company_Name'],
+            	           'Product_Name': product_form.cleaned_data['Product_Name'],
+            	           'Category': product_form.cleaned_data['Category'],
+            	           'Batch_No': product_form.cleaned_data['Batch_No'].upper(),
+            	           'Manufacture_date': product_form.cleaned_data['Manufacture_date'],
+            	           'Expiry_date': product_form.cleaned_data['Expiry_date'],
+            	           'Size': product_form.cleaned_data['Size'],
+            	           'Unit': product_form.cleaned_data['Unit'],
+            	           'Quantity': product_form.cleaned_data['Quantity'],
+            	           'Retail_Price': product_form.cleaned_data['Retail_Price'],
+            	           'Total_Price': product_form.cleaned_data['Total_Price'],
+            	           'Flag':'',
+            	        }
+						cached_product_details.append(new_product_record)
+					print(f'cached_product_details after update --->',cached_product_details)
+					cache.set('Sale_product_update', cached_product_details, ttl)
+					current_Sale_product_records = cache.get('Sale_product_update')
+					print(f'current_Sale_product_records--->',current_Sale_product_records)
+				elif Sale_price_form.is_valid():
+					cache.set('Sale_price_update', Sale_price_form.cleaned_data, ttl)
+	
+				Sale_Invoice_form = Sales_InvoiceForm(request.POST or None)
+				Sale_product_form = Sales_ProductForm()
+				Sale_price_form = Sales_PriceForm(request.POST or None)
+			elif action_type == 'delete':
+				print('Delete statement activated..')
+				product_id = int(request.POST.get('product_id'))
+				cached_product_details = cache.get('Sale_product_update')
+				if product_id:
+					updated_Sale_product_records = []
+					for prod in cached_product_details:
+						if prod['Id'] == product_id:
+							prod['Flag'] = 'Yes'
+						if prod['Id'] > product_id and prod['Flag'] != 'Yes':
+							prod['Id'] -= 1
+						updated_Sale_product_records.append(prod)
+					cache.set('Sale_product_update',updated_Sale_product_records,ttl)
+				current_Sale_product_records = cache.get('Sale_product_update')
+				Sale_Invoice_form = Sales_InvoiceForm(request.POST or None)
+				Sale_product_form = Sales_ProductForm()
+				Sale_price_form = Sales_PriceForm(request.POST or None)
+			elif action_type == 'update_db':
+				cached_Sale_invoice = cache.get('Sale_invoice_update')
+				cached_Sale_product = cache.get('Sale_product_update')
+				print(f'cached_Sale_product after update db--->',cached_Sale_product)
+
+				if cached_Sale_invoice:
+					old_quant = Sales_Product_Info.objects.filter(Sale_Id = pk).values_list('Combo_Id','Quantity')
+					old_dict = [dict(zip(('Combo_Id','Quantity'),item)) for item in old_quant]
+					Sales_Invoice_Info.objects.filter(Sale_Id = pk).update(
+        	                Sale_Date=cached_Sale_invoice['Sale_Date'],
+        	                Customer_Name=cached_Sale_invoice['Customer_Name'],
+        	                Address=cached_Sale_invoice['Address'],
+        	                Mobile_No = cached_Sale_invoice['Mobile_No'],
+        	                City = cached_Sale_invoice['City'],
+        	                Expected_Payment_Date = cached_Sale_invoice['Expected_Payment_Date'],
+        	                Payment_Type = cached_Sale_invoice['Payment_Type'],
+							Editable = 1
+        	            )
+				# products_lst = []
+				# cached_Sale_product = cache.get('Sale_product_update')
+				if cached_Sale_product:
+					print(f'Update DB activated and its cached_Sale_product -->',cached_Sale_product)
+					for data in cached_Sale_product:
+						Sale_object = Sales_Invoice_Info.objects.get(Sale_Id=cached_Sale_invoice['Sale_Id'])
+						if Sales_Product_Info.objects.filter(Sale_Id = data['Sale_Id']
+											   ,Product_Name = data['Product_Name']
+											   ,Batch_No = data['Batch_No']
+											   ,Size = data['Size']
+											   ,Unit = data['Unit']
+											   ).exists() and data['Flag'] != 'Yes':
+							Sales_Product_Info.objects.filter(
+												Sale_Id =  data['Sale_Id']
+											   ,Product_Name = data['Product_Name']
+											   ,Batch_No = data['Batch_No']
+											   ,Size = data['Size']
+											   ,Unit = data['Unit']).update(
+        	    	                            Id=data['Id'],
+        	    	                            Manufacture_date=data['Manufacture_date'],
+        	    	                            Expiry_date=data['Expiry_date'],
+        	    	                            Quantity=data['Quantity'],
+        	    	                            Retail_Price= data['Retail_Price'],
+        	    	                            Total_Price = data['Total_Price'],
+        	    	                            Combo_Pk_Id = str(data['Sale_Id']) + '_' + str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']),
+        	    	                            Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit'])
+        	    	                           )
+							#products_lst.append(str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']))
+						if not Sales_Product_Info.objects.filter(Sale_Id = data['Sale_Id']
+											   ,Product_Name = data['Product_Name']
+											   ,Batch_No = data['Batch_No']
+											   ,Size = data['Size']
+											   ,Unit = data['Unit']
+											   ).exists() and data['Flag'] != 'Yes':
+							Sales_Product_Info.objects.create(
+								 Sale_Id =  Sale_object
+								,Company_Name = data['Company_Name']
+								,Category= data['Category']
+								,Product_Name = data['Product_Name']
+								,Batch_No = data['Batch_No']
+								,Size = data['Size']
+								,Unit = data['Unit']
+								,Id=data['Id']
+								,Manufacture_date=data['Manufacture_date']
+								,Expiry_date=data['Expiry_date']
+								,Quantity=data['Quantity']
+								,Retail_Price= data['Retail_Price']
+								,Total_Price = data['Total_Price']
+								,Combo_Pk_Id = str(data['Sale_Id']) + '_' + str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit'])
+								,Combo_Id = str(data['Product_Name']) + '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit'])
+							)
+							#products_lst.append(str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']))
+						if data['Flag'] == 'Yes':
+							Sales_Product_Info.objects.filter(Sale_Id = data['Sale_Id']
+											   ,Product_Name = data['Product_Name']
+											   ,Batch_No = data['Batch_No']
+											   ,Size = data['Size']
+											   ,Unit = data['Unit']
+											   ).delete()
+						#products_lst.append(str(data['Product_Name'])+ '_' + str(data['Batch_No']) + '_' +str( data['Size']) + '_' + str(data['Unit']))
+				Sale_price_form = Sales_PriceForm(request.POST or None)
+				if Sale_price_form.is_valid():
+					Sales_Price_Info.objects.filter(Sale_Id = data['Sale_Id']).update(
+        	                Aggregate_Sale_Amount = Sale_price_form.cleaned_data['Aggregate_Sale_Amount'],
+        	                Additions = Sale_price_form.cleaned_data['Additions'],
+        	                Deductions = Sale_price_form.cleaned_data['Deductions'],
+        	                Revised_Amount = Sale_price_form.cleaned_data['Revised_Amount'],
+							Partial_Payment = Sale_price_form.cleaned_data['Partial_Payment'],
+							Due_Payment = Sale_price_form.cleaned_data['Due_Payment'],
+        	                Comments = Sale_price_form.cleaned_data['Comments']
+        	        )
+				New_Product_List = []
+				for cache_data in cached_Sale_product:
+					New_Product_List.append({
+      							'Combo_Id':cache_data['Product_Name']+'_'+str(cache_data['Batch_No'])+'_'+str(cache_data['Size'])+'_'+cache_data['Unit'],
+      							'Quantity':cache_data['Quantity'],
+      							'Flag':cache_data['Flag']
+      							})
+				New_list = []
+				for New_Data in New_Product_List:
+					found = False
+					for Old_Data in old_dict:
+						if New_Data['Combo_Id'] == Old_Data['Combo_Id']:
+							found = True
+							if New_Data['Flag']== 'Yes':
+								New_list.append(
+										{
+										'Combo_Id':New_Data['Combo_Id'],
+        	              				'Quantity' : -Old_Data['Quantity']
+        	              				}
+        	                                )
+							elif  New_Data['Quantity'] > Old_Data['Quantity']:
+								New_list.append(
+										{
+										'Combo_Id':New_Data['Combo_Id'],
+        	              				'Quantity' : 0
+        	              				}
+												)
+							elif  New_Data['Quantity'] < Old_Data['Quantity']:
+								New_list.append(
+										{
+										'Combo_Id':New_Data['Combo_Id'],
+        	              				'Quantity' : New_Data['Quantity'] - Old_Data['Quantity']
+        	              				}
+												)
+					if not found:
+						New_list.append(
+								{
+									'Combo_Id':New_Data['Combo_Id'],
+        	              			'Quantity' : New_Data['Quantity']
+        	              		}
+											)
+				for data in New_list:
+					inventory.objects.filter(
+							Combo_Id = data['Combo_Id']
+						).update(
+							Quantity = F('Quantity') - data['Quantity']
+						)
+				cache.delete('Sale_invoice_update')
+				cache.delete('Sale_product_update')
+				cache.delete('Sale_price_update')
+				return redirect('Sales_invoice')
+		#cache.set('Sale_invoice_update', current_Sale_invoice_record,ttl)
+		#cache.set('Sale_product_update', current_Sale_product_records,ttl)
+		#cache.set('Sale_price_update', current_Sale_price_record,ttl)
+		product_lst = []
+		for data in current_Sale_product_records:
+			if data['Flag'] != 'Yes':
+				product_lst.append(data['Product_Name']+'_'+str(data['Batch_No'])+'_'+str(data['Size'])+'_'+data['Unit'])
+
+		Price_values = Price.objects.filter(Combo_ID__in = product_lst).values('Combo_ID','Cost_Price','Profit_percentage')
+		profit_view_dict = []
+		for data in current_Sale_product_records:
+			for j in Price_values:
+				if j['Combo_ID'] == data['Product_Name']+'_'+str(data['Batch_No'])+'_'+str(data['Size'])+'_'+data['Unit']:
+					profit_view_dict.append({
+         				'Product_Name': data['Product_Name'],
+         				'Batch_No':data['Batch_No'],
+         				'Size': data['Size'],
+         				'Unit': data['Unit'],
+         				'Quantity': data['Quantity'],
+         				'Retail_Price': round(float(data['Retail_Price']),2),
+         				'Cost_Price': round(float(j['Cost_Price']),2),
+         				'Profit_percentage': round(float(j['Profit_percentage']),2),
+         				'Total_Price': data['Total_Price'],
+         				'Profit': round((float(data['Retail_Price']) - float(j['Cost_Price'])) * float(data['Quantity']),2)
+      					})
+		context = {
+            'invoice_form': Sale_Invoice_form,
+            'product_form': Sale_product_form,
+            'price_form': Sale_price_form,
+            'product_record': current_Sale_product_records,
+            'invoice_record': current_Sale_invoice_record,
+			'profit_view_values':profit_view_dict
+        }
+		
+		return render(request, 'Sales_invoice_update.html', context)
+	else:
+		messages.success(request, 'You must be logged in!')
+		return redirect('home')
+
+def Sales_invoice_return_home(request):
+	# if request.user.is_authenticated:
+	# 	if 'sales_invoice_q' in request.GET:
+	# 		q =request.GET['sales_invoice_q']
+	# 		records = Sales_Invoice_Info.objects.filter(Sale_Id__icontains = q)
+	# 	else:
+	# 		records = Sales_Invoice_Info.objects.all()
+	# 		cache.delete('Sale_product_data')
+	# 		cache.delete('Sale_invoice_data')
+	# 		cache.delete('Sales_invoice_update')
+	# 		cache.delete('Sales_product_update')
+	# 		cache.delete('Sales_price_update')
+	# 	return render(request, 'Sales_Invoice.html', {'records':records})
+	# else:
+	# 	messages.success(request, "You must be logged in..to view that page.")
+	# 	return redirect('home')
+	pass

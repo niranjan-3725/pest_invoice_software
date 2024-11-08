@@ -75,4 +75,7 @@ urlpatterns = [
     path('sale_invoice_record/<slug:pk>',views.sale_invoice_record,name = 'sale_invoice_record'),
     path('get_category/',views.get_category,name='get_category'),
     path('sales_invoice_del/<slug:pk>',views.sales_invoice_del,name='sales_invoice_del'),
+
+    #Sales Invoice Update Urls
+    path('sale_invoice_update/<slug:pk>',views.sale_invoice_update,name= 'sale_invoice_update'),
 ]

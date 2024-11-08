@@ -546,6 +546,8 @@ class Sales_PriceForm(forms.ModelForm):
 			'Additions',
 			'Deductions',
 			'Revised_Amount',
+			'Partial_Payment',
+			'Due_Payment',
 			'Comments',
 		]
 		widgets = {
@@ -554,6 +556,8 @@ class Sales_PriceForm(forms.ModelForm):
 			'Additions': forms.NumberInput(attrs={'class': 'form-control'}),
 			'Deductions': forms.NumberInput(attrs={'class': 'form-control'}),
 			'Revised_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Partial_Payment':forms.NumberInput(attrs={'class': 'form-control'}),
+			'Due_Payment': forms.NumberInput(attrs={'class': 'form-control'}),
 			'Comments': forms.Textarea(attrs={'class':'form-control','placeholder':"Leave a comment here" ,'style':"height: 100px"})
 		}
 		labels = {
@@ -562,6 +566,8 @@ class Sales_PriceForm(forms.ModelForm):
 			'Additions' : "Additions",
 			'Deductions' :"Deductions",
 			'Revised_Amount': 'Revised Amount',
+			'Partial_Payment':'Partial Payment',
+			'Due_Payment':'Due Payment',
 			'Comments': " Comments"
 		}
 		def __init__(self,*args,**kwargs):

@@ -297,7 +297,7 @@ class Sales_Invoice_Info(models.Model):
     Mobile_No = models.CharField(max_length=10)
     City = models.CharField(max_length=255)
     Editable = models.CharField(max_length=1,default=0)
-    Payment_Type = models.CharField(max_length=5,default='Cash')
+    Payment_Type = models.CharField(max_length=6,default='Cash')
     Expected_Payment_Date = models.DateField(blank=False,null=False)
     class Meta:
         db_table = 'Sale_Invoice_Info'
@@ -333,6 +333,8 @@ class Sales_Price_Info(models.Model):
     Additions = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
     Deductions = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
     Revised_Amount = models.DecimalField(max_digits=10,decimal_places=3,blank=True, null=True)
+    Partial_Payment = models.DecimalField(max_digits=10,decimal_places=3,default=0,blank=True, null=True)
+    Due_Payment = models.DecimalField(max_digits=10,decimal_places=3,default=0,blank=True, null=True)
     Comments = models.TextField()
     class Meta:
         db_table = 'Sale_Price_Info'

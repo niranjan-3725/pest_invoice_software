@@ -1,11 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h5>Sales Invoice</h5>
+{% if user.is_authenticated %}
 
-<form id="invoiceForm" method="POST" action="{% url 'sales_invoice_add' %}">
+<h5>Sales Invoice Update</h5>
+
+<form id="invoiceForm" method="POST" action="{% url 'sale_invoice_update'  invoice_form.Sale_Id.value %}">
+
     {% csrf_token %}
-
     <div class="position-relative">
         <div class="form-check form-switch position-absolute top-0 end-0">
             <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
@@ -16,12 +18,11 @@
     <input type="hidden" name="action_type" id="action_type" value="add_update">
     <input type="hidden" name="product_id" id="product_id" value="">
     <input type="hidden" name="update_action" id="update_action" value="">
-    <input type="hidden" name="payment_type" id="id_Payment_Type" value="">
-
     <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height: 175px;">
         <div class = "col-4 col-md-3">
-            <label for = "{{ invoice_form.Sale_Id.id_for_label}}"><b>{{invoice_form.Sale_Id.label}}</b></label>
-            <input type="text" name="Sale_Id" class="form-control" placeholder="Enter Sale Id" maxlength="255" readonly id="id_Sale_Id" value="{{Sale_Id}}">
+            <label for = "{{ invoice_form.Sale_Id.id_for_label}}"><b>{{invoice_form.Sale_Id.label}}:</b></label>
+            <input type="text" name="Sale_Id" class="form-control" placeholder="Enter Sale Id" maxlength="255" readonly value="{{ invoice_form.Sale_Id.value }}" id="id_Sale_Id">
+            <!-- {{invoice_form.Sale_Id}} -->
         </div>
         <div class = "col-4 col-md-3">
             <label for = "{{ invoice_form.Sale_Date.id_for_label}}"><b>{{invoice_form.Sale_Date.label}}</b></label>
@@ -48,207 +49,208 @@
             {{invoice_form.Expected_Payment_Date}}
         </div>
     </div>
-
-    <br>
-    <div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 300px;">
-        {% csrf_token %}
-        <div class = 'row'>
-            <div class = "col-4 col-md-3 align-self">
-                <label for = "{{ product_form.Company_Name.id_for_label}}"><b>{{product_form.Company_Name.label}}</b></label>
-                {{product_form.Company_Name}}
-            </div>
-            <div class = "col-4 col-md-3 align-self">
-                <label for = "{{ product_form.Product_Name.id_for_label}}"><b>{{product_form.Product_Name.label}}</b></label>
-                {{product_form.Product_Name}}
-            </div> 
-
-            <div class = "col-4 col-md-3 align-self">
-                <label for = "{{ product_form.Category.id_for_label}}"><b>{{product_form.Category.label}}</b></label>
-                <input type="text" name="Category" class="form-control" placeholder="Category" maxlength="255" readonly id="id_Category">
-            </div> 
-    
-            <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Batch_No.id_for_label}}"><b>{{product_form.Batch_No.label}}</b></label>
-                    {{product_form.Batch_No}}
-                </div>
-            </div>
-            <br>
-            <div class = "row">
-                <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Manufacture_date.id_for_label}}"><b>{{product_form.Manufacture_date.label}}</b></label>
-                    {{product_form.Manufacture_date}}
-                </div>
-                <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Expiry_date.id_for_label}}"><b>{{product_form.Expiry_date.label}}</b></label>
-                    {{product_form.Expiry_date}}
-                </div>
-                <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Size.id_for_label}}"><b>{{product_form.Size.label}}</b></label>
-                    {{product_form.Size}}
-                </div>
-    
-                <!-- <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Unit.id_for_label}}"><b>{{product_form.Unit.label}}</b></label>
-                    {{product_form.Unit}}
-                </div> -->
-    
-                <div class = "col-4 col-md-3">
-                    <label for="{{ product_form.Quantity.id_for_label }}"><b>{{ product_form.Quantity.label }}</b></label>
-                        {{ product_form.Quantity }}
-                    <small id="quantity-error" class="text-danger"></small>  <!-- Error message container -->
-                </div>
-            </div>
-            <br>
-            <div class = "row">
-                <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Retail_Price.id_for_label}}"><b>{{product_form.Retail_Price.label}}</b></label>
-                    <input type="text" name="Retail_Price" class="form-control" placeholder="Retail Price" maxlength="255" readonly id="id_Retail_Price">
-                </div>
-                <div class = "col-4 col-md-3">
-                    <label for = "{{ product_form.Total_Price.id_for_label}}"><b>{{product_form.Total_Price.label}}</b></label>
-                    <input type="text" name="Total_Price" class="form-control" placeholder="Total Price" maxlength="255" readonly id="id_Total_Price">
-                </div>
-            </div>
-            <br><br><br><br>
-            <button type="submit" class="btn btn-success" id="addButton" onclick="document.getElementById('action_type').value='add_update'">Add +</button>
+<br>
+<br>
+<br>
+<div style = "background: linear-gradient(to top, #c4c5c7 0%, #dcdddf 52%, #ebebeb 100%); border-radius: 5px;padding: 5px;height: 300px;">
+    {% csrf_token %}
+    <div class = 'row'>
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ product_form.Company_Name.id_for_label}}"><b>{{product_form.Company_Name.label}}</b></label>
+            {{product_form.Company_Name}}
         </div>
-        <br><br><br><br><br>
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ product_form.Product_Name.id_for_label}}"><b>{{product_form.Product_Name.label}}</b></label>
+            {{product_form.Product_Name}}
+        </div> 
+
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ product_form.Category.id_for_label}}"><b>{{product_form.Category.label}}</b></label>
+            <input type="text" name="Category" class="form-control" placeholder="Category" maxlength="255" readonly id="id_Category">
+        </div> 
+
+        <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Batch_No.id_for_label}}"><b>{{product_form.Batch_No.label}}</b></label>
+                {{product_form.Batch_No}}
+            </div>
+        </div>
+        <br>
+        <div class = "row">
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Manufacture_date.id_for_label}}"><b>{{product_form.Manufacture_date.label}}</b></label>
+                {{product_form.Manufacture_date}}
+            </div>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Expiry_date.id_for_label}}"><b>{{product_form.Expiry_date.label}}</b></label>
+                {{product_form.Expiry_date}}
+            </div>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Size.id_for_label}}"><b>{{product_form.Size.label}}</b></label>
+                {{product_form.Size}}
+            </div>
+
+            <!-- <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Unit.id_for_label}}"><b>{{product_form.Unit.label}}</b></label>
+                {{product_form.Unit}}
+            </div> -->
+
+            <div class = "col-4 col-md-3">
+                <label for="{{ product_form.Quantity.id_for_label }}"><b>{{ product_form.Quantity.label }}</b></label>
+                    {{ product_form.Quantity }}
+                <small id="quantity-error" class="text-danger"></small>  <!-- Error message container -->
+            </div>
+        </div>
+        <br>
+        <div class = "row">
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Retail_Price.id_for_label}}"><b>{{product_form.Retail_Price.label}}</b></label>
+                <input type="text" name="Retail_Price" class="form-control" placeholder="Retail Price" maxlength="255" readonly id="id_Retail_Price">
+            </div>
+            <div class = "col-4 col-md-3">
+                <label for = "{{ product_form.Total_Price.id_for_label}}"><b>{{product_form.Total_Price.label}}</b></label>
+                <input type="text" name="Total_Price" class="form-control" placeholder="Total Price" maxlength="255" readonly id="id_Total_Price">
+            </div>
+        </div>
+        <br><br><br><br>
+        <button type="submit" class="btn btn-success" id="addButton" onclick="document.getElementById('action_type').value='add_update'">Add +</button>
+    </div>
+    <br><br><br><br><br>
     <div class = 'table-responsive'style = "overflow:scroll;  height:300px; margin-top:20px; width: 100%; white-space: nowrap;" >
-    <table class="table table-hover table-bordered" id = 'Product_Table' >
-       <thead class = 'table-dark' style = "position: sticky; top: 0px;">
-           <th id="product_id">Id</th>
-           <th>Company Name</th>
-           <th>Product Name</th>
-           <th>Category</th>
-           <th>Batch No</th>
-           <th>Manufacture Date</th>
-           <th>Expiry Date</th>
-           <th>Size</th>
-           <th>Quantity</th>
-           <th>Retail Price</th>
-           <th>Total Price</th>
-       </thead>
-       {% for data in Product_cache%}
-       {% if data.Flag != 'Yes' %}
-      <tr>
-       <td>
-           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
-               {{ data.Id }}
-           </button>
-           <!-- Modal Starts -->
-           <div class="modal fade" id="modal{{ data.Id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-               <div class="modal-dialog">
-                   <div class="modal-content">
-                       <div class="modal-header">
-                           <h1 class="modal-title fs-5" id="exampleModalLabel"><b>Update or Delete</b></h1>
-                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                       </div>
-                       <div class="modal-body">
-                           {{ data.Product_Name }} ({{ data.Batch_No }}) - {{data.Size}} {{ data.Unit|escapejs }} 
-                       </div>
-                       <div class="modal-footer">
-                           <!-- <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button> -->
-                           <button type="button" class="btn btn-outline-primary" onclick="populateFormForUpdate
-                           (
-                               JSON.stringify({
-                                   'Id': '{{ data.Id|escapejs }}',
-                                   'Company_Name': '{{ data.Company_Name|escapejs }}',
-                                   'Product_Name': '{{ data.Product_Name|escapejs }}',
-                                   'Category': '{{ data.Category|escapejs }}',
-                                   'Batch_No': '{{ data.Batch_No|escapejs }}',
-                                   'Manufacture_date': '{{ data.Manufacture_date|escapejs }}',
-                                   'Expiry_date': '{{ data.Expiry_date|escapejs }}',
-                                   'Size': '{{ data.Size|escapejs }}',
-                                   'Unit': '{{ data.Unit|escapejs }}',
-                                   'Quantity': '{{ data.Quantity|escapejs }}',
-                                   'Retail_Price': '{{ data.Retail_Price|escapejs }}',
-                                   'Total_Price': '{{ data.Total_Price|escapejs }}',
-                               })
-                           )" data-bs-dismiss="modal">Update</button>
-                           <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
+        <table class="table table-hover table-bordered" id = 'Product_Table' >
+           <thead class = 'table-dark' style = "position: sticky; top: 0px;">
+               <th id="product_id">Id</th>
+               <th>Company Name</th>
+               <th>Product Name</th>
+               <th>Category</th>
+               <th>Batch No</th>
+               <th>Manufacture Date</th>
+               <th>Expiry Date</th>
+               <th>Size</th>
+               <th>Quantity</th>
+               <th>Retail Price</th>
+               <th>Total Price</th>
+           </thead>
+           {% for data in product_record%}
+           {% if data.Flag != 'Yes' %}
+          <tr>
+           <td>
+               <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal{{ data.Id }}">
+                   {{ data.Id }}
+               </button>
+               <!-- Modal Starts -->
+               <div class="modal fade" id="modal{{ data.Id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                   <div class="modal-dialog">
+                       <div class="modal-content">
+                           <div class="modal-header">
+                               <h1 class="modal-title fs-5" id="exampleModalLabel"><b>Update or Delete</b></h1>
+                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                           </div>
+                           <div class="modal-body">
+                               {{ data.Product_Name }} ({{ data.Batch_No }}) - {{data.Size}} {{ data.Unit|escapejs }} 
+                           </div>
+                           <div class="modal-footer">
+                               <!-- <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Update</button> -->
+                               <button type="button" class="btn btn-outline-primary" onclick="populateFormForUpdate
+                               (
+                                   JSON.stringify({
+                                       'Id': '{{ data.Id|escapejs }}',
+                                       'Company_Name': '{{ data.Company_Name|escapejs }}',
+                                       'Product_Name': '{{ data.Product_Name|escapejs }}',
+                                       'Category': '{{ data.Category|escapejs }}',
+                                       'Batch_No': '{{ data.Batch_No|escapejs }}',
+                                       'Manufacture_date': '{{ data.Manufacture_date|escapejs }}',
+                                       'Expiry_date': '{{ data.Expiry_date|escapejs }}',
+                                       'Size': '{{ data.Size|escapejs }}',
+                                       'Unit': '{{ data.Unit|escapejs }}',
+                                       'Quantity': '{{ data.Quantity|escapejs }}',
+                                       'Retail_Price': '{{ data.Retail_Price|escapejs }}',
+                                       'Total_Price': '{{ data.Total_Price|escapejs }}',
+                                   })
+                               )" data-bs-dismiss="modal">Update</button>
+                               <button type="button" class="btn btn-outline-danger" onclick="setDeleteActionAndSubmit('{{ data.Id }}')" data-bs-dismiss="modal">Delete</button>
+                           </div>
                        </div>
                    </div>
                </div>
-           </div>
-           <!-- Modal Ends -->
-       </td>
-       <!-- <td>{{ data.Id }}</td> -->
-        <td>{{data.Company_Name}}</td>
-       <td>{{ data.Product_Name }}</td>
-       <td>{{data.Category}}</td>
-       <td>{{ data.Batch_No }}</td>
-       <td>{{ data.Manufacture_date }}</td>
-       <td>{{ data.Expiry_date }}</td>
-       <td>{{ data.Size }} {{ data.Unit }}</td>
-       <!-- <td>{{ data.Unit }}</td> -->
-       <td>{{ data.Quantity}}</td>
-       <td>{{ data.Retail_Price }}</td>
-       <td>{{ data.Total_Price }}</td>
-      </tr>
-      {% endif %}
-      {%endfor%}
-    </table>
-      </div> 
-    <br><br>
-<div class="position-relative">
-<b>Price Summary:</b> 
-<button type="button" class="btn btn-primary position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalProfitView">
-    Profit View
-</button>
-<!-- Modal -->
-<div class="modal fade" id="modalProfitView" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Profit View</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <table class="table table-hover table-bordered" >
-                <thead class = 'table-dark' style = "position: sticky; top: 0px;">
-                    <th>Product Name</th>
-                    <th>Batch No</th>
-                    <th>Size</th>
-                    <th>Quantity</th>
-                    <th>Retail Price</th>
-                    <th>Cost Price</th>
-                    <th>Profit percentage</th>
-                    <th>Total Price</th>
-                    <th>Profit</th>
-                </thead>
-                {% for data in profit_view_values%}
-                <tr>
-                    <td>{{data.Product_Name}}</td>
-                    <td>{{data.Batch_No}}</td>
-                    <td>{{data.Size}} {{data.Unit}}</td>
-                    <td>{{data.Quantity}}</td>
-                    <td>{{data.Retail_Price}}</td>
-                    <td>{{data.Cost_Price}}</td>
-                    <td>{{data.Profit_percentage}} %</td>
-                    <td>{{data.Total_Price}}</td>
-                    <td>{{data.Profit}}</td>
-                </tr>
-                {%endfor%}
-                <tr>
-                    <td colspan="7" style="text-align: center;"><b> Grand Total </b></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<br><br>
-{% csrf_token %}
-   <div class = 'row position-relative' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
+               <!-- Modal Ends -->
+           </td>
+           <!-- <td>{{ data.Id }}</td> -->
+            <td>{{data.Company_Name}}</td>
+           <td>{{ data.Product_Name }}</td>
+           <td>{{data.Category}}</td>
+           <td>{{ data.Batch_No }}</td>
+           <td>{{ data.Manufacture_date }}</td>
+           <td>{{ data.Expiry_date }}</td>
+           <td>{{ data.Size }} {{ data.Unit }}</td>
+           <!-- <td>{{ data.Unit }}</td> -->
+           <td>{{ data.Quantity}}</td>
+           <td>{{ data.Retail_Price }}</td>
+           <td>{{ data.Total_Price }}</td>
+          </tr>
+          {% endif %}
+          {%endfor%}
+        </table>
+          </div> 
+        <br><br>
+        <div class="position-relative">
+            <b>Price Summary:</b> 
+            <button type="button" class="btn btn-primary position-absolute end-0" data-bs-toggle="modal" data-bs-target="#modalProfitView">
+                Profit View
+            </button>
+            <!-- Modal -->
+            <div class="modal fade" id="modalProfitView" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Profit View</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-hover table-bordered" >
+                            <thead class = 'table-dark' style = "position: sticky; top: 0px;">
+                                <th>Product Name</th>
+                                <th>Batch No</th>
+                                <th>Size</th>
+                                <th>Quantity</th>
+                                <th>Retail Price</th>
+                                <th>Cost Price</th>
+                                <th>Profit percentage</th>
+                                <th>Total Price</th>
+                                <th>Profit</th>
+                            </thead>
+                            {% for data in profit_view_values%}
+                            <tr>
+                                <td>{{data.Product_Name}}</td>
+                                <td>{{data.Batch_No}}</td>
+                                <td>{{data.Size}} {{data.Unit}}</td>
+                                <td>{{data.Quantity}}</td>
+                                <td>{{data.Retail_Price}}</td>
+                                <td>{{data.Cost_Price}}</td>
+                                <td>{{data.Profit_percentage}} %</td>
+                                <td>{{data.Total_Price}}</td>
+                                <td>{{data.Profit}}</td>
+                            </tr>
+                            {%endfor%}
+                            <tr>
+                                <td colspan="7" style="text-align: center;"><b> Grand Total </b></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <br><br>
+        {% csrf_token %}
+   <div class = 'row' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
     <div class = "col-4 col-md-3">
         <label for = "{{ price_form.Aggregate_Sale_Amount.id_for_label}}"><b>{{price_form.Aggregate_Sale_Amount.label}}</b></label>
-        <input type="text" name="Aggregate_Sale_Amount" class="form-control" placeholder="Enter Aggregate_Sale_Amount" maxlength="255" readonly id="id_Aggregate_Sale_Amount">
+        {{price_form.Aggregate_Sale_Amount}}
     </div>
     <div class = "col-4 col-md-3">
         <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
@@ -277,17 +279,19 @@
       </div>
    </div>
    <br><br>
+   <br><br>
    <button type="submit" class="btn btn-success" id="updateButton">Submit</button>
    <a href="{% url 'Sales_invoice' %}" class="btn btn-secondary">Back</a>
-</form>
+</form>   
 <br><br><br><br>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <!-- Ensure Select2 is loaded -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script>
+//--Form Submission logic--//
 
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
     const addButton = document.getElementById('addButton');
     const submitButton = document.getElementById('updateButton');
     const form = document.getElementById('invoiceForm');
@@ -372,7 +376,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-////////<<<<<<-------------******************----------------->>>>>>>>>>>>>>////////////
+//--Toogle switch logic--//
+
 document.addEventListener('DOMContentLoaded', function() {
     const paymentSwitch = document.getElementById('flexSwitchCheckDefault');
     const paymentTypeLabel = document.getElementById('paymentTypeLabel');
@@ -387,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const duePaymentInput = document.getElementById('id_Due_Payment');
 
     // Get cached payment type from the server context
-    const cachedPaymentType = "{{ invoice_cache.Payment_Type }}";  // Passed from views.py
+    const cachedPaymentType = "{{ invoice_record.Payment_Type }}";  // Passed from views.py
 
     // Initialize the toggle based on the cached payment type
     if (cachedPaymentType === 'Credit') {
@@ -407,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Capture change events for all invoice form fields
     const relevantFields = document.querySelectorAll('#id_Sale_Id, #id_Sale_Date, #id_Mobile_No, #id_Customer_Name, #id_Address, #id_City , #id_Expected_Payment_Date');
     relevantFields.forEach(function(field) {
-    field.addEventListener('click', function() {
+    field.addEventListener('mouseover', function() {
         updateInvoiceData();  // Update cache when any of these fields change
     });
     });
@@ -424,9 +429,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
     // Handle payment type toggle
-    function handlePaymentTypeChange() {
+function handlePaymentTypeChange() {
         if (paymentSwitch.checked) {
             paymentTypeLabel.textContent = 'Credit';
             expectedPaymentDateDiv.style.display = 'block'; // Show Expected_Payment_Date
@@ -439,10 +443,10 @@ document.addEventListener('DOMContentLoaded', function() {
             duePaymentDiv.style.display = 'none';  // Hide Due_Payment
             expectedPaymentDateInput.value = new Date().toISOString().split('T')[0]; // Default to today's date
         }
-    }
+}
 
     // Function to send all invoice form data to the backend via AJAX
-    function updateInvoiceData() {
+function updateInvoiceData() {
         const invoiceData = {
             'Sale_Id': document.getElementById('id_Sale_Id').value,
             'Sale_Date': document.getElementById('id_Sale_Date').value,
@@ -457,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         $.ajax({
             type: 'POST',
-            url: '{% url "sales_invoice_add" %}',  // Same view as form submission
+            url: '{% url "sale_invoice_update" invoice_record.Sale_Id %}',  // Same view as form submission
             data: invoiceData,
             success: function(response) {
                 console.log('Invoice data updated successfully:', response);
@@ -470,42 +474,42 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-
-function fetchCustomerDetails() {
-        var MobileNo = $('#id_Mobile_No').val();
-
-        if (MobileNo) {
-            $.ajax({
-                url: '{% url "get_customer_details" %}',
-                data: {
-                    'MobileNo': MobileNo,
+function initializeCompanySelect2(selector) {
+        console.log("Initializing Select2 for selector:", selector);
+        $(selector).select2({
+            ajax: {
+                url: "{% url 'ajax_load_companies' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("AJAX request params:", params);
+                    return {
+                        term: params.term
+                    };
                 },
-                success: function(data) {
-                    if (data.Name !== null) {
-                        $('#id_Customer_Name').val(data.Name);
-                    } else {
-                        $('#id_Customer_Name').val(''); // Clear the field if no data found
-                    }
-
-                    if (data.address !== null) {
-                        $('#id_Address').val(data.address);
-                    } else {
-                        $('#id_Address').val(''); // Clear the field if no data found
-                    }
-
-                    if (data.city !== null) {
-                        $('#id_City').val(data.city);
-                    } else {
-                        $('#id_City').val(''); // Clear the field if no data found
-                    }
+                processResults: function (data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: item.Company_name, text: item.Company_name };
+                        })
+                    };
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error in AJAX request:", error);
                 }
-            });
-        }
+            },
+            placeholder: 'Select a manufacturer',
+            minimumInputLength: 1,
+            width: 'resolve'
+        }).on('select2:select', function (e) {
+            var data = e.params.data;
+            fetchCompanyAddress(data.id);
+        });
     }
 
-    // Initialize the Select2 for Mobile No field
-    function initializePhoneNoSelect2(selector) {
+// Initialize the Select2 for Mobile No field
+function initializePhoneNoSelect2(selector) {
         console.log("Initializing Select2 for selector:", selector);
         $(selector).select2({
             ajax: {
@@ -554,67 +558,13 @@ function fetchCustomerDetails() {
         initializePhoneNoSelect2('#id_Mobile_No');
     });
 
-const Mobile_No = "{{invoice_cache.Mobile_No}}";
-const Customer_Name = "{{invoice_cache.Customer_Name}}";
-const Address = "{{invoice_cache.Address}}";
-const City = "{{invoice_cache.City}}";
-const today = new Date().toISOString().split('T')[0]; 
-const cachedExpectedPaymentDate = formatDate("{{ invoice_cache.Expected_Payment_Date }}") || today;
-const cachedSaleDate = formatDate("{{ invoice_cache.Sale_Date }}") || today;
+const Mobile_No = "{{invoice_form.Mobile_No.value}}";
 
 document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById('id_Expected_Payment_Date').value = cachedExpectedPaymentDate;
-    document.getElementById('id_Sale_Date').value = cachedSaleDate;
-    document.getElementById('id_Customer_Name').value = Customer_Name;
-    document.getElementById('id_Address').value = Address;
-    document.getElementById('id_City').value = City;
     var option = new Option(Mobile_No, Mobile_No, true, true);
     $('#id_Mobile_No').append(option).trigger('change');
+});
 
-
-    document.getElementById('id_Additions').value = '0';
-    document.getElementById('id_Deductions').value = '0';
-    
-
-    // Set default value for Comments
-    document.getElementById('id_Comments').value = 'NA';
-})
-
-function initializeCompanySelect2(selector) {
-        console.log("Initializing Select2 for selector:", selector);
-        $(selector).select2({
-            ajax: {
-                url: "{% url 'ajax_load_companies' %}",
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    console.log("AJAX request params:", params);
-                    return {
-                        term: params.term
-                    };
-                },
-                processResults: function (data) {
-                    console.log("Received data:", data);
-                    return {
-                        results: $.map(data, function (item) {
-                            return { id: item.Company_name, text: item.Company_name };
-                        })
-                    };
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error in AJAX request:", error);
-                }
-            },
-            placeholder: 'Select a manufacturer',
-            minimumInputLength: 1,
-            width: 'resolve'
-        }).on('select2:select', function (e) {
-            var data = e.params.data;
-            fetchCompanyAddress(data.id);
-        });
-    }
-
-// Product Name Ajax
 
 function initializeProductSelect2(selector, companySelector) {
     console.log("Initializing Select2 for product selector:", selector);
@@ -727,6 +677,37 @@ $(document).ready(function () {
     });
 });
 
+$(document).ready(function () {
+    // Function to fetch price details based on selected fields
+    function fetchCategory() {
+        var productName = $('#id_Product_Name').val();
+		
+        if (productName) {
+            $.ajax({
+                url: '{% url "get_category" %}',
+                data: {
+                    'product_name': productName,
+                },
+                success: function(data) {
+                    if (data.Category !== null) {
+                        $('#id_Category').val(data.Category);
+                    } else {
+                        $('#id_Category').val(''); // Clear the field if no data found
+                    }
+                }
+            });
+        }
+    }
+	
+	// Call fetchPriceDetails immediately after the page is loaded
+    fetchCategory();
+    $('#id_Product_Name').change(function() {
+    fetchCategory();
+})
+
+});
+
+
 
 $(document).ready(function () {
     // Function to fetch price details based on selected fields
@@ -802,38 +783,6 @@ $('#id_Quantity').on('input', function () {
     });
 });
 
-
-
-$(document).ready(function () {
-    // Function to fetch price details based on selected fields
-    function fetchCategory() {
-        var productName = $('#id_Product_Name').val();
-		
-        if (productName) {
-            $.ajax({
-                url: '{% url "get_category" %}',
-                data: {
-                    'product_name': productName,
-                },
-                success: function(data) {
-                    if (data.Category !== null) {
-                        $('#id_Category').val(data.Category);
-                    } else {
-                        $('#id_Category').val(''); // Clear the field if no data found
-                    }
-                }
-            });
-        }
-    }
-	
-	// Call fetchPriceDetails immediately after the page is loaded
-    fetchCategory();
-    $('#id_Product_Name').change(function() {
-    fetchCategory();
-})
-
-});
-
     // Auto calculated fields..
 
 function calculateTotalPrice() {
@@ -849,7 +798,6 @@ var inputsBTFA = document.querySelectorAll('#id_Size ,#id_Quantity, #id_Retail_P
 inputsBTFA.forEach(function(input) {
     input.addEventListener('input', calculateTotalPrice);
 });
-
 
 
 function formatDate(dateStr) {
@@ -901,20 +849,6 @@ function populateFormForUpdate(productData) {
     fetchBatchDetails(data.Batch_No);
 }
 
-// function calculateFinalAmount() {
-//     let total = 0;
-//     const rows = document.querySelectorAll('table.table-hover tbody tr');
-//     rows.forEach(row => {
-//         const puFinalAmount = parseFloat(row.querySelector('td:nth-child(9)').textContent) || 0;
-//         total += puFinalAmount;
-//     });
-//     document.getElementById('id_Aggregate_Sale_Amount').value = total.toFixed(2); // Ensure this element is an input
-//     calculateRevisedAmount();
-// }
-// calculateFinalAmount();
-
-
-////////-------------->>>>>><<<<<<<<<<-----------//////////
 //Price form Related Calculations
 function calculateFinalAmount() {
     let total = 0;
@@ -941,6 +875,7 @@ document.getElementById('invoiceForm').addEventListener('submit', function (even
     calculateFinalAmount();
 });
 
+
 // Ensure that the amount is recalculated after product addition or deletion
 function setDeleteActionAndSubmit(productId) {
     document.getElementById('action_type').value = 'delete';
@@ -951,8 +886,6 @@ function setDeleteActionAndSubmit(productId) {
 
 // Call calculateFinalAmount on page load to initial    ize
 document.addEventListener('DOMContentLoaded', calculateFinalAmount);
-
-
 
 //Calculate Revised Amount
 function calculateRevisedAmount(){
@@ -1005,8 +938,6 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 
-
-
 function calculateGrandTotal() {
     let totalSum = 0;
     let profitSum = 0;
@@ -1041,6 +972,8 @@ function calculateGrandTotal() {
 
 // Trigger the function when the modal is shown (using Bootstrap's modal event)
 document.getElementById('modalProfitView').addEventListener('shown.bs.modal', calculateGrandTotal);
+
 </script>
 
+{% endif %}
 {% endblock %}
