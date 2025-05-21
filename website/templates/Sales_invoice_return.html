@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<a href="{% url 'sales_return_invoice_add' %}" class="btn btn-success">Add Sales Return Invoice</a>
+<br/>
+<br/>
+<form class="d-flex ms-auto" role="search">
+    <input class="form-control me-2" name="sales_invoice_return_q" type="search" placeholder="Search Sale Return Id" aria-label="Search">
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+<br/>
+<table class="table table-striped table-hover table-bordered">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col">Sale Return Id</th>
+        <th scope="col">Sale Date</th>
+        <th scope="col">Customer Name</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% if records %}
+          {%for record in records%}
+        <tr>
+            <td><a href="{% url 'sale_return_invoice_record' record.Sale_Return_Id%}">{{record.Sale_Return_Id}}</a></td>
+            <td >{{record.Sale_Return_Date}} </td>
+            <td>{{record.Customer_Name}}</td>
+            {%endfor%}
+        </tr>
+        {%endif%}
+      </tbody>
+      </table>
+
+{%endif%}
+  
+{% endblock %}

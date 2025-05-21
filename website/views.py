@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render , redirect,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -2594,20 +2595,344 @@ def sale_invoice_update(request,pk):
 		messages.success(request, 'You must be logged in!')
 		return redirect('home')
 
-def Sales_invoice_return_home(request):
-	# if request.user.is_authenticated:
-	# 	if 'sales_invoice_q' in request.GET:
-	# 		q =request.GET['sales_invoice_q']
-	# 		records = Sales_Invoice_Info.objects.filter(Sale_Id__icontains = q)
-	# 	else:
-	# 		records = Sales_Invoice_Info.objects.all()
-	# 		cache.delete('Sale_product_data')
-	# 		cache.delete('Sale_invoice_data')
-	# 		cache.delete('Sales_invoice_update')
-	# 		cache.delete('Sales_product_update')
-	# 		cache.delete('Sales_price_update')
-	# 	return render(request, 'Sales_Invoice.html', {'records':records})
-	# else:
-	# 	messages.success(request, "You must be logged in..to view that page.")
-	# 	return redirect('home')
-	pass
+def Sales_return_invoice_home(request):
+	if request.user.is_authenticated:
+		if 'sales_invoice_return_q' in request.GET:
+			q =request.GET['sales_invoice_q']
+			records = Sales_Return_Invoice_Info.objects.filter(Sale_Return_Id__icontains = q)
+		else:
+			records = Sales_Return_Invoice_Info.objects.all()
+			# cache.delete('Sale_product_data')
+			# cache.delete('Sale_invoice_data')
+			# cache.delete('Sales_invoice_update')
+			# cache.delete('Sales_product_update')
+			# cache.delete('Sales_price_update')
+		return render(request, 'Sales_invoice_return.html', {'records':records})
+	else:
+		messages.success(request, "You must be logged in..to view that page.")
+		return redirect('home')
+
+@login_required
+def get_sales_records(request):
+    mobile_no = request.GET.get('mobile_no')
+    sale_id = request.GET.get('sale_id', '')
+    
+    if mobile_no:
+        # Calculate date 3 months ago
+        #three_months_ago = datetime.now() - timedelta(days=90)
+        
+        # First get the base sales invoice info filtered by mobile_no and date
+        sales_invoices = Sales_Invoice_Info.objects.filter(
+            Mobile_No=mobile_no
+        ).order_by('-Sale_Date')
+        
+        if sale_id:
+            sales_invoices = sales_invoices.filter(Sale_Id=sale_id)
+        
+        # Get all sale IDs from the filtered results
+        sale_ids = [invoice['Sale_Id'] for invoice in sales_invoices.values('Sale_Id', 'Sale_Date')]
+        
+        # Perform left join with Sales_Product_Info
+        sales_records = Sales_Product_Info.objects.filter(
+            Sale_Id_id__in=sale_ids
+        ).select_related('Sale_Id').values(
+            'Sale_Id_id',
+			'Company_Name',
+			'Category',
+            'Product_Name',
+            'Size',
+            'Unit',
+            'Batch_No',
+            'Quantity'
+        )
+        
+        # Create a list to combine the data
+        combined_records = []
+        for record in sales_records:
+            # Find corresponding sale invoice for date
+            sale_date = next(
+                (invoice['Sale_Date'] for invoice in sales_invoices.values('Sale_Id', 'Sale_Date')
+                 if invoice['Sale_Id'] == record['Sale_Id_id']),
+                None
+            )
+            
+            # Create combined record
+            combined_record = {
+                'Sale_Id_id': record['Sale_Id_id'],
+                'created_at': sale_date.strftime('%d-%m-%y') if sale_date else '',
+                'original_date': sale_date,  # Keep original datetime for sorting
+				'Company_Name': record['Company_Name'],
+				'Category': record['Category'],
+                'Product_Name': record['Product_Name'],
+                'Size': record['Size'],
+                'Unit': record['Unit'],
+                'Batch_No': record['Batch_No'],
+                'Quantity': record['Quantity']
+            }
+            combined_records.append(combined_record)
+        
+        # Sort combined_records by original_date in descending order
+        combined_records.sort(
+            key=lambda x: x['original_date'] if x['original_date'] else datetime.min,
+            reverse=True
+        )
+        
+        # Remove the original_date field from the final output
+        for record in combined_records:
+            del record['original_date']
+        
+        return JsonResponse({
+            'sales_records': combined_records
+        })
+    
+    return JsonResponse({'sales_records': []})
+
+@login_required
+def get_selected_items_details(request):
+	items_data = json.loads(request.POST.get('items', '[]'))
+	print(items_data)
+	total_quantity_dict = {}
+	sale_ids = [int(item['sale_id_id']) for item in items_data]
+	product_info = Sales_Product_Info.objects.filter(
+        Sale_Id_id__in=sale_ids
+    ).values(
+        'Sale_Id_id',
+        'Quantity',
+    )
+    
+	for sale_id in sale_ids:
+		Quantity = 0
+		for product in product_info:
+			if sale_id == product['Sale_Id_id']:
+				Quantity += product['Quantity']
+				total_quantity_dict[sale_id] = Quantity
+    
+	if not items_data:
+		return JsonResponse({'selected_items': []})
+
+	selected_items = []
+
+	for item in items_data:
+		sale_id = int(item['sale_id_id'])
+		product_name = item['product_name']
+		size = item['size']
+		unit = item['unit']
+		batch_no = item['batch_no']
+
+        # Fetch matching Product Info
+		product = Sales_Product_Info.objects.filter(
+            Sale_Id_id=sale_id,
+            Product_Name=product_name,
+            Size=size,
+            Unit=unit,
+            Batch_No=batch_no
+        ).values(
+            'Sale_Id_id', 'Company_Name','Category', 'Product_Name', 'Size', 'Unit', 'Batch_No', 'Quantity', 'Retail_Price'
+        ).first()
+
+        # Fetch related Price Info (based on Sale_Id only)
+		price = Sales_Price_Info.objects.filter(
+            Sale_Id_id=sale_id
+        ).values('Additions', 'Deductions').first()
+
+        # Fetch related Invoice Info (based on Sale_Id only)
+		invoice = Sales_Invoice_Info.objects.filter(
+            Sale_Id=sale_id
+        ).values('Sale_Date').first()
+        
+		total_quantity = total_quantity_dict.get(sale_id, None)
+		if product:
+			combined_item = {
+                'Sale_Id_id': sale_id,
+                'created_at': invoice['Sale_Date'].strftime('%d-%m-%y') if invoice else '',\
+				'Company_Name': product['Company_Name'],
+				'Category': product['Category'],
+                'Product_Name': product['Product_Name'],
+                'Size': product['Size'],
+                'Unit': product['Unit'],
+                'Batch_No': product['Batch_No'],
+                'Quantity': product['Quantity'],
+                'Return_Quantity': item['return_quantity'],
+                'Retail_Price': round(product.get('Retail_Price')*item['return_quantity'],2),
+                'Additions': round((price['Additions']/total_quantity)* item['return_quantity'],2)  if price else None,
+                'Deductions': round((price['Deductions']/total_quantity)* item['return_quantity'],2) if price else None
+            }
+			selected_items.append(combined_item)
+
+	return JsonResponse({'selected_items': selected_items})
+
+@login_required
+def Sales_return_invoice_add(request):
+	if request.method == 'POST':
+		request_type = request.POST.get('request_type', '')
+		
+		# ✅ **Cache Update: Do not insert into DB**
+		if request_type == "cache":
+			sale_return_id = request.POST.get('Sale_Return_Id')
+			sale_return_date = request.POST.get('Sale_Return_Date')
+			customer_name = request.POST.get('Customer_Name')
+			address = request.POST.get('Address')
+			mobile_no = request.POST.get('Mobile_No')
+			city = request.POST.get('City')
+
+			cached_invoice = cache.get('Sale_return_invoice', {})
+			cached_invoice.update({
+			    'Sale_Id': sale_return_id,
+			    'Sale_Return_Id': sale_return_id,
+			    'Sale_Return_Date': sale_return_date,
+			    'Customer_Name': customer_name,
+			    'Address': address,
+			    'Mobile_No': mobile_no,
+			    'City': city
+			})
+
+			cache.set('Sale_return_invoice', cached_invoice, timeout=3600)
+			return JsonResponse({'status': 'cached', 'invoice_cache': cached_invoice})
+
+		# ✅ **Final Submission: Insert into DB**
+		elif request_type == "submit":
+			sale_return_id = request.POST.get('Sale_Return_Id')
+
+			if Sales_Return_Invoice_Info.objects.filter(Sale_Return_Id=sale_return_id).exists():
+				return JsonResponse({'status': 'error', 'message': 'Invoice already submitted!'}, status=400)
+
+			sale_return_date = request.POST.get('Sale_Return_Date')
+			customer_name = request.POST.get('Customer_Name')
+			address = request.POST.get('Address')
+			mobile_no = request.POST.get('Mobile_No')
+			city = request.POST.get('City')
+
+			# **Fetch selected items properly**
+			try:
+				selected_items = json.loads(request.POST.get('selected_items', '[]'))
+				print(selected_items)
+			except json.JSONDecodeError:
+				return JsonResponse({'status': 'error', 'message': 'Invalid selected items format'}, status=400)
+
+			if not selected_items:
+				return JsonResponse({'status': 'error', 'message': 'No items selected!'}, status=400)
+
+			# Create Sales_Return_Invoice_Info record
+			invoice = Sales_Return_Invoice_Info.objects.create(
+			    Sale_Return_Id=sale_return_id,
+			    Sale_Return_Date=sale_return_date,
+			    Customer_Name=customer_name,
+			    Address=address,
+			    Mobile_No=mobile_no,
+			    City=city,
+			    Editable=0
+			)
+
+			product_records = []
+			for index, item in enumerate(selected_items, start=1):
+				combo_pk_id = f"{sale_return_id}_{item['product_name']}_{item['batch_no']}_{item['size']}{item['unit']}"
+				combo_id = f"{item['product_name']}_{item['batch_no']}_{item['size']}_{item['unit']}"
+
+				product_records.append(Sales_Return_Product_Info(
+			        Id=index,
+			        Sale_Return_Id=invoice,
+			        Sale_Id=item['sale_id_id'],
+			        Company_Name=item['company_name'],
+			        Category=item['category'],
+			        Product_Name=item['product_name'],
+			        Batch_No=item['batch_no'],
+			        Size=item['size'],
+			        Unit=item['unit'],
+			        Purchased_Quantity=item['purchased_quantity'],
+			        Returned_Quantity=item['return_quantity'],
+			        Total_Retail_price=item['total_retail_price'],
+			        Combo_Pk_Id=combo_pk_id,
+			        Combo_Id=combo_id
+			    ))
+
+			Sales_Return_Product_Info.objects.bulk_create(product_records)
+
+			Sales_Return_Price_Info.objects.create(
+			    Sale_Return_Id=invoice,
+			    Aggregate_Return_Amount=request.POST.get('Aggregate_Return_Amount'),
+			    Additions=request.POST.get('Additions'),
+			    Deductions=request.POST.get('Deductions'),
+			    Revised_Amount=request.POST.get('Revised_Amount'),
+			    Comments=request.POST.get('Comments')
+			)
+
+			# ✅ **Update Inventory**
+			for item in selected_items:
+				combo_id = f"{item['product_name']}_{item['batch_no']}_{item['size']}_{item['unit']}"
+				try:
+					inventory_record = inventory.objects.get(Combo_Id=combo_id)
+					inventory_record.Quantity += int(item['return_quantity'])
+					inventory_record.save()
+				except inventory.DoesNotExist:
+					pass  # Handle missing inventory records gracefully
+
+			return JsonResponse({'status': 'success'})
+
+	invoice_form = Sales_RI_InvoiceForm()
+	sales_invoice_form = Sales_InvoiceForm()
+	price_form = Sales_RI_PriceForm()
+
+	last_invoice = Sales_Return_Invoice_Info.objects.order_by('-Sale_Return_Id').first()
+	Sale_Return_Id = 1 if last_invoice is None else (last_invoice.Sale_Return_Id) + 1
+
+	invoice_cache = cache.get('Sale_return_invoice', {})
+
+	context = {
+	    'invoice_form': invoice_form,
+	    'sales_invoice_form': sales_invoice_form,
+	    'price_form': price_form,
+	    'Sale_Return_Id': Sale_Return_Id,
+	    'invoice_cache': invoice_cache
+	}
+	return render(request, 'Sales_invoice_return_add.html', context)
+
+
+def sale_return_invoice_record(request, pk):
+    if request.user.is_authenticated:
+        Sales_Invoice_return_records = Sales_Return_Invoice_Info.objects.get(Sale_Return_Id = pk)
+        Sales_Product_return_records = Sales_Return_Product_Info.objects.filter(Sale_Return_Id_id = pk).order_by('Id')
+        Sales_Price_return_records = Sales_Return_Price_Info.objects.get(Sale_Return_Id = pk)
+        
+        context = {'Sales_Invoice_return_records':Sales_Invoice_return_records,
+			       'Sales_Product_return_records':Sales_Product_return_records,
+				   'Sales_Price_return_records':Sales_Price_return_records}
+        return render(request, 'Sales_invoice_return_record.html', context)
+    else:
+        messages.success(request, "You must be logged in..to view that page.")
+        return redirect('home')
+
+def sales_return_invoice_del(request,pk):
+	if request.user.is_authenticated:
+		Sale_Invoice_Del = Sales_Return_Invoice_Info.objects.get(Sale_Return_Id = pk)
+		Sale_Product_Del = Sales_Return_Product_Info.objects.filter(Sale_Return_Id_id = pk)
+		Sale_Purchase_Del = Sales_Return_Price_Info.objects.get(Sale_Return_Id = pk)
+		old_quant = Sales_Return_Product_Info.objects.filter(Sale_Return_Id_id = pk).values_list('Combo_Id','Returned_Quantity')
+		old_dict = [dict(zip(('Combo_Id','Returned_Quantity'),item)) for item in old_quant]
+		
+		Sale_Invoice_Del.delete()
+		Sale_Product_Del.delete()
+		Sale_Purchase_Del.delete()
+        
+		for product in old_dict:
+			inventory.objects.filter(Combo_Id = product['Combo_Id']).update(
+                                                                            Quantity = F('Quantity') - product['Returned_Quantity']
+                                                                            )
+		messages.success(request, f"{pk}'s {' Record has been deleted!'} ")
+		return redirect('Sales_Return_invoice')
+	else:
+		messages.success(request, 'You must be logged in!')
+		return redirect('home')
+
+
+def sales_return_invoice_update(request,pk):
+	if request.user.is_authenticated:
+		Sale_Return_Invoice_form = Sales_RI_InvoiceForm(request.POST or None, instance=Sales_Return_Invoice_Info.objects.get(Sale_Return_Id = pk))
+		sales_invoice_form = Sales_InvoiceForm()
+		mobile_no = Sales_Return_Invoice_Info.objects.get(Sale_Return_Id = pk).Mobile_No
+		
+		context = {
+            'invoice_form': Sale_Return_Invoice_form,
+			'sales_invoice_form': sales_invoice_form,
+			'mobile_no':mobile_no,
+        }
+		return render(request, 'Sales_invoice_return_update.html', context)

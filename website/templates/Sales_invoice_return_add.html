@@ -1,0 +1,595 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .error-border {
+        border: 2px solid red !important;
+    }
+    .error-message {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+</style>
+
+<h5>Sales Return Invoice</h5>
+<form id="invoiceForm" method="POST" action="{% url 'sales_return_invoice_add' %}">
+    {% csrf_token %}
+    <input type="hidden" name="action_type" id="action_type" value="add_update">
+    <input type="hidden" name="product_id" id="product_id" value="">
+    <input type="hidden" name="update_action" id="update_action" value="">
+
+    <div class = 'row' style = " background: radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%);; border-radius: 5px;padding: 5px;height:650px;">
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Sale_Return_Id.id_for_label}}"><b>{{invoice_form.Sale_Return_Id.label}}</b></label>
+            <input type="text" name="Sale_Return_Id" class="form-control" placeholder="Enter Sale Id" maxlength="255" readonly id="id_Sale_Return_Id" value="{{Sale_Return_Id}}">
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Sale_Return_Date.id_for_label}}"><b>{{invoice_form.Sale_Return_Date.label}}</b></label>
+            {{invoice_form.Sale_Return_Date}}
+        </div>
+
+        <div class = "col-4 col-md-3">
+            <label for = "{{ invoice_form.Mobile_No.id_for_label}}"><b>{{invoice_form.Mobile_No.label}}</b></label>
+            {{invoice_form.Mobile_No}}
+        </div>
+
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ invoice_form.Customer_Name.id_for_label}}"><b>{{invoice_form.Customer_Name.label}}</b></label>
+            {{invoice_form.Customer_Name}}
+        </div>
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ invoice_form.City.id_for_label}}"><b>{{invoice_form.City.label}}</b></label>
+            {{invoice_form.City}}
+        </div>
+        
+        <div class = "col-4 col-md-3 align-self">
+            <label for = "{{ invoice_form.Address.id_for_label}}"><b>{{invoice_form.Address.label}}</b></label>
+            {{invoice_form.Address}}
+        </div>
+
+        <div class="form-group">
+            <div>
+                <label><b>Filter by Invoice No</b></label>
+                {{ sales_invoice_form.Sale_Id}}
+            </div>
+        </div>
+
+        <p><b style="color:red">**</b>Only products purchased with in last 3 months will be allowed to be returned.</p>
+        <div class="table-responsive" style="overflow: scroll; height: 300px; margin-top: 20px; width: 100%; white-space: nowrap;">
+            <table class="table table-hover table-bordered" id="Product_Table" style="border-radius: 10px; overflow: hidden;">
+                <thead style="position: sticky; top: 0px; background-color: #28a745; color: #ffffff; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <th>Select</th>
+                    <th id="Invoice_No">Invoice No</th>
+                    <th>Sale Date</th>
+                    <th>Company Name</th>
+                    <th>Category</th>
+                    <th>Product</th>
+                    <th>Size</th>
+                    <th>Batch No</th>
+                    <th>Purchased Quantity</th>
+                    <th>Return Quantity</th>
+                </thead>
+                <tbody id="salesRecordsBody">
+                    <!-- Table rows will be populated via AJAX -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br>
+
+    <div class="table-responsive" style="overflow: scroll; height: 300px; margin-top: 20px; width: 100%; white-space: nowrap;">
+        <table class="table table-hover table-bordered" id="Selected_Items_Table" style="border-radius: 10px; overflow: hidden;">
+            <thead style="position: sticky; top: 0px; background-color: #007bff; color: #ffffff; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <th>Invoice No</th>
+                <th>Date</th>
+                <th>Company Name</th>
+                <th>Category</th>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Batch No</th>
+                <th>Purchased Quantity</th>
+                <th>Return Quantity</th>
+                <th>Total Retail Price</th>
+                <th>Additions</th>
+                <th>Deductions</th>
+            </thead>
+            <tbody id="selectedItemsBody">
+                <!-- Selected items will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <br><br>
+    <b>Price Summary:</b> 
+    <br><br>
+    <div class = 'row position-relative' style = "background: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); border-radius: 5px;padding: 5px;height: 300px;">
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Aggregate_Return_Amount.id_for_label}}"><b>{{price_form.Aggregate_Return_Amount.label}}</b></label>
+            <input type="text" name="Aggregate_Return_Amount" class="form-control" placeholder="Enter Aggregate Return Amount" maxlength="255" readonly id="id_Aggregate_Return_Amount">
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Additions.id_for_label}}"><b>{{price_form.Additions.label}}</b></label>
+            {{price_form.Additions}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Deductions.id_for_label}}"><b>{{price_form.Deductions.label}}</b></label>
+            {{price_form.Deductions}}
+        </div>
+        <div class = "col-4 col-md-3">
+            <label for = "{{ price_form.Revised_Amount.id_for_label}}"><b>{{price_form.Revised_Amount.label}}</b></label>
+            {{price_form.Revised_Amount}}
+        </div>
+        <div class="form-floating">
+            {{price_form.Comments}}
+            <label for="{{ price_form.Revised_Amount.id_for_label}}">{{price_form.Comments.label}}</label>
+          </div>
+       </div>
+       <br><br>
+       <button type="submit" class="btn btn-success" id="updateButton">Submit</button>
+       <a href="{}" class="btn btn-secondary">Back</a>
+       <br><br><br><br>
+</form>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <!-- Ensure Select2 is loaded -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script>
+const relevantFields = document.querySelectorAll('#id_Sale_Return_Id, #id_Sale_Return_Date, #id_Mobile_No, #id_Customer_Name, #id_Address, #id_City, #id_Sale_Id');
+relevantFields.forEach(function(field) {
+field.addEventListener('click', function() {
+        updateInvoiceData();  // Update cache when any of these fields change
+    });
+    });
+//Function to send all invoice form data to the backend via AJAX
+
+
+
+
+// Function to format date in YYYY-MM-DD format
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function fetchCustomerDetails() {
+        var MobileNo = $('#id_Mobile_No').val();
+
+        if (MobileNo) {
+            $.ajax({
+                url: '{% url "get_customer_details" %}',
+                data: {
+                    'MobileNo': MobileNo,
+                },
+                success: function(data) {
+                    if (data.Name !== null) {
+                        $('#id_Customer_Name').val(data.Name);
+                    } else {
+                        $('#id_Customer_Name').val(''); // Clear the field if no data found
+                    }
+
+                    if (data.address !== null) {
+                        $('#id_Address').val(data.address);
+                    } else {
+                        $('#id_Address').val(''); // Clear the field if no data found
+                    }
+
+                    if (data.city !== null) {
+                        $('#id_City').val(data.city);
+                    } else {
+                        $('#id_City').val(''); // Clear the field if no data found
+                    }
+                }
+            });
+        }
+    }
+
+    // Initialize the Select2 for Mobile No field
+    function initializePhoneNoSelect2(selector) {
+        console.log("Initializing Select2 for selector:", selector);
+        $(selector).select2({
+            ajax: {
+                url: "{% url 'ajax_load_mobile_no' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("AJAX request params:", params);
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function (data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: $.map(data, function (item) {
+                            return { id: String(item.phone), text: String(item.phone) };  // Convert phone to string
+                        })
+                    };
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error in AJAX request:", error);
+                }
+            },
+            placeholder: 'Mobile No',
+            minimumInputLength: 1,
+            width: 'resolve'
+        })
+    }
+
+$(document).ready(function () {
+    console.log("Document is ready. Initializing Select2.");
+    initializePhoneNoSelect2('#id_Mobile_No');
+    
+    // Mobile number selection
+    $('#id_Mobile_No').on('select2:select', function (e) {
+        var mobileNo = $(this).val();
+        fetchCustomerDetails();
+        fetchSalesRecords(mobileNo, $('#id_Sale_Id').val());
+    });
+
+    // Add event listener for Sale_Id input
+    $('#id_Sale_Id').on('change', function() {
+        var mobileNo = $('#id_Mobile_No').val();
+        var saleId = $(this).val();
+        fetchSalesRecords(mobileNo, saleId);
+    });
+
+    // Populate table on page load if there's a cached mobile number
+    var cachedMobileNo = "{{ invoice_cache.Mobile_No|escapejs }}";
+    var cachedSaleId = "{{ invoice_cache.Sale_Id|escapejs }}";
+    if (cachedMobileNo) {
+        fetchSalesRecords(cachedMobileNo, cachedSaleId);
+    }
+
+    // Add event delegation for return quantity inputs
+    $(document).on('input', '.return-quantity', function() {
+        validateReturnQuantity(this);
+        updateSelectedItems();
+    });
+
+    // Prevent decimal input
+    $(document).on('keypress', '.return-quantity', function(e) {
+        // Allow only numbers (0-9), backspace (8), and enter (13)
+        const allowedKeys = [8, 13, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57];
+        if (!allowedKeys.includes(e.which)) {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('change', '.select-item', function() {
+        updateSelectedItems();
+    });
+});
+
+function updateInvoiceData() {
+    const invoiceData = {
+        request_type: "cache", // 🟢 Indicate this is only for caching
+        Sale_Return_Id: $('#id_Sale_Return_Id').val(),
+        Sale_Return_Date: $('#id_Sale_Return_Date').val(),
+        Customer_Name: $('#id_Customer_Name').val(),
+        Address: $('#id_Address').val(),
+        Mobile_No: $('#id_Mobile_No').val(),
+        City: $('#id_City').val(),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+    };
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url "sales_return_invoice_add" %}',
+        data: invoiceData,
+        success: function(response) {
+            console.log('Invoice cached successfully:', response);
+        },
+        error: function(error) {
+            console.log('Error updating invoice cache:', error);
+        }
+    });
+}
+
+// Function to fetch sales records via AJAX
+function fetchSalesRecords(mobileNo,saleId = '') {
+    if (mobileNo) {
+        $.ajax({
+            url: '{% url "get_sales_records" %}',  // We'll create this endpoint
+            type: 'GET',
+            data: {
+                'mobile_no': mobileNo,
+                'sale_id': saleId
+            },
+            success: function(response) {
+                updateSalesTable(response.sales_records);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching sales records:', error);
+            }
+        });
+    }
+}
+
+// Function to update the table with sales records
+function updateSalesTable(salesRecords) {
+    const tbody = $('#salesRecordsBody');
+    tbody.empty();
+    
+    if (salesRecords && salesRecords.length > 0) {
+        salesRecords.forEach(function(record, index) {
+            const row = `
+                <tr>
+                    <td><input type="checkbox" class="select-item" name="selectItem" data-index="${index}"></td>
+                    <td>${record.Sale_Id_id}</td>
+                    <td>${record.created_at}</td>
+                    <td>${record.Company_Name}</td>
+                    <td>${record.Category}</td>
+                    <td>${record.Product_Name}</td>
+                    <td>${record.Size} ${record.Unit}</td>
+                    <td>${record.Batch_No}</td>
+                    <td class="purchased-quantity">${record.Quantity}</td>
+                    <td>
+                        <input type="number" class="return-quantity form-control" 
+                                                       min="0" max="5" value="0" step="1"
+                                                       data-purchased="${record.Quantity}"
+                                                       data-index="${index}">
+                        <div class="error-message" id="error-${index}"></div>
+                    </td>
+                </tr>
+            `;
+            tbody.append(row);
+            validateReturnQuantity($(`.return-quantity[data-index="${index}"]`)[0]);
+        });
+    } else {
+        tbody.append('<tr><td colspan="8">No sales records found</td></tr>');
+    }
+}
+
+function validateReturnQuantity(input) {
+    const $input = $(input);
+    let returnQty = parseInt($input.val()) || 0;
+    $input.val(returnQty);
+    
+    const purchasedQty = parseInt($input.data('purchased'));
+    const index = $input.data('index');
+    const $errorDiv = $(`#error-${index}`);
+    const $checkbox = $(`.select-item[data-index="${index}"]`);
+
+    if (returnQty > purchasedQty) {
+        $input.addClass('error-border');
+        $errorDiv.text(`Return quantity cannot exceed purchased quantity (${purchasedQty})`);
+        $errorDiv.show();
+        $checkbox.prop('disabled', true).prop('checked', false); // Disable + uncheck
+    } else if (returnQty === 0) {
+        $input.removeClass('error-border');
+        $errorDiv.hide();
+        $checkbox.prop('disabled', true).prop('checked', false); // Disable + uncheck if qty is 0
+    } else {
+        $input.removeClass('error-border');
+        $errorDiv.hide();
+        $checkbox.prop('disabled', false); // Enable checkbox if valid
+        $checkbox.prop('checked', true);
+    }
+}
+
+function updateSelectedItems() {
+    const selectedItems = [];
+    $('.select-item:checked').each(function() {
+        const $row = $(this).closest('tr');
+        const returnQty = parseInt($row.find('.return-quantity').val()) || 0;
+        
+        if (returnQty > 0) {
+            // Extract size and unit separately
+            const sizeUnit = $row.find('td:eq(6)').text().trim().split(' ');  // "1 Kg" --> ["1", "Kg"]
+
+            selectedItems.push({
+                sale_id_id: $row.find('td:eq(1)').text().trim(),
+                product_name: $row.find('td:eq(5)').text().trim(),
+                size: sizeUnit[0],
+                unit: sizeUnit[1],
+                batch_no: $row.find('td:eq(7)').text().trim(),
+                return_quantity: returnQty
+            });
+        }
+    });
+
+    if (selectedItems.length > 0) {
+        $.ajax({
+            url: '{% url "get_selected_items_details" %}',
+            type: 'POST',
+            data: {
+                'items': JSON.stringify(selectedItems),
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                populateSelectedItemsTable(response.selected_items);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching selected items:', error);
+            }
+        });
+    } else {
+        populateSelectedItemsTable([]);
+    }
+}
+
+function populateSelectedItemsTable(items) {
+    const tbody = $('#selectedItemsBody');
+    tbody.empty();
+    
+    let totalRetail = 0;
+    let totalAdditions = 0;
+    let totalDeductions = 0;
+
+    if (items && items.length > 0) {
+        items.forEach(function(item) {
+            const retailPrice = parseFloat(item.Retail_Price || 0);
+            const additions = parseFloat(item.Additions || 0);
+            const deductions = parseFloat(item.Deductions || 0);
+
+            totalRetail += retailPrice;
+            totalAdditions += additions;
+            totalDeductions += deductions;
+
+            const row = `
+                <tr>
+                    <td>${item.Sale_Id_id}</td>
+                    <td>${item.created_at}</td>
+                    <td>${item.Company_Name}</td>
+                    <td>${item.Category}</td>
+                    <td>${item.Product_Name}</td>
+                    <td>${item.Size} ${item.Unit}</td>
+                    <td>${item.Batch_No}</td>
+                    <td>${item.Quantity}</td>
+                    <td>${item.Return_Quantity}</td>
+                    <td>${retailPrice.toFixed(2)}</td>
+                    <td>${additions.toFixed(2)}</td>
+                    <td>${deductions.toFixed(2)}</td>
+                </tr>
+            `;
+            tbody.append(row);
+        });
+    } else {
+        tbody.append('<tr><td colspan="10">No items selected</td></tr>');
+    }
+
+    // Update Price Summary fields
+    $('#id_Aggregate_Return_Amount').val(totalRetail.toFixed(2));
+    $('#id_Additions').val(totalAdditions.toFixed(2));
+    $('#id_Deductions').val(totalDeductions.toFixed(2));
+    const revisedAmount = totalRetail + totalAdditions - totalDeductions;
+    $('#id_Revised_Amount').val(revisedAmount.toFixed(2));
+}
+
+$(document).ready(function() {
+    // When Additions, Deductions, or Revised Amount changes manually
+    $('#id_Additions, #id_Deductions, #id_Revised_Amount').on('input', function() {
+        autoAdjustFields();
+    });
+});
+
+function autoAdjustFields() {
+    const aggregate = parseFloat($('#id_Aggregate_Return_Amount').val()) || 0;
+    let additions = parseFloat($('#id_Additions').val()) || 0;
+    let deductions = parseFloat($('#id_Deductions').val()) || 0;
+    let revised = parseFloat($('#id_Revised_Amount').val()) || 0;
+
+    // Identify the active field being edited
+    const activeField = document.activeElement.id;
+
+    if (activeField === 'id_Additions' || activeField === 'id_Deductions') {
+        // If user modifies Additions or Deductions, adjust Revised Amount
+        revised = aggregate + additions - deductions;
+        $('#id_Revised_Amount').val(revised.toFixed(2));
+    } 
+    else if (activeField === 'id_Revised_Amount') {
+        // If user modifies Revised Amount, adjust Additions or Deductions
+        let newDifference = revised - aggregate;
+
+        if (newDifference > 0) {
+            // If Revised Amount is greater than Aggregate, adjust Additions
+            $('#id_Additions').val(newDifference.toFixed(2));
+            $('#id_Deductions').val(0);
+        } 
+        else {
+            // If Revised Amount is less than Aggregate, adjust Deductions
+            $('#id_Deductions').val(Math.abs(newDifference).toFixed(2));
+            $('#id_Additions').val(0);
+        }
+    }
+}
+
+
+// Maintaing values in the cache on the form.
+const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+const Sale_Return_Date = formatDate("{{ invoice_cache.Sale_Return_Date }}") || today;
+
+const Mobile_No = "{{invoice_cache.Mobile_No}}";
+const Customer_Name = "{{invoice_cache.Customer_Name}}";
+const Address = "{{invoice_cache.Address}}";
+const City = "{{invoice_cache.City}}";
+// const cachedExpectedPaymentDate = formatDate("{{ invoice_cache.Expected_Payment_Date }}") || today;
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('id_Sale_Return_Date').value = Sale_Return_Date;
+    document.getElementById('id_Customer_Name').value = Customer_Name;
+    document.getElementById('id_Address').value = Address;
+    document.getElementById('id_City').value = City;
+    var option = new Option(Mobile_No, Mobile_No, true, true);
+    $('#id_Mobile_No').append(option).trigger('change');
+
+
+    // document.getElementById('id_Additions').value = '0';
+    // document.getElementById('id_Deductions').value = '0';
+    
+
+    // Set default value for Comments
+    // document.getElementById('id_Comments').value = 'NA';
+})
+
+$('#updateButton').on('click', function(e) {
+    e.preventDefault(); // Prevent default form submission
+
+    let selectedItems = [];
+    $('#selectedItemsBody tr').each(function() {
+        let row = $(this);
+        let returnQty = parseInt(row.find('td:eq(8)').text()) || 0; // Ensure return quantity is > 0
+        if (returnQty > 0) {
+            selectedItems.push({
+                sale_id_id: row.find('td:eq(0)').text().trim(),
+                company_name: row.find('td:eq(2)').text().trim(),
+                category: row.find('td:eq(3)').text().trim(),
+                product_name: row.find('td:eq(4)').text().trim(),
+                batch_no: row.find('td:eq(6)').text().trim(),
+                size: row.find('td:eq(5)').text().trim().split(' ')[0],  // Extract size
+                unit: row.find('td:eq(5)').text().trim().split(' ')[1],  // Extract unit
+                purchased_quantity: row.find('td:eq(7)').text().trim(),
+                return_quantity: returnQty,
+                total_retail_price: row.find('td:eq(9)').text().trim()
+            });
+        }
+    });
+
+    // Check if there are selected items
+    if (selectedItems.length === 0) {
+        alert("No items selected for return.");
+        return;
+    }
+
+    let formData = {
+        request_type: "submit", // Indicate this is the final submission
+        Sale_Return_Id: $('#id_Sale_Return_Id').val(),
+        Sale_Return_Date: $('#id_Sale_Return_Date').val(),
+        Customer_Name: $('#id_Customer_Name').val(),
+        Address: $('#id_Address').val(),
+        Mobile_No: $('#id_Mobile_No').val(),
+        City: $('#id_City').val(),
+        Aggregate_Return_Amount: $('#id_Aggregate_Return_Amount').val(),
+        Additions: $('#id_Additions').val(),
+        Deductions: $('#id_Deductions').val(),
+        Revised_Amount: $('#id_Revised_Amount').val(),
+        Comments: $('#id_Comments').val(),
+        selected_items: JSON.stringify(selectedItems),  // 🟢 Ensure selected items are included!
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+    };
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url "sales_return_invoice_add" %}',
+        data: formData,
+        success: function(response) {
+            if (response.status === 'success') {
+                window.location.href = '{% url "Sales_Return_invoice" %}';
+            }
+        },
+        error: function(xhr) {
+            let response = xhr.responseJSON;
+            alert(response && response.message ? response.message : "An error occurred.");
+        }
+    });
+});
+</script>
+{% endblock %}

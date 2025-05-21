@@ -78,4 +78,15 @@ urlpatterns = [
 
     #Sales Invoice Update Urls
     path('sale_invoice_update/<slug:pk>',views.sale_invoice_update,name= 'sale_invoice_update'),
+
+    #Sales Return Invoice Urls
+    path('sale_return_invoice/',views.Sales_return_invoice_home,name = 'Sales_Return_invoice'),
+    path('sale_return_invoice_add/',views.Sales_return_invoice_add, name = 'sales_return_invoice_add'),
+    path('get_sales_records/', views.get_sales_records, name='get_sales_records'),
+    path('get_selected_items_details/', views.get_selected_items_details, name='get_selected_items_details'),
+
+    #Sales Return Invoice Record Urls
+    path('sale_return_invoice_record/<slug:pk>',views.sale_return_invoice_record,name= 'sale_return_invoice_record'),
+    path('sale_return_invoice_del/<slug:pk>',views.sales_return_invoice_del,name = 'sales_return_invoice_del'),
+    path('sale_return_invoice_update/<slug:pk>',views.sales_return_invoice_update,name= 'sale_return_invoice_update'),
 ]

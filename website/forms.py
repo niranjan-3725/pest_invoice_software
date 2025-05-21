@@ -575,3 +575,60 @@ class Sales_PriceForm(forms.ModelForm):
 			self.fields['Additions'].required = False
 			self.fields['Deductions'].required = False
 			self.fields['Comments'].required = False
+
+class Sales_RI_InvoiceForm(forms.ModelForm):
+	class Meta:
+		model = Sales_Return_Invoice_Info
+		fields = ['Sale_Return_Id', 'Sale_Return_Date', 'Customer_Name', 'Address','Mobile_No','City']
+		widgets = {
+			'Sale_Return_Id':forms.TextInput(attrs={'class': 'form-control','placeholder': 'Enter Sale Id',}),
+			'Sale_Return_Date':forms.DateInput(attrs={'class':"form-control",'type':'date'}),
+			'Customer_Name': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Customer Name'}),
+			'Address': forms.TextInput(attrs={'class': 'form-control'}),
+			'Mobile_No': forms.Select(attrs={'class': 'form-control','placeholder': 'Mobile No'}),
+			'City': forms.TextInput(attrs={'class': 'form-control'})
+		}
+
+		labels ={
+			'Sale_Return_Id': 'Sale Return Id',
+			'Sale_Return_Date' : 'Sale Return Date',
+			'Customer_Name': 'Customer Name',
+			'Address': 'Address',
+			'Mobile_No': 'Mobile No'
+			}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Mobile_No'].queryset = Company.objects.all()
+
+class Sales_RI_PriceForm(forms.ModelForm):
+	class Meta:
+		model = Sales_Return_Price_Info
+		fields = [
+			# 'Invoice_Id',
+			'Aggregate_Return_Amount',
+			'Additions',
+			'Deductions',
+			'Revised_Amount',
+			'Comments',
+		]
+		widgets = {
+			# 'Invoice_Id': forms.TextInput(attrs={'class': 'form-control'}),
+			'Aggregate_Return_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Additions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Deductions': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Revised_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+			'Comments': forms.Textarea(attrs={'class':'form-control','placeholder':"Leave a comment here" ,'style':"height: 100px"})
+		}
+		labels = {
+			# 'Invoice_Id': 'Invoice Id',
+			'Aggregate_Return_Amount': "Aggregate Amount" ,
+			'Additions' : "Additions",
+			'Deductions' :"Deductions",
+			'Revised_Amount': 'Revised Amount',
+			'Comments': " Comments"
+		}
+		def __init__(self,*args,**kwargs):
+			super().__init__(*args,**kwargs)
+			self.fields['Additions'].required = False
+			self.fields['Deductions'].required = False
+			self.fields['Comments'].required = False
